@@ -1,17 +1,18 @@
 variables:
   security_group: ""
   subnet: ""
+  public_ip: "false"
 
   # Treat this similar to a ABUILD pkgrel variable and increment with every
   # release. Packer will notice an exiting AMI at build start and fail unless
   # it is rmoved. To prevent a period of time where no Alpine AMI exists,
   # create a new variant. Old AMIs should be pruned at some point.
-  ami_release: "2"
+  ami_release: "0"
 
   # Overriding this requires validating that the installation script still
   # works as expected. It probably does but stuff changes between major
   # version.
-  alpine_release: "3.7"
+  alpine_release: "3.8"
 
   # Don't override this without a good reason and if you do just make sure it
   # gets passed all the way through to the make_ami script
@@ -26,17 +27,18 @@ builders:
     subnet_id: "{{user `subnet`}}"
 
     # Input Instance Setting
-    instance_type: "t2.micro"
+    instance_type: "t2.nano"
     launch_block_device_mappings:
       - volume_type: "gp2"
         device_name: "{{user `volume_name`}}"
         delete_on_termination: true
-        volume_size: 5
+        volume_size: 1
+    associate_public_ip_address: "{{user `public_ip`}}"
 
     # Output AMI Settings
     ena_support: true
-    ami_name: "Alpine-{{user `alpine_release`}}-r{{user `ami_release`}}-Hardened-EC2"
-    ami_description: "Alpine Linux {{user `alpine_release`}}-r{{user `ami_release`}} Release with Hardened Kernel and EC2 Optimizations"
+    ami_name: "Alpine-{{user `alpine_release`}}-r{{user `ami_release`}}-EC2"
+    ami_description: "Alpine Linux {{user `alpine_release`}}-r{{user `ami_release`}} Release with EC2 Optimizations"
     ami_groups:
       - "all"
     ami_virtualization_type: "hvm"
@@ -49,9 +51,10 @@ builders:
       - eu-central-1
       - eu-west-1
       - eu-west-2
-#      - eu-west-3
+      - eu-west-3
       - ap-northeast-1
       - ap-northeast-2
+#      - ap-northeast-3
       - ap-southeast-1
       - ap-southeast-2
       - ap-south-1
@@ -60,7 +63,7 @@ builders:
       source_device_name: "{{user `volume_name`}}"
       device_name: "/dev/xvda"
       delete_on_termination: true
-      volume_size: 5
+      volume_size: 1
       volume_type: "gp2"
 
     # Use the most recent Amazon Linux AMI as our base

@@ -3,11 +3,11 @@
 
 set -eu
 
-: ${ALPINE_RELEASE:="3.7"} # not tested against edge
-: ${APK_TOOLS_URI:="https://github.com/alpinelinux/apk-tools/releases/download/v2.8.0/apk-tools-2.8.0-x86_64-linux.tar.gz"}
-: ${APK_TOOLS_SHA256:="da21cefd2121e3a6cd4e8742b38118b2a1132aad7f707646ee946a6b32ee6df9"}
-: ${ALPINE_KEYS:="http://dl-cdn.alpinelinux.org/alpine/v3.7/main/x86_64/alpine-keys-2.1-r1.apk"}
-: ${ALPINE_KEYS_SHA256:="7b2d1e9a00324c8eee49785dc22355be02534201e77473ba9762027e1a475cc7"}
+: ${ALPINE_RELEASE:="3.8"} # not tested against edge
+: ${APK_TOOLS_URI:="https://github.com/alpinelinux/apk-tools/releases/download/v2.10.0/apk-tools-2.10.0-x86_64-linux.tar.gz"}
+: ${APK_TOOLS_SHA256:="77f2d256fcd5d6fdafadf43bb6a9c85c3da7bb471ee842dcd729175235cb9fed"}
+: ${ALPINE_KEYS:="http://dl-cdn.alpinelinux.org/alpine/v3.8/main/x86_64/alpine-keys-2.1-r1.apk"}
+: ${ALPINE_KEYS_SHA256:="f7832b848cedca482b145011cf516e82392f02a10713875cb09f39c7221c6f17"}
 
 die() {
 	printf '\033[1;31mERROR:\033[0m %s\n' "$@" >&2  # bold red
@@ -73,34 +73,12 @@ make_filesystem() {
 setup_repositories() {
 	local target="$1" # target directory
 
+  # NOTE: we only need @testing for aws-ena-driver-vanilla, this can be removed if/when released
 	mkdir -p "$target"/etc/apk/keys
 	cat > "$target"/etc/apk/repositories <<-EOF
 	http://dl-cdn.alpinelinux.org/alpine/v$ALPINE_RELEASE/main
 	http://dl-cdn.alpinelinux.org/alpine/v$ALPINE_RELEASE/community
-	EOF
-}
-
-# This is mostly a temporary measure because some required packages have not
-# yet been accepted upstream. This can be removed when the following pull
-# requests are merged:
-#
-# - https://github.com/alpinelinux/aports/pull/2962
-# - https://github.com/alpinelinux/aports/pull/2961
-setup_staging_repos() {
-	local target="$1" # target directory
-
-	echo "https://mcrute-build-artifacts.s3.us-west-2.amazonaws.com/alpine-packages/$ALPINE_RELEASE/testing" >> "$target"/etc/apk/repositories
-
-	cat > "$target"/etc/apk/keys/mcrute-5a3eecec.rsa.pub  <<-EOF
-	-----BEGIN PUBLIC KEY-----
-	MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5fW5dyTqgs9Yf93xKn5U
-	cYzY9t//M3TAaiDWH7rFxqBqTGnVGkP9QAGqsbXyoo/JpIalazkOfm/1L+XaK7NI
-	IUD/8KxfrnBW53cc/KOkPcGAga36aTBz/HmLQQvjWcizPxWepjdfvAnRTMV69Oud
-	zaRPGKx8nCRqLy1YFAEXn+zpHRh+OHCzzQFlkJop+2PCXqDFaMWC7+oWwrqFs1i0
-	CXc4pq5oT6vAQyt6pUwN85sLVxtxXSt5G5ALYzQtaIj7IAR3jGlwU26wOAv5YP7z
-	xn/Z1ebQsPbAl3rw48v2T2ohPEX2TUtUq4OuwOG+z1pi3woIGOlOFVAP3k6lm8Z9
-	9QIDAQAB
-	-----END PUBLIC KEY-----
+	@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing
 	EOF
 }
 
@@ -131,19 +109,19 @@ install_core_packages() {
 	# Most from: https://git.alpinelinux.org/cgit/alpine-iso/tree/alpine-virt.packages
 	#
 	# acct - installed by some configurations, so added here
-	# aws-ena-driver-hardened - required for ENA enabled instances
+	# aws-ena-driver-vanilla - required for ENA enabled instances (still in edge/testing)
 	# e2fsprogs - required by init scripts to maintain ext4 volumes
-	# linux-hardened - can't use virthardened because it's missing NVME support
+	# linux-vanilla - can't use virt because it's missing NVME support
 	# mkinitfs - required to build custom initfs
 	# sudo - to allow alpine user to become root, disallow root SSH logins
 	# tiny-ec2-bootstrap - to bootstrap system from EC2 metadata
 	chroot "$target" apk --no-cache add \
 		acct \
 		alpine-mirrors \
-		aws-ena-driver-hardened \
+		aws-ena-driver-vanilla@testing \
 		chrony \
 		e2fsprogs \
-		linux-hardened \
+		linux-vanilla \
 		mkinitfs \
 		openssh \
 		sudo \
@@ -166,7 +144,6 @@ create_initfs() {
 	local target="$1"
 
 	# Create ENA feature for mkinitfs
-	# Submitted upstream: https://github.com/alpinelinux/mkinitfs/pull/19
 	echo "kernel/drivers/net/ethernet/amazon" > \
 		"$target"/etc/mkinitfs/features.d/ena.modules
 
@@ -309,8 +286,6 @@ main() {
 
 	einfo "Fetching Alpine signing keys"
 	fetch_keys "$target"
-
-	setup_staging_repos "$target"
 
 	einfo "Installing base system"
 	$apk add --root "$target" --update-cache --initdb alpine-base
