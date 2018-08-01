@@ -1,9 +1,9 @@
 #!/bin/sh
-# vim:set ts=4:
+# vim: set ts=4 noet:
 
 set -eu
 
-: ${ALPINE_RELEASE:="3.8"} # not tested against edge
+: ${ALPINE_RELEASE:="3.8"}  # not tested against edge
 : ${APK_TOOLS_URI:="https://github.com/alpinelinux/apk-tools/releases/download/v2.10.0/apk-tools-2.10.0-x86_64-linux.tar.gz"}
 : ${APK_TOOLS_SHA256:="77f2d256fcd5d6fdafadf43bb6a9c85c3da7bb471ee842dcd729175235cb9fed"}
 : ${ALPINE_KEYS:="http://dl-cdn.alpinelinux.org/alpine/v3.8/main/x86_64/alpine-keys-2.1-r1.apk"}
@@ -19,9 +19,9 @@ einfo() {
 }
 
 rc_add() {
-	local target="$1"; shift # target directory
+	local target="$1"; shift    # target directory
 	local runlevel="$1"; shift  # runlevel name
-	local services="$*"  # names of services
+	local services="$*"         # names of services
 
 	local svc; for svc in $services; do
 		mkdir -p "$target"/etc/runlevels/$runlevel
@@ -31,9 +31,9 @@ rc_add() {
 }
 
 wgets() (
-	local url="$1" # url to fetch
-	local sha256="$2" # expected SHA256 sum of output
-	local dest="$3" # output path and filename
+	local url="$1"     # url to fetch
+	local sha256="$2"  # expected SHA256 sum of output
+	local dest="$3"    # output path and filename
 
 	wget -T 10 -q -O "$dest" "$url"
 	echo "$sha256  $dest" | sha256sum -c > /dev/null
@@ -41,7 +41,7 @@ wgets() (
 
 
 validate_block_device() {
-	local dev="$1" # target directory
+	local dev="$1"  # target directory
 
 	lsblk -P --fs "$dev" >/dev/null 2>&1 || \
 		die "'$dev' is not a valid block device"
@@ -62,8 +62,8 @@ fetch_apk_tools() {
 }
 
 make_filesystem() {
-	local device="$1" # target device path
-	local target="$2" # mount target
+	local device="$1"  # target device path
+	local target="$2"  # mount target
 
 	mkfs.ext4 "$device"
 	e2label "$device" /
@@ -71,15 +71,15 @@ make_filesystem() {
 }
 
 setup_repositories() {
-	local target="$1" # target directory
+	local target="$1"     # target directory
+	local add_repos="$2"  # extra repo lines, comma separated
 
-  # NOTE: we only need @testing for aws-ena-driver-vanilla, this can be removed if/when released
 	mkdir -p "$target"/etc/apk/keys
 	cat > "$target"/etc/apk/repositories <<-EOF
 	http://dl-cdn.alpinelinux.org/alpine/v$ALPINE_RELEASE/main
 	http://dl-cdn.alpinelinux.org/alpine/v$ALPINE_RELEASE/community
-	@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing
 	EOF
+	echo "$add_repos" | tr , "\012" >> "$target"/etc/apk/repositories
 }
 
 fetch_keys() {
@@ -99,45 +99,44 @@ setup_chroot() {
 	mount --bind /sys "$target"/sys
 
 	# Don't want to ship this but it's needed for bootstrap. Will be removed in
-	# the cleanup stage. 
+	# the cleanup stage.
 	install -Dm644 /etc/resolv.conf "$target"/etc/resolv.conf
 }
 
 install_core_packages() {
-	local target="$1"
+	local target="$1"    # target directory
+	local flavor="$2"    # kernel flavor
+	local add_pkgs="$3"  # extra packages, space separated
 
 	# Most from: https://git.alpinelinux.org/cgit/alpine-iso/tree/alpine-virt.packages
 	#
-	# acct - installed by some configurations, so added here
-	# aws-ena-driver-vanilla - required for ENA enabled instances (still in edge/testing)
+	# linux-$flavor - linux kernel flavor to install
 	# e2fsprogs - required by init scripts to maintain ext4 volumes
-	# linux-vanilla - can't use virt because it's missing NVME support
 	# mkinitfs - required to build custom initfs
 	# sudo - to allow alpine user to become root, disallow root SSH logins
 	# tiny-ec2-bootstrap - to bootstrap system from EC2 metadata
 	chroot "$target" apk --no-cache add \
-		acct \
+		linux-"$flavor" \
 		alpine-mirrors \
-		aws-ena-driver-vanilla@testing \
 		chrony \
 		e2fsprogs \
-		linux-vanilla \
 		mkinitfs \
 		openssh \
 		sudo \
 		tiny-ec2-bootstrap \
-		tzdata
+		tzdata \
+		$add_pkgs
 
 	chroot "$target" apk --no-cache add --no-scripts syslinux
 
-    # Disable starting getty for physical ttys because they're all inaccessible
-    # anyhow. With this configuration boot messages will still display in the
-    # EC2 console.
-    sed -Ei '/^tty\d/s/^/#/' /etc/inittab
+	# Disable starting getty for physical ttys because they're all inaccessible
+	# anyhow. With this configuration boot messages will still display in the
+	# EC2 console.
+	sed -Ei '/^tty\d/s/^/#/' /etc/inittab
 
-    # Make it a little more obvious who is logged in by adding username to the
-    # prompt
-    sed -i "s/^export PS1='/&\\\\u@/" /etc/profile
+	# Make it a little more obvious who is logged in by adding username to the
+	# prompt
+	sed -i "s/^export PS1='/&\\\\u@/" /etc/profile
 }
 
 create_initfs() {
@@ -165,10 +164,10 @@ setup_extlinux() {
 	# Enable ext4 because the root device is formatted ext4
 	#
 	# Shorten timeout because EC2 has no way to interact with instance console
-    #
-    # ttyS0 is the target for EC2s "Get System Log" feature whereas tty0 is the
-    # target for EC2s "Get Instance Screenshot" feature. Enabling the serial
-    # port early in extlinux gives the most complete output in the system log.
+	#
+	# ttyS0 is the target for EC2s "Get System Log" feature whereas tty0 is the
+	# target for EC2s "Get Instance Screenshot" feature. Enabling the serial
+	# port early in extlinux gives the most complete output in the system log.
 	sed -Ei -e "s|^[# ]*(root)=.*|\1=LABEL=/|" \
 		-e "s|^[# ]*(default_kernel_opts)=.*|\1=\"console=ttyS0 console=tty0\"|" \
 		-e "s|^[# ]*(serial_port)=.*|\1=ttyS0|" \
@@ -189,8 +188,8 @@ setup_fstab() {
 	local target="$1"
 
 	cat > "$target"/etc/fstab <<-EOF
-	# <fs>		<mountpoint>	<type>	<opts>				<dump/pass>
-	LABEL=/		/				ext4	defaults,noatime	1 1
+	# <fs>      <mountpoint>   <type>   <opts>              <dump/pass>
+	LABEL=/     /              ext4     defaults,noatime    1 1
 	EOF
 }
 
@@ -244,14 +243,14 @@ configure_ntp() {
 	# in EC2.
 	#
 	# See: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/set-time.html
-	sed -i 's/^server .*/server 169.254.169.123/' "$target"/etc/chrony/chrony.conf 
+	sed -i 's/^server .*/server 169.254.169.123/' "$target"/etc/chrony/chrony.conf
 }
 
 cleanup() {
 	local target="$1"
 
 	# Sweep cruft out of the image that doesn't need to ship or will be
-	# re-generated when the image boots 
+	# re-generated when the image boots
 	rm -f \
 		"$target"/var/cache/apk/* \
 		"$target"/etc/resolv.conf \
@@ -263,26 +262,30 @@ cleanup() {
 		"$target"/proc \
 		"$target"/sys
 
-	umount "$target" 
+	umount "$target"
 }
 
 main() {
-	[ "$#" -ne 1 ] && { echo "usage: $0 <block-device>"; exit 1; }
+	[ "$#" -ne 4 ] && { echo "usage: $0 <block-device> <kernel-flavor> '<repo>[,<repo>]' '<pkg>[ <pkg>]'"; exit 1; }
 
 	device="$1"
+	flavor="$2"
+	add_repos="$3"
+	add_pkgs="$4"
+
 	target="/mnt/target"
 
 	validate_block_device "$device"
 
-	[ -d "$target" ] || mkdir "$target" 
+	[ -d "$target" ] || mkdir "$target"
 
 	einfo "Fetching static APK tools"
 	apk="$(fetch_apk_tools)"
 
 	einfo "Creating root filesystem"
-	make_filesystem "$device" "$target" 
+	make_filesystem "$device" "$target"
 
-	setup_repositories "$target"
+	setup_repositories "$target" "$add_repos"
 
 	einfo "Fetching Alpine signing keys"
 	fetch_keys "$target"
@@ -293,7 +296,7 @@ main() {
 	setup_chroot "$target"
 
 	einfo "Installing core packages"
-	install_core_packages "$target"
+	install_core_packages "$target" "$flavor" "$add_pkgs"
 
 	einfo "Configuring and enabling boot loader"
 	create_initfs "$target"

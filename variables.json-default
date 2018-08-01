@@ -1,0 +1,22 @@
+{
+  "ami_release": "1",
+  "ami_name_prefix": "Alpine-",
+  "ami_name_suffix": "-EC2",
+  "ami_desc_prefix": "Alpine Linux ",
+  "ami_desc_suffix": " Release with EC2 Optimizations",
+  "kernel_flavor": "vanilla@edge-main",
+  "add_repos": "@edge-main http://dl-cdn.alpinelinux.org/alpine/edge/main,@edge-testing http://dl-cdn.alpinelinux.org/alpine/edge/testing",
+  "add_pkgs": "acct aws-ena-driver-vanilla@edge-testing",
+  "ena_enable": "true",
+  "sriov_enable": "false",
+  "volume_size": "1",
+  "ami_access": "all",
+  "deploy_regions": "us-east-1,us-east-2,us-west-1,us-west-2,ca-central-1,eu-central-1,eu-west-1,eu-west-2,eu-west-3,ap-northeast-1,ap-northeast-2,ap-southeast-1,ap-southeast-2,ap-south-1,sa-east-1",
+
+  "vpc": "",
+  "subnet": "",
+  "security_group": "",
+  "public_ip": "false",
+  "build_instance_type": "t2.nano",
+  "volume_name": "/dev/xvdf"
+}

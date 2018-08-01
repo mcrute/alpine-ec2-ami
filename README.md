@@ -50,9 +50,10 @@ its development and thus there are some sharp edges.
   hardware so it seems unlikely that they will be supported going forward. Thus
   this project does not support them.
 
-- The aws-ena-driver-vanilla package is still in edge/testing.  When it is
-  available in a release, the edge/testing repository can be removed from
-  /etc/apk/repositories.
+- The aws-ena-driver-vanilla package is still in edge/testing, and requires the
+  matching linux-vanilla package from edge/main.  When ENA is available in an
+  alpine version release, edge/testing and edge/main should no longer be
+  necessary.
 
 - [cloud-init](https://cloudinit.readthedocs.io/en/latest/) is not currently
   supported on Alpine Linux. Instead this image uses
