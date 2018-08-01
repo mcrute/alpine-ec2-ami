@@ -1,84 +1,59 @@
 variables:
-  security_group: ""
-  subnet: ""
-  public_ip: "false"
 
-  # Treat this similar to a ABUILD pkgrel variable and increment with every
-  # release. Packer will notice an exiting AMI at build start and fail unless
-  # it is rmoved. To prevent a period of time where no Alpine AMI exists,
-  # create a new variant. Old AMIs should be pruned at some point.
-  ami_release: "0"
+  # NOTE:  Additional configuration is set via the `variables.json` file.
+  # To use default values, simply `cp variables.json-default variables.json`.
+  # See `variables.json-example` for full configuration variable descriptions.
 
-  # Overriding this requires validating that the installation script still
-  # works as expected. It probably does but stuff changes between major
-  # version.
+  # NOTE:  Changing alpine_release requires modifying `make_ami.sh` -- don't
+  # override this in `variables.json`!
   alpine_release: "3.8"
 
-  # Don't override this without a good reason and if you do just make sure it
-  # gets passed all the way through to the make_ami script
-  volume_name: "/dev/xvdf"
 
 builders:
   - type: "amazon-ebssurrogate"
 
-    # Image is built inside a custom VPC so let Packer use the existing
-    # resources
-    security_group_id: "{{user `security_group`}}"
-    subnet_id: "{{user `subnet`}}"
+    ### Builder Instance Details
 
-    # Input Instance Setting
-    instance_type: "t2.nano"
+    vpc_id: "{{user `vpc`}}"
+    subnet_id: "{{user `subnet`}}"
+    security_group_id: "{{user `security_group`}}"
+    instance_type: "{{user `build_instance_type`}}"
+    associate_public_ip_address: "{{user `public_ip`}}"
     launch_block_device_mappings:
       - volume_type: "gp2"
         device_name: "{{user `volume_name`}}"
-        delete_on_termination: true
-        volume_size: 1
-    associate_public_ip_address: "{{user `public_ip`}}"
-
-    # Output AMI Settings
-    ena_support: true
-    ami_name: "Alpine-{{user `alpine_release`}}-r{{user `ami_release`}}-EC2"
-    ami_description: "Alpine Linux {{user `alpine_release`}}-r{{user `ami_release`}} Release with EC2 Optimizations"
-    ami_groups:
-      - "all"
-    ami_virtualization_type: "hvm"
-    ami_regions:
-      - us-east-1
-      - us-east-2
-      - us-west-1
-      - us-west-2
-      - ca-central-1
-      - eu-central-1
-      - eu-west-1
-      - eu-west-2
-      - eu-west-3
-      - ap-northeast-1
-      - ap-northeast-2
-#      - ap-northeast-3
-      - ap-southeast-1
-      - ap-southeast-2
-      - ap-south-1
-      - sa-east-1
-    ami_root_device:
-      source_device_name: "{{user `volume_name`}}"
-      device_name: "/dev/xvda"
-      delete_on_termination: true
-      volume_size: 1
-      volume_type: "gp2"
-
-    # Use the most recent Amazon Linux AMI as our base
+        delete_on_termination: "true"
+        volume_size: "{{user `volume_size`}}"
     ssh_username: "ec2-user"
     source_ami_filter:
+      # use the latest Amazon Linux AMI
       filters:
         virtualization-type: "hvm"
         root-device-type: "ebs"
         architecture: "x86_64"
         name: "amzn-ami-hvm-*-x86_64-gp2"
-      owners: 
+      owners:
         - "137112412989"
-      most_recent: true
+      most_recent: "true"
+
+    ### Built AMI Details
+
+    ami_name: "{{user `ami_name_prefix`}}{{user `alpine_release`}}-r{{user `ami_release`}}{{user `ami_name_suffix`}}"
+    ami_description: "{{user `ami_desc_prefix`}}{{user `alpine_release`}}-r{{user `ami_release`}}{{user `ami_desc_suffix`}}"
+    ami_virtualization_type: "hvm"
+    ami_root_device:
+      source_device_name: "{{user `volume_name`}}"
+      device_name: "/dev/xvda"
+      delete_on_termination: "true"
+      volume_size: "{{user `volume_size`}}"
+      volume_type: "gp2"
+    ena_support: "{{user `ena_enable`}}"
+    sriov_support: "{{user `sriov_enable`}}"
+    ami_groups: "{{user `ami_access`}}"
+    ami_regions: "{{user `deploy_regions`}}"
+
 
 provisioners:
   - type: "shell"
     script: "make_ami.sh"
-    execute_command: "sudo sh -c '{{ .Vars }} {{ .Path }} {{user `volume_name`}}'"
+    execute_command: 'sudo sh -c "{{ .Vars }} {{ .Path }} {{user `volume_name`}} {{user `kernel_flavor`}} ''{{user `add_repos`}}'' ''{{user `add_pkgs`}}''"'

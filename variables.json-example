@@ -1,0 +1,72 @@
+# NOTE: This is file not valid JSON.
+{
+  ### Build Options ###
+
+  # Treat similar to a ABUILD pkgrel variable and increment with every release.
+  "ami_release": "1",
+
+  # AMI name prefix and suffix
+  "ami_name_prefix": "Alpine-",
+  "ami_name_suffix": "-EC2",
+
+  # AMI description prefix and suffix
+  "ami_desc_prefix": "Alpine Linux ",
+  "ami_desc_suffix": " Release with EC2 Optimizations",
+
+  # Kernel "flavor" to install.  'virt' is a slim choice, but doesn't currently
+  # include NVME support and there is no matching 'aws-ena-driver' package.
+  # 'vanilla' installs a lot of unneeded stuff (for an AMI), but does support
+  # NVME; however, there is no matching ENA driver in the main repo.  In order
+  # to support NVME and ENA, we need to use 'vanilla@edge-main', which matches
+  # the 'aws-ena-driver@edge-testing' package.
+  "kernel_flavor": "vanilla@edge-main",
+
+  # Comma separated list of lines to add to /etc/apk/repositories.  We need
+  # edge/main and edge/testing for simultaneous NVME and ENA support.
+  "add_repos": "@edge-main http://dl-cdn.alpinelinux.org/alpine/edge/main,@edge-testing http://dl-cdn.alpinelinux.org/alpine/edge/testing",
+
+  # Space separated list of additional packages to add to the AMI.
+  # acct - system accounting utilities (sa, etc.)
+  # aws-ena-driver-vanilla - Enhanced Network Adapter kernel module
+  "add_pkgs": "acct aws-ena-driver-vanilla@edge-testing",
+
+  # Enable ENA/SRIOV support on the AMI.
+  "ena_enable": "true",
+  "sriov_enable": "false",
+
+  # Size of the AMI image (in GiB).
+  "volume_size": "1",
+
+  # Comma separated list of groups that should have access to the AMI.  However,
+  # only two values are currently supported: 'all' for public, '' for private.
+  "ami_access": "all",
+
+  # Comma separated list of regions to where the AMI should be copied.
+  # NOTE: ap-northeast-3 skipped, as it is available by subscription-only.
+  "deploy_regions": "us-east-1,us-east-2,us-west-1,us-west-2,ca-central-1,eu-central-1,eu-west-1,eu-west-2,eu-west-3,ap-northeast-1,ap-northeast-2,ap-southeast-1,ap-southeast-2,ap-south-1,sa-east-1",
+
+
+  ### Builder-Instance Options ###
+
+  # VPC in which the builder instance is to be launched; you must also provide
+  # a subnet.
+  "vpc": "",
+
+  # Subnet in which the builder instance is to be launched.
+  "subnet": "",
+
+  # Security group to apply to the builder instance.
+  "security_group": "",
+
+  # Assign a public IP to the builder instance.  Set to 'true' for if you need
+  # to initiate the build from somewhere that wouldn't normally be able to
+  # access the builder instance's private network.
+  "public_ip": "false",
+
+  # Instance type to use for building.
+  "build_instance_type": "t2.nano",
+
+  # Don't override this without a good reason, and if you do just make sure it
+  # gets passed all the way through to the make_ami script.
+  "volume_name": "/dev/xvdf"
+}
