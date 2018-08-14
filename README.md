@@ -20,7 +20,7 @@ script is provided it will be executed as root after the network is configured.
 
 **Note:** This image will be updated as Alpine Linux changes over time and as
 AWS adds regions. This file and
-[releases.yaml](https://github.com/mcrute/alpine-ec2-ami/blob/master/releases.yaml)
+[release.yaml](https://github.com/mcrute/alpine-ec2-ami/blob/master/release.yaml)
 will be updated as new regions are made available.
 
 | Alpine Version | Region Code | AMI ID |
