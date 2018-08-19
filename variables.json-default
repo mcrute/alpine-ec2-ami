@@ -6,7 +6,7 @@
   "ami_desc_suffix": " Release with EC2 Optimizations",
   "kernel_flavor": "vanilla@edge-main",
   "add_repos": "@edge-main http://dl-cdn.alpinelinux.org/alpine/edge/main,@edge-testing http://dl-cdn.alpinelinux.org/alpine/edge/testing",
-  "add_pkgs": "acct aws-ena-driver-vanilla@edge-testing",
+  "add_pkgs": "acct aws-ena-driver-vanilla@edge-testing e2fsprogs-extra",
   "ena_enable": "true",
   "sriov_enable": "false",
   "volume_size": "1",

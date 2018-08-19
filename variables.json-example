@@ -28,7 +28,8 @@
   # Space separated list of additional packages to add to the AMI.
   # acct - system accounting utilities (sa, etc.)
   # aws-ena-driver-vanilla - Enhanced Network Adapter kernel module
-  "add_pkgs": "acct aws-ena-driver-vanilla@edge-testing",
+  # e2fsprogs-extra - ec2-tiny-bootstrap's currently undeclared dependency (resize2fs)
+  "add_pkgs": "acct aws-ena-driver-vanilla@edge-testing e2fsprogs-extra",
 
   # Enable ENA/SRIOV support on the AMI.
   "ena_enable": "true",
