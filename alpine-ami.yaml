@@ -1,6 +1,6 @@
 variables:
 
-  # NOTE:  Additional configuration is set via the `variables.json` file.
+  # NOTE:  Configuration is done with a `variables.json` file.
   # To use default values, simply `cp variables.json-default variables.json`.
   # See `variables.json-example` for full configuration variable descriptions.
 
@@ -17,11 +17,11 @@ builders:
     vpc_id: "{{user `vpc`}}"
     subnet_id: "{{user `subnet`}}"
     security_group_id: "{{user `security_group`}}"
-    instance_type: "{{user `build_instance_type`}}"
+    instance_type: "t3.nano"
     associate_public_ip_address: "{{user `public_ip`}}"
     launch_block_device_mappings:
       - volume_type: "gp2"
-        device_name: "{{user `volume_name`}}"
+        device_name: "/dev/xvdf"
         delete_on_termination: "true"
         volume_size: "{{user `volume_size`}}"
     ssh_username: "ec2-user"
@@ -42,13 +42,14 @@ builders:
     ami_description: "{{user `ami_desc_prefix`}}{{user `alpine_release`}}-r{{user `ami_release`}}{{user `ami_desc_suffix`}}"
     ami_virtualization_type: "hvm"
     ami_root_device:
-      source_device_name: "{{user `volume_name`}}"
+      source_device_name: "/dev/xvdf"
       device_name: "/dev/xvda"
       delete_on_termination: "true"
       volume_size: "{{user `volume_size`}}"
       volume_type: "gp2"
+    encrypt_boot: "{{user `encrypt_ami`}}"
     ena_support: "{{user `ena_enable`}}"
-    sriov_support: "{{user `sriov_enable`}}"
+    sriov_support: "true"
     ami_groups: "{{user `ami_access`}}"
     ami_regions: "{{user `deploy_regions`}}"
 
@@ -56,4 +57,4 @@ builders:
 provisioners:
   - type: "shell"
     script: "make_ami.sh"
-    execute_command: 'sudo sh -c "{{ .Vars }} {{ .Path }} {{user `volume_name`}} {{user `kernel_flavor`}} ''{{user `add_repos`}}'' ''{{user `add_pkgs`}}''"'
+    execute_command: 'sudo sh -c "{{ .Vars }} {{ .Path }} {{user `kernel_flavor`}} ''{{user `add_repos`}}'' ''{{user `add_pkgs`}}''"'

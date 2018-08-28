@@ -8,8 +8,8 @@ containing Alpine Linux. The AMI is designed to work with most EC2 features
 such as Elastic Network Adapters and NVME EBS volumes by default. If anything
 is missing please report a bug.
 
-This image can be launched on any modern instance type. Including T2, M5, C5,
-I3, R4, P2, P3, X1, X1e, D2. Other instances may also work but have not been
+This image can be launched on any modern instance type, including T3, M5, C5,
+I3, R5, P3, X1, X1e, D2, Z1d. Other instances may also work but have not been
 tested. If you find an issue with instance support for any current generation
 instance please file a bug against this project.
 
@@ -50,10 +50,15 @@ its development and thus there are some sharp edges.
   hardware so it seems unlikely that they will be supported going forward. Thus
   this project does not support them.
 
+- The linux-vanilla kernel all the linux-firmware packages it installs is much
+  larger than is necessary for an AMI designed to run on EC2.  Unfortunately,
+  the linux-virt kernel is currently missing NVMe support, which is required for
+  the newest generation of instance families.
+
 - The aws-ena-driver-vanilla package is still in edge/testing, and requires the
   matching linux-vanilla package from edge/main.  When ENA is available in an
-  alpine version release, edge/testing and edge/main should no longer be
-  necessary.
+  alpine version release (ideally with a 'virt' kernel flavor), edge/testing
+  and edge/main should no longer be necessary.
 
 - [cloud-init](https://cloudinit.readthedocs.io/en/latest/) is not currently
   supported on Alpine Linux. Instead this image uses
