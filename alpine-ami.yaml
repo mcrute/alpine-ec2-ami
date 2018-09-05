@@ -1,8 +1,7 @@
 variables:
 
-  # NOTE:  Configuration is done with a `variables.json` file.
-  # To use default values, simply `cp variables.json-default variables.json`.
-  # See `variables.json-example` for full configuration variable descriptions.
+  # NOTE:  Configuration is done with a `variables.yaml` file.  If it doesn't
+  # exist, default configuration is copied from `variables.yaml-default`.
 
   # NOTE:  Changing alpine_release requires modifying `make_ami.sh` -- don't
   # override this in `variables.json`!
@@ -14,7 +13,6 @@ builders:
 
     ### Builder Instance Details
 
-    vpc_id: "{{user `vpc`}}"
     subnet_id: "{{user `subnet`}}"
     security_group_id: "{{user `security_group`}}"
     instance_type: "t3.nano"
@@ -36,7 +34,7 @@ builders:
         - "137112412989"
       most_recent: "true"
 
-    ### Built AMI Details
+    ### AMI Build Details
 
     ami_name: "{{user `ami_name_prefix`}}{{user `alpine_release`}}-r{{user `ami_release`}}{{user `ami_name_suffix`}}"
     ami_description: "{{user `ami_desc_prefix`}}{{user `alpine_release`}}-r{{user `ami_release`}}{{user `ami_desc_suffix`}}"
@@ -48,7 +46,7 @@ builders:
       volume_size: "{{user `volume_size`}}"
       volume_type: "gp2"
     encrypt_boot: "{{user `encrypt_ami`}}"
-    ena_support: "{{user `ena_enable`}}"
+    ena_support: "true"
     sriov_support: "true"
     ami_groups: "{{user `ami_access`}}"
     ami_regions: "{{user `deploy_regions`}}"
@@ -57,4 +55,4 @@ builders:
 provisioners:
   - type: "shell"
     script: "make_ami.sh"
-    execute_command: 'sudo sh -c "{{ .Vars }} {{ .Path }} {{user `kernel_flavor`}} ''{{user `add_repos`}}'' ''{{user `add_pkgs`}}''"'
+    execute_command: 'sudo sh -c "{{ .Vars }} {{ .Path }} ''{{user `add_repos`}}'' ''{{user `add_pkgs`}}''"'

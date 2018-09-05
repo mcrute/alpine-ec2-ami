@@ -1,0 +1,64 @@
+### Builder-Instance Options ###
+
+# Subnet ID in which the builder instance is to be launched.  VPC will be
+# automatically determined.
+subnet:
+
+# Optional security group to apply to the builder instance.
+security_group:
+
+# Assign a public IP to the builder instance.  Set to "true" for if you need
+# to initiate the build from somewhere that wouldn't normally be able to access
+# the builder instance's private network and a private IP is not auto-assigned.
+public_ip: "false"
+
+
+### Build Options ###
+
+# Treat similar to a ABUILD pkgrel variable and increment with every release.
+ami_release: "1"
+
+# AMI name prefix and suffix
+ami_name_prefix: "Alpine-"
+ami_name_suffix: "-EC2"
+
+# AMI description prefix and suffix
+ami_desc_prefix: "Alpine Linux "
+ami_desc_suffix: " Release with EC2 Optimizations"
+
+# List of custom lines to add to /etc/apk/repositories.  Note that @edge-main,
+# @edge-community, and @edge-testing repos have been predefined.
+add_repos:
+
+# List of additional packages to add to the AMI.
+add_pkgs:
+
+# Size of the AMI image (in GiB).
+volume_size: "1"
+
+# Encrypt the AMI?
+encrypt_ami: "false"
+
+# List of groups that should have access to the AMI.  However, only two
+# values are currently supported: 'all' for public, '' or unset for private.
+ami_access:
+  - "all"
+
+# List of regions to where the AMI should be copied.
+deploy_regions:
+  - "us-east-1"
+  - "us-east-2"
+  - "us-west-1"
+  - "us-west-2"
+  - "ca-central-1"
+  - "eu-central-1"
+  - "eu-west-1"
+  - "eu-west-2"
+  - "eu-west-3"
+  - "ap-northeast-1"
+  - "ap-northeast-2"
+#  - "ap-northeast-3" # skipped, available by subscription only
+  - "ap-southeast-1"
+  - "ap-southeast-2"
+  - "ap-south-1"
+  - "sa-east-1"

@@ -1,5 +1,5 @@
 /build/
 /.py3/
-/variables.json
+/variables.yaml
 /scrub-old-amis.py
 /gen-readme.py

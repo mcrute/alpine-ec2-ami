@@ -50,16 +50,6 @@ its development and thus there are some sharp edges.
   hardware so it seems unlikely that they will be supported going forward. Thus
   this project does not support them.
 
-- The linux-vanilla kernel all the linux-firmware packages it installs is much
-  larger than is necessary for an AMI designed to run on EC2.  Unfortunately,
-  the linux-virt kernel is currently missing NVMe support, which is required for
-  the newest generation of instance families.
-
-- The aws-ena-driver-vanilla package is still in edge/testing, and requires the
-  matching linux-vanilla package from edge/main.  When ENA is available in an
-  alpine version release (ideally with a 'virt' kernel flavor), edge/testing
-  and edge/main should no longer be necessary.
-
 - [cloud-init](https://cloudinit.readthedocs.io/en/latest/) is not currently
   supported on Alpine Linux. Instead this image uses
   [tiny-ec2-bootstrap](https://github.com/mcrute/tiny-ec2-bootstrap). Hostname
@@ -70,6 +60,13 @@ its development and thus there are some sharp edges.
   version in the tree is somewhat old and may not work correctly for Alpine.
   If full cloud-init support is important to you please file a bug against this
   project.
+
+- Because several key packages in Alpine 3.8 are missing or lacking features,
+  we currently need to install some packages from edge.  We expect that these
+  will be included in Alpine 3.9, or perhaps as a 3.8.x update.
+  - linux-virt @edge-main (includes necessary NVMe drivers)
+  - aws-ena-driver @edge-testing (installs 'virt' flavored subpackage)
+  - tiny-ec2-bootstrap @edge-main  (updated to v1.2.0)
 
 - CloudFormation support is still forthcoming. This requires patches and
   packaging for the upstream cfn tools that have not yet been accepted.

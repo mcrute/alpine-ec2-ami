@@ -108,8 +108,7 @@ setup_chroot() {
 
 install_core_packages() {
     local target="$1"    # target directory
-    local flavor="$2"    # kernel flavor
-    local add_pkgs="$3"  # extra packages, space separated
+    local add_pkgs="$2"  # extra packages, space separated
 
     # Most from: https://git.alpinelinux.org/cgit/alpine-iso/tree/alpine-virt.packages
     #
@@ -117,15 +116,15 @@ install_core_packages() {
     # tiny-ec2-bootstrap - to bootstrap system from EC2 metadata
     #
     chroot "$target" apk --no-cache add \
-        linux-"$flavor" \
+        linux-virt@edge-main \
+        aws-ena-driver@edge-testing \
         alpine-mirrors \
         chrony \
-        e2fsprogs \
         openssh \
         sudo \
-        tiny-ec2-bootstrap \
+        tiny-ec2-bootstrap@edge-main \
         tzdata \
-        $add_pkgs
+        $(echo "$add_pkgs" | tr , ' ')
 
     chroot "$target" apk --no-cache add --no-scripts syslinux
 
@@ -244,7 +243,9 @@ configure_ntp() {
     # in EC2.
     #
     # See: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/set-time.html
-    sed -i 's/^pool .*/server 169.254.169.123 iburst/' "$target"/etc/chrony/chrony.conf
+    sed -e 's/^pool /server /' \
+        -e 's/pool.ntp.org/169.254.169.123/g' \
+        -i "$target"/etc/chrony/chrony.conf
 }
 
 cleanup() {
@@ -267,11 +268,10 @@ cleanup() {
 }
 
 main() {
-    [ "$#" -ne 3 ] && { echo "usage: $0 <kernel-flavor> '<repo>[,<repo>]' '<pkg>[ <pkg>]'"; exit 1; }
+    [ "$#" -ne 2 ] && { echo "usage: $0 '<repo>[,<repo>]' '<pkg>[,<pkg>]'"; exit 1; }
 
-    local flavor="$1"
-    local add_repos="$2"
-    local add_pkgs="$3"
+    local add_repos="$1"
+    local add_pkgs="$2"
 
     local device="/dev/xvdf"
     local target="/mnt/target"
@@ -297,7 +297,7 @@ main() {
     setup_chroot "$target"
 
     einfo "Installing core packages"
-    install_core_packages "$target" "$flavor" "$add_pkgs"
+    install_core_packages "$target" "$add_pkgs"
 
     einfo "Configuring and enabling boot loader"
     create_initfs "$target"
