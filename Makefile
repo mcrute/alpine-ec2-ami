@@ -1,4 +1,5 @@
 .PHONY: ami
+
 ami: convert
 	packer build -var-file=build/variables.json build/alpine-ami.json
 
