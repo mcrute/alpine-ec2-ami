@@ -1,9 +1,16 @@
 .PHONY: ami
-ami: build/convert
+
+ami: convert
+	packer build -var-file=build/variables.json build/alpine-ami.json
+
+edge: convert
+	@echo '{ "alpine_release": "edge", "ami_release": "'`date +%Y%m%d%H%M%S`'" }' > build/edge.json
+	packer build -var-file=build/variables.json -var-file=build/edge.json build/alpine-ami.json
+
+convert: build/convert
 	[ -f variables.yaml ] || cp variables.yaml-default variables.yaml
 	build/convert variables.yaml > build/variables.json
 	build/convert alpine-ami.yaml > build/alpine-ami.json
-	packer build -var-file=build/variables.json build/alpine-ami.json
 
 build/convert:
 	[ -d ".py3" ] || python3 -m venv .py3

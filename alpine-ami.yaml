@@ -1,10 +1,9 @@
 variables:
 
-  # NOTE:  Configuration is done with a `variables.yaml` file.  If it doesn't
-  # exist, default configuration is copied from `variables.yaml-default`.
+  # NOTE:  Configuration is done with a 'variables.yaml' file.  If it doesn't
+  # exist, default configuration is copied from 'variables.yaml-default'.
 
-  # NOTE:  Changing alpine_release requires modifying `make_ami.sh` -- don't
-  # override this in `variables.json`!
+  # NOTE:  Changing alpine_release may require modifying 'make_ami.sh'.
   alpine_release: "3.8"
 
 
@@ -55,4 +54,6 @@ builders:
 provisioners:
   - type: "shell"
     script: "make_ami.sh"
+    environment_vars:
+      - "ALPINE_RELEASE={{user `alpine_release`}}"
     execute_command: 'sudo sh -c "{{ .Vars }} {{ .Path }} ''{{user `add_repos`}}'' ''{{user `add_pkgs`}}''"'
