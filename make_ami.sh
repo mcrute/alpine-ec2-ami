@@ -3,11 +3,13 @@
 
 set -eu
 
-: ${ALPINE_RELEASE:="3.8"}  # not tested against edge
+: ${MIN_RELEASE:="3.8"}
 : ${APK_TOOLS_URI:="https://github.com/alpinelinux/apk-tools/releases/download/v2.10.0/apk-tools-2.10.0-x86_64-linux.tar.gz"}
 : ${APK_TOOLS_SHA256:="77f2d256fcd5d6fdafadf43bb6a9c85c3da7bb471ee842dcd729175235cb9fed"}
 : ${ALPINE_KEYS:="http://dl-cdn.alpinelinux.org/alpine/v3.8/main/x86_64/alpine-keys-2.1-r1.apk"}
 : ${ALPINE_KEYS_SHA256:="f7832b848cedca482b145011cf516e82392f02a10713875cb09f39c7221c6f17"}
+
+: ${ALPINE_RELEASE:="${MIN_RELEASE}"}   # unless otherwise specified
 
 die() {
     printf '\033[1;31mERROR:\033[0m %s\n' "$@" >&2  # bold red
@@ -75,13 +77,26 @@ setup_repositories() {
     local add_repos="$2"  # extra repo lines, comma separated
 
     mkdir -p "$target"/etc/apk/keys
-    cat > "$target"/etc/apk/repositories <<EOF
+
+    if [ "$ALPINE_RELEASE" = 'edge' ]; then
+        cat > "$target"/etc/apk/repositories <<EOF
+http://dl-cdn.alpinelinux.org/alpine/edge/main
+http://dl-cdn.alpinelinux.org/alpine/edge/community
+http://dl-cdn.alpinelinux.org/alpine/edge/testing
+EOF
+    else
+        cat > "$target"/etc/apk/repositories <<EOF
 http://dl-cdn.alpinelinux.org/alpine/v$ALPINE_RELEASE/main
 http://dl-cdn.alpinelinux.org/alpine/v$ALPINE_RELEASE/community
+EOF
+    fi
+    # NOTE: until several key packages graduate from edge...
+    cat >> "$target"/etc/apk/repositories <<EOF
 @edge-main http://dl-cdn.alpinelinux.org/alpine/edge/main
 @edge-community http://dl-cdn.alpinelinux.org/alpine/edge/community
 @edge-testing http://dl-cdn.alpinelinux.org/alpine/edge/testing
 EOF
+
     echo "$add_repos" | tr , "\012" >> "$target"/etc/apk/repositories
 }
 
@@ -269,6 +284,8 @@ cleanup() {
 
 main() {
     [ "$#" -ne 2 ] && { echo "usage: $0 '<repo>[,<repo>]' '<pkg>[,<pkg>]'"; exit 1; }
+    [ "$ALPINE_RELEASE" != 'edge' ] && [[ "$ALPINE_RELEASE" -lt "$MIN_RELEASE" ]] && \
+        { echo "ERR: minimum alpine_release value must be '$MIN_RELEASE'"; exit 1; }
 
     local add_repos="$1"
     local add_pkgs="$2"
