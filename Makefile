@@ -37,3 +37,6 @@ build/convert:
 .PHONY: clean
 clean:
 	rm -rf build .py3 scrub-old-amis.py gen-readme.py
+
+distclean: clean
+	rm -f variables.yaml

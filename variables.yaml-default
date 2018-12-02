@@ -7,10 +7,10 @@ subnet:
 # Optional security group to apply to the builder instance.
 security_group:
 
-# Assign a public IP to the builder instance.  Set to "true" for if you need
-# to initiate the build from somewhere that wouldn't normally be able to access
-# the builder instance's private network and a private IP is not auto-assigned.
-public_ip: "false"
+# By default, public IPs are assigned (or not) per the subnet's configuration.
+# Set to "true" or "false" to explicitly override the subnet's public IP auto-
+# assign configuration.
+public_ip: ""
 
 
 ### Build Options ###

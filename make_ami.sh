@@ -132,7 +132,7 @@ install_core_packages() {
     #
     chroot "$target" apk --no-cache add \
         linux-virt@edge-main \
-        aws-ena-driver@edge-testing \
+        aws-ena-driver@edge-community \
         alpine-mirrors \
         chrony \
         openssh \
@@ -282,10 +282,16 @@ cleanup() {
     umount "$target"
 }
 
+version_sorted() {
+    # falsey if $1 version > $2 version
+    printf "%s\n%s" $1 $2 | sort -VC
+}
+
 main() {
-    [ "$#" -ne 2 ] && { echo "usage: $0 '<repo>[,<repo>]' '<pkg>[,<pkg>]'"; exit 1; }
-    [ "$ALPINE_RELEASE" != 'edge' ] && [[ "$ALPINE_RELEASE" -lt "$MIN_RELEASE" ]] && \
-        { echo "ERR: minimum alpine_release value must be '$MIN_RELEASE'"; exit 1; }
+    [ "$#" -ne 2 ] && die "Expecting two parameters\nUsage: $0 '<repo>[,<repo>]' '<pkg>[,<pkg>]'"
+    [ "$ALPINE_RELEASE" != 'edge' ] && {
+        version_sorted $MIN_RELEASE $ALPINE_RELEASE || die "Minimum alpine_release is '$MIN_RELEASE'"
+    }
 
     local add_repos="$1"
     local add_pkgs="$2"

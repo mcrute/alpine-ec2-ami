@@ -65,7 +65,7 @@ its development and thus there are some sharp edges.
   we currently need to install some packages from edge.  We expect that these
   will be included in Alpine 3.9, or perhaps as a 3.8.x update.
   - linux-virt @edge-main (includes necessary NVMe drivers)
-  - aws-ena-driver @edge-testing (installs 'virt' flavored subpackage)
+  - aws-ena-driver @edge-community (installs 'virt' flavored subpackage)
   - tiny-ec2-bootstrap @edge-main  (updated to v1.2.0)
 
 - CloudFormation support is still forthcoming. This requires patches and
