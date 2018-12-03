@@ -67,7 +67,7 @@ make_filesystem() {
     local device="$1"  # target device path
     local target="$2"  # mount target
 
-    mkfs.ext4 "$device"
+    mkfs.ext4 -O ^64bit "$device"
     e2label "$device" /
     mount "$device" "$target"
 }
@@ -187,7 +187,7 @@ setup_extlinux() {
         -e "s|^[# ]*(default_kernel_opts)=.*|\1=\"console=ttyS0 console=tty0\"|" \
         -e "s|^[# ]*(serial_port)=.*|\1=ttyS0|" \
         -e "s|^[# ]*(modules)=.*|\1=sd-mod,usb-storage,ext4|" \
-        -e "s|^[# ]*(default)=.*|\1=hardened|" \
+        -e "s|^[# ]*(default)=.*|\1=virt|" \
         -e "s|^[# ]*(timeout)=.*|\1=1|" \
         "$target"/etc/update-extlinux.conf
 }
