@@ -1,5 +1,8 @@
 ### Builder-Instance Options ###
 
+# Region to build in, if we initiate a build from outside AWS
+region:
+
 # Subnet ID in which the builder instance is to be launched.  VPC will be
 # automatically determined.
 subnet:
@@ -16,7 +19,7 @@ public_ip: ""
 ### Build Options ###
 
 # Treat similar to a ABUILD pkgrel variable and increment with every release.
-ami_release: "1"
+ami_release: "2"
 
 # AMI name prefix and suffix
 ami_name_prefix: "Alpine-"
