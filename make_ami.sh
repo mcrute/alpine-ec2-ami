@@ -134,6 +134,7 @@ install_core_packages() {
         linux-virt@edge-main \
         aws-ena-driver@edge-community \
         alpine-mirrors \
+        nvme-cli \
         chrony \
         openssh \
         sudo \
@@ -152,6 +153,13 @@ install_core_packages() {
     # Make it a little more obvious who is logged in by adding username to the
     # prompt
     sed -i "s/^export PS1='/&\\\\u@/" "$target"/etc/profile
+}
+
+setup_mdev() {
+    local target="$1"
+
+    cp -a /tmp/nvme-ebs-links.sh "$target"/lib/mdev
+    sed -n -i -e '/# fallback/r /tmp/nvme-ebs-mdev.conf' -e 1x -e '2,${x;p}' -e '${x;p}' "$target"/etc/mdev.conf
 }
 
 create_initfs() {
@@ -328,6 +336,7 @@ main() {
     install_extlinux "$target"
 
     einfo "Configuring system"
+    setup_mdev "$target"
     setup_fstab "$target"
     setup_networking "$target"
     enable_services "$target"

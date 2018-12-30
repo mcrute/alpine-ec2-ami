@@ -53,6 +53,12 @@ builders:
 
 
 provisioners:
+  - type: "file"
+    source: "nvme-ebs-links.sh"
+    destination: "/tmp/"
+  - type: "file"
+    source: "nvme-ebs-mdev.conf"
+    destination: "/tmp/"
   - type: "shell"
     script: "make_ami.sh"
     environment_vars:
