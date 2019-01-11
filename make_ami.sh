@@ -131,8 +131,7 @@ install_core_packages() {
     # tiny-ec2-bootstrap - to bootstrap system from EC2 metadata
     #
     chroot "$target" apk --no-cache add \
-        linux-virt@edge-main \
-        aws-ena-driver@edge-community \
+        linux-virt \
         alpine-mirrors \
         chrony \
         openssh \
