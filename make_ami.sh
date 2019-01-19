@@ -131,7 +131,7 @@ install_core_packages() {
     # tiny-ec2-bootstrap - to bootstrap system from EC2 metadata
     #
     chroot "$target" apk --no-cache add \
-        linux-virt \
+        linux-virt@edge-main \
         alpine-mirrors \
         nvme-cli \
         chrony \
@@ -322,7 +322,7 @@ main() {
     fetch_keys "$target"
 
     einfo "Installing base system"
-    $apk add --root "$target" --update-cache --initdb alpine-base
+    $apk add --root "$target" --no-cache --initdb alpine-base
 
     setup_chroot "$target"
 

@@ -56,16 +56,15 @@ its development and thus there are some sharp edges.
   setting will work as will setting the ssh keys for the Alpine user based on
   what was configured during instance launch. User data is supported as long
   as it's a shell script (starts with #!). See the tiny-ec2-bootstrap README
-  for more details. You can still install cloud-init using aports but the
-  version in the tree is somewhat old and may not work correctly for Alpine.
-  If full cloud-init support is important to you please file a bug against this
-  project.
+  for more details. You can still install cloud-init (from the edge/3.9 testing
+  repositories), but we haven't tested whether it will not work correctly for
+  this AMI.  If full cloud-init support is important to you please file a bug
+  against this project.
 
 - Because several key packages in Alpine 3.8 are missing or lacking features,
   we currently need to install some packages from edge.  We expect that these
-  will be included in Alpine 3.9, or perhaps as a 3.8.x update.
-  - linux-virt @edge-main (includes necessary NVMe drivers)
-  - aws-ena-driver @edge-community (installs 'virt' flavored subpackage)
+  will be included in Alpine 3.9.
+  - linux-virt @edge-main (includes necessary ENA drivers)
   - tiny-ec2-bootstrap @edge-main  (updated to v1.2.0)
 
 - CloudFormation support is still forthcoming. This requires patches and
