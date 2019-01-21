@@ -36,6 +36,13 @@ add_repos:
 # List of additional packages to add to the AMI.
 add_pkgs:
 
+# Additional services to start at the specified level.
+add_svcs:
+#  boot:
+#    - service1
+#  default:
+#    - service2
+
 # Size of the AMI image (in GiB).
 volume_size: "1"
 

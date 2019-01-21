@@ -24,9 +24,11 @@ build/convert:
 	@echo "#!`pwd`/.py3/bin/python" > build/convert
 	@echo "import yaml, json, sys" >> build/convert
 	@echo "y = yaml.load(open(sys.argv[1]))" >> build/convert
-	@echo "for k in ['ami_access','deploy_regions','add_repos','add_pkgs']:" >> build/convert
+	@echo "for k in ['ami_access','deploy_regions','add_repos','add_pkgs','add_svcs']:" >> build/convert
 	@echo "  if k in y and isinstance(y[k], list):" >> build/convert
 	@echo "    y[k] = ','.join(str(x) for x in y[k])" >> build/convert
+	@echo "  if k in y and isinstance(y[k], dict):" >> build/convert
+	@echo "    y[k] = ':'.join(str(l) + '=' + ','.join(str(s) for s in ss) for l, ss in y[k].items())" >> build/convert
 	@echo "json.dump(y, sys.stdout, indent=4, separators=(',', ': '))" >> build/convert
 	@chmod +x build/convert
 

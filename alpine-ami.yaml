@@ -63,4 +63,4 @@ provisioners:
     script: "make_ami.sh"
     environment_vars:
       - "ALPINE_RELEASE={{user `alpine_release`}}"
-    execute_command: 'sudo sh -c "{{ .Vars }} {{ .Path }} ''{{user `add_repos`}}'' ''{{user `add_pkgs`}}''"'
+    execute_command: 'sudo sh -c "{{ .Vars }} {{ .Path }} ''{{user `add_repos`}}'' ''{{user `add_pkgs`}}'' ''{{user `add_svcs`}}''"'

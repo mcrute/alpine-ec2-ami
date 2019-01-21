@@ -229,11 +229,18 @@ EOF
 
 enable_services() {
     local target="$1"
+    local add_svcs="$2"
 
     rc_add "$target" default sshd chronyd networking tiny-ec2-bootstrap
     rc_add "$target" sysinit devfs dmesg mdev hwdrivers
     rc_add "$target" boot modules hwclock swap hostname sysctl bootmisc syslog acpid
     rc_add "$target" shutdown killprocs savecache mount-ro
+
+    if [ -n "$add_svcs" ]; then
+        local lvl_svcs; for lvl_svcs in $(echo "$add_svcs" | tr : ' '); do
+            rc_add "$target" $(echo "$lvl_svcs" | tr =, ' ')
+        done
+    fi
 }
 
 create_alpine_user() {
@@ -295,13 +302,14 @@ version_sorted() {
 }
 
 main() {
-    [ "$#" -ne 2 ] && die "Expecting two parameters\nUsage: $0 '<repo>[,<repo>]' '<pkg>[,<pkg>]'"
+    [ "$#" -ne 3 ] && die "Expecting three parameters\nUsage: $0 '[<repo>[,...]]' '[<pkg>[,...]]' '[<lvl>=<svc>[,...][:...]]'"
     [ "$ALPINE_RELEASE" != 'edge' ] && {
         version_sorted $MIN_RELEASE $ALPINE_RELEASE || die "Minimum alpine_release is '$MIN_RELEASE'"
     }
 
     local add_repos="$1"
     local add_pkgs="$2"
+    local add_svcs="$3"
 
     local device="/dev/xvdf"
     local target="/mnt/target"
@@ -316,6 +324,7 @@ main() {
     einfo "Creating root filesystem"
     make_filesystem "$device" "$target"
 
+    einfo "Configuring Alpine repositories"
     setup_repositories "$target" "$add_repos"
 
     einfo "Fetching Alpine signing keys"
@@ -338,7 +347,7 @@ main() {
     setup_mdev "$target"
     setup_fstab "$target"
     setup_networking "$target"
-    enable_services "$target"
+    enable_services "$target" "$add_svcs"
     create_alpine_user "$target"
     configure_ntp "$target"
 
