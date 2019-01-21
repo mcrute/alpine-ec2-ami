@@ -157,7 +157,7 @@ install_core_packages() {
 setup_mdev() {
     local target="$1"
 
-    cp -a /tmp/nvme-ebs-links.sh "$target"/lib/mdev
+    cp /tmp/nvme-ebs-links "$target"/lib/mdev
     sed -n -i -e '/# fallback/r /tmp/nvme-ebs-mdev.conf' -e 1x -e '2,${x;p}' -e '${x;p}' "$target"/etc/mdev.conf
 }
 
