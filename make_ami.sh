@@ -3,13 +3,16 @@
 
 set -eu
 
-: ${MIN_RELEASE:="3.8"}
-: ${APK_TOOLS_URI:="https://github.com/alpinelinux/apk-tools/releases/download/v2.10.0/apk-tools-2.10.0-x86_64-linux.tar.gz"}
-: ${APK_TOOLS_SHA256:="77f2d256fcd5d6fdafadf43bb6a9c85c3da7bb471ee842dcd729175235cb9fed"}
-: ${ALPINE_KEYS:="http://dl-cdn.alpinelinux.org/alpine/v3.8/main/x86_64/alpine-keys-2.1-r1.apk"}
-: ${ALPINE_KEYS_SHA256:="f7832b848cedca482b145011cf516e82392f02a10713875cb09f39c7221c6f17"}
+MIN_VERSION="3.9"
+MIN_RELEASE="3.9.0"
 
-: ${ALPINE_RELEASE:="${MIN_RELEASE}"}   # unless otherwise specified
+: ${VERSION:="${MIN_VERSION}"}   # unless otherwise specified
+: ${RELEASE:="${MIN_RELEASE}"}   # unless otherwise specified
+
+: ${APK_TOOLS_URI:="https://github.com/alpinelinux/apk-tools/releases/download/v2.10.3/apk-tools-2.10.3-x86_64-linux.tar.gz"}
+: ${APK_TOOLS_SHA256:="4d0b2cda606720624589e6171c374ec6d138867e03576d9f518dddde85c33839"}
+: ${ALPINE_KEYS:="http://dl-cdn.alpinelinux.org/alpine/v3.9/main/x86_64/alpine-keys-2.1-r1.apk"}
+: ${ALPINE_KEYS_SHA256:="9c7bc5d2e24c36982da7aa49b3cfcb8d13b20f7a03720f25625fa821225f5fbc"}
 
 die() {
     printf '\033[1;31mERROR:\033[0m %s\n' "$@" >&2  # bold red
@@ -78,7 +81,7 @@ setup_repositories() {
 
     mkdir -p "$target"/etc/apk/keys
 
-    if [ "$ALPINE_RELEASE" = 'edge' ]; then
+    if [ "$VERSION" = 'edge' ]; then
         cat > "$target"/etc/apk/repositories <<EOF
 http://dl-cdn.alpinelinux.org/alpine/edge/main
 http://dl-cdn.alpinelinux.org/alpine/edge/community
@@ -86,16 +89,10 @@ http://dl-cdn.alpinelinux.org/alpine/edge/testing
 EOF
     else
         cat > "$target"/etc/apk/repositories <<EOF
-http://dl-cdn.alpinelinux.org/alpine/v$ALPINE_RELEASE/main
-http://dl-cdn.alpinelinux.org/alpine/v$ALPINE_RELEASE/community
+http://dl-cdn.alpinelinux.org/alpine/v$VERSION/main
+http://dl-cdn.alpinelinux.org/alpine/v$VERSION/community
 EOF
     fi
-    # NOTE: until several key packages graduate from edge...
-    cat >> "$target"/etc/apk/repositories <<EOF
-@edge-main http://dl-cdn.alpinelinux.org/alpine/edge/main
-@edge-community http://dl-cdn.alpinelinux.org/alpine/edge/community
-@edge-testing http://dl-cdn.alpinelinux.org/alpine/edge/testing
-EOF
 
     echo "$add_repos" | tr , "\012" >> "$target"/etc/apk/repositories
 }
@@ -107,6 +104,18 @@ fetch_keys() {
     wgets "$ALPINE_KEYS" "$ALPINE_KEYS_SHA256" "$tmp/alpine-keys.apk"
     tar -C "$target" -xvf "$tmp"/alpine-keys.apk etc/apk/keys
     rm -rf "$tmp"
+}
+
+install_base() {
+    local target="$1"
+
+    $apk add --root "$target" --no-cache --initdb alpine-base
+    # verify release matches
+    if [ "$VERSION" != "edge" ]; then
+        ALPINE_RELEASE=$(cat "$target/etc/alpine-release")
+        [ "$RELEASE" = "$ALPINE_RELEASE" ] || \
+            die "Current Alpine $VERSION release ($ALPINE_RELEASE) does not match build ($RELEASE)"
+    fi
 }
 
 setup_chroot() {
@@ -131,13 +140,13 @@ install_core_packages() {
     # tiny-ec2-bootstrap - to bootstrap system from EC2 metadata
     #
     chroot "$target" apk --no-cache add \
-        linux-virt@edge-main \
+        linux-virt \
         alpine-mirrors \
         nvme-cli \
         chrony \
         openssh \
         sudo \
-        tiny-ec2-bootstrap@edge-main \
+        tiny-ec2-bootstrap \
         tzdata \
         $(echo "$add_pkgs" | tr , ' ')
 
@@ -302,14 +311,14 @@ version_sorted() {
 }
 
 main() {
-    [ "$#" -ne 3 ] && die "Expecting three parameters\nUsage: $0 '[<repo>[,...]]' '[<pkg>[,...]]' '[<lvl>=<svc>[,...][:...]]'"
-    [ "$ALPINE_RELEASE" != 'edge' ] && {
-        version_sorted $MIN_RELEASE $ALPINE_RELEASE || die "Minimum alpine_release is '$MIN_RELEASE'"
+    [ "$VERSION" != 'edge' ] && {
+        version_sorted $MIN_VERSION $VERSION || die "Minimum Alpine version is '$MIN_RELEASE'"
+        version_sorted $MIN_RELEASE $RELEASE || die "Minimum Alpine release is '$MIN_RELEASE'"
     }
 
-    local add_repos="$1"
-    local add_pkgs="$2"
-    local add_svcs="$3"
+    local add_repos="$ADD_REPOS"
+    local add_pkgs="$ADD_PKGS"
+    local add_svcs="$ADD_SVCS"
 
     local device="/dev/xvdf"
     local target="/mnt/target"
@@ -331,7 +340,7 @@ main() {
     fetch_keys "$target"
 
     einfo "Installing base system"
-    $apk add --root "$target" --no-cache --initdb alpine-base
+    install_base "$target"
 
     setup_chroot "$target"
 

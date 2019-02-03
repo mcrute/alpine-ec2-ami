@@ -1,3 +1,5 @@
+**/*~
+**/*.swp
 /build/
 /.py3/
 /variables.yaml

@@ -4,7 +4,7 @@ ami: convert
 	packer build -var-file=build/variables.json build/alpine-ami.json
 
 edge: convert
-	@echo '{ "alpine_release": "edge", "ami_release": "'`date +%Y%m%d%H%M%S`'" }' > build/edge.json
+	@echo '{ "version": "edge", "release": "edge", "revision": "'-`date +%Y%m%d%H%M%S`'" }' > build/edge.json
 	packer build -var-file=build/variables.json -var-file=build/edge.json build/alpine-ami.json
 
 convert: build/convert

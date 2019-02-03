@@ -3,9 +3,11 @@ variables:
   # NOTE:  Configuration is done with a 'variables.yaml' file.  If it doesn't
   # exist, default configuration is copied from 'variables.yaml-default'.
 
-  # NOTE:  Changing alpine_release may require modifying 'make_ami.sh'.
-  alpine_release: "3.8"
-
+  # NOTE:  Changing arch/version/release may require modifying 'make_ami.sh'.
+  arch: x86_64
+  version: "3.9"
+  release: "3.9.0"
+  revision: ""
 
 builders:
   - type: "amazon-ebssurrogate"
@@ -29,15 +31,15 @@ builders:
         virtualization-type: "hvm"
         root-device-type: "ebs"
         architecture: "x86_64"
-        name: "amzn-ami-hvm-*-x86_64-gp2"
+        name: "amzn2-ami-hvm-2.0.*-gp2"
       owners:
         - "137112412989"
       most_recent: "true"
 
     ### AMI Build Details
 
-    ami_name: "{{user `ami_name_prefix`}}{{user `alpine_release`}}-r{{user `ami_release`}}{{user `ami_name_suffix`}}"
-    ami_description: "{{user `ami_desc_prefix`}}{{user `alpine_release`}}-r{{user `ami_release`}}{{user `ami_desc_suffix`}}"
+    ami_name: "{{user `ami_name_prefix`}}{{user `release`}}{{user `revision`}}-{{user `arch`}}{{user `ami_name_suffix`}}"
+    ami_description: "{{user `ami_desc_prefix`}}{{user `release`}}{{user `revision`}} {{user `arch`}}{{user `ami_desc_suffix`}}"
     ami_virtualization_type: "hvm"
     ami_root_device:
       source_device_name: "/dev/xvdf"
@@ -59,5 +61,10 @@ provisioners:
   - type: "shell"
     script: "make_ami.sh"
     environment_vars:
-      - "ALPINE_RELEASE={{user `alpine_release`}}"
-    execute_command: 'sudo sh -c "{{ .Vars }} {{ .Path }} ''{{user `add_repos`}}'' ''{{user `add_pkgs`}}'' ''{{user `add_svcs`}}''"'
+      - "VERSION={{user `version`}}"
+      - "RELEASE={{user `release`}}"
+      - "REVISION={{user `revision`}}"
+      - "ADD_REPOS='{{user `add_repos`}}'"
+      - "ADD_PKGS='{{user `add_pkgs`}}'"
+      - "ADD_SVCS='{{user `add_svcs`}}'"
+    execute_command: 'sudo sh -c "{{ .Vars }} {{ .Path }}"'

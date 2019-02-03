@@ -1,27 +1,29 @@
 # Alpine Linux EC2 AMI Build
 
-**NOTE: This is not an official Amazon or AWS provided image. This is community
-built and supported.**
+**NOTE: This is not an official Amazon or AWS provided image.  This is
+community built and supported.**
 
 This repository contains a packer file and a script to create an EC2 AMI
-containing Alpine Linux. The AMI is designed to work with most EC2 features
-such as Elastic Network Adapters and NVME EBS volumes by default. If anything
+containing Alpine Linux.  The AMI is designed to work with most EC2 features
+such as Elastic Network Adapters and NVME EBS volumes by default.  If anything
 is missing please report a bug.
 
-This image can be launched on any modern instance type, including T3, M5, C5,
-I3, R5, P3, X1, X1e, D2, Z1d. Other instances may also work but have not been
-tested. If you find an issue with instance support for any current generation
-instance please file a bug against this project.
+This image can be launched on any modern x86_64 instance type, including T3,
+M5, C5, I3, R5, P3, X1, X1e, D2, Z1d.  Other instances may also work but have
+not been tested.  If you find an issue with instance support for any current
+generation instance please file a bug against this project.
 
-To get started use one of the AMIs below. The default user is `alpine` and will
-be configured to use whatever SSH keys you chose when you launched the image.
-If user data is specified it must be a shell script that begins with `#!`. If a
-script is provided it will be executed as root after the network is configured.
+To get started use one of the AMIs below.  The default user is `alpine` and
+will be configured to use whatever SSH keys you chose when you launched the
+image.  If user data is specified it must be a shell script that begins with
+`#!`.  If a script is provided it will be executed as root after the network is
+configured.
 
-**Note:** This image will be updated as Alpine Linux changes over time and as
-AWS adds regions. This file and
+**NOTE:** *The images listed below are currently very much out of date.  We are
+working on providing a set of updated 3.9 AMIs for all current AWS regions, and
+hope to automate AMI builds and updates to this file and
 [release.yaml](https://github.com/mcrute/alpine-ec2-ami/blob/master/release.yaml)
-will be updated as new regions are made available.
+in the not-too-distant future.*
 
 | Alpine Version | Region Code | AMI ID |
 | -------------- | ----------- | ------ |
@@ -45,28 +47,22 @@ will be updated as new regions are made available.
 This image is being used in production but it's still somewhat early stage in
 its development and thus there are some sharp edges.
 
-- Only EBS-backed HVM instances are supported. While paravirtualized instances
+- Only EBS-backed HVM instances are supported.  While paravirtualized instances
   are still available from AWS they are not supported on any of the newer
-  hardware so it seems unlikely that they will be supported going forward. Thus
-  this project does not support them.
+  hardware so it seems unlikely that they will be supported going forward.
+  Thus this project does not support them.
 
 - [cloud-init](https://cloudinit.readthedocs.io/en/latest/) is not currently
-  supported on Alpine Linux. Instead this image uses
-  [tiny-ec2-bootstrap](https://github.com/mcrute/tiny-ec2-bootstrap). Hostname
-  setting will work as will setting the ssh keys for the Alpine user based on
-  what was configured during instance launch. User data is supported as long
-  as it's a shell script (starts with #!). See the tiny-ec2-bootstrap README
-  for more details. You can still install cloud-init (from the edge/3.9 testing
+  supported on Alpine Linux.  Instead this image uses
+  [tiny-ec2-bootstrap](https://github.com/mcrute/tiny-ec2-bootstrap).  Hostname
+  setting will work, as will setting the ssh keys for the Alpine user based on
+  what was configured during instance launch.  User data is supported as long
+  as it's a shell script (starts with #!).  See the tiny-ec2-bootstrap README
+  for more details.  You can still install cloud-init (from the edge testing
   repositories), but we haven't tested whether it will not work correctly for
   this AMI.  If full cloud-init support is important to you please file a bug
   against this project.
 
-- Because several key packages in Alpine 3.8 are missing or lacking features,
-  we currently need to install some packages from edge.  We expect that these
-  will be included in Alpine 3.9.
-  - linux-virt @edge-main (includes necessary ENA drivers)
-  - tiny-ec2-bootstrap @edge-main  (updated to v1.2.0)
-
-- CloudFormation support is still forthcoming. This requires patches and
+- CloudFormation support is still forthcoming.  This requires patches and
   packaging for the upstream cfn tools that have not yet been accepted.
   Eventually full CloudFormation support will be available.

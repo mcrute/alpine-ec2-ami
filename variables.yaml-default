@@ -7,7 +7,7 @@ region:
 # automatically determined.
 subnet:
 
-# Optional security group to apply to the builder instance.
+# Optional security group to apply to the builder instance
 security_group:
 
 # By default, public IPs are assigned (or not) per the subnet's configuration.
@@ -18,25 +18,27 @@ public_ip: ""
 
 ### Build Options ###
 
-# Treat similar to a ABUILD pkgrel variable and increment with every release.
-ami_release: "2"
+# Uncomment/increment every for every rebuild of an Alpine release;
+# re-comment/zero for every new Alpine release
+#revision: "-0"
 
 # AMI name prefix and suffix
-ami_name_prefix: "Alpine-"
-ami_name_suffix: "-EC2"
+ami_name_prefix: "alpine-ami-"
+ami_name_suffix: ""
 
 # AMI description prefix and suffix
 ami_desc_prefix: "Alpine Linux "
-ami_desc_suffix: " Release with EC2 Optimizations"
+ami_desc_suffix: ""
 
-# List of custom lines to add to /etc/apk/repositories.  Note that @edge-main,
-# @edge-community, and @edge-testing repos have been predefined.
+# List of custom lines to add to /etc/apk/repositories
 add_repos:
+#  - "@my-repo http://my-repo.tld/path"
 
 # List of additional packages to add to the AMI.
 add_pkgs:
+#  - package-name
 
-# Additional services to start at the specified level.
+# Additional services to start at the specified level
 add_svcs:
 #  boot:
 #    - service1
@@ -54,7 +56,7 @@ encrypt_ami: "false"
 ami_access:
   - "all"
 
-# List of regions to where the AMI should be copied.
+# List of regions to where the AMI should be copied
 deploy_regions:
   - "us-east-1"
   - "us-east-2"
