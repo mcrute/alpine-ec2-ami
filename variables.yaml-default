@@ -28,7 +28,7 @@ ami_name_suffix: ""
 
 # AMI description prefix and suffix
 ami_desc_prefix: "Alpine Linux "
-ami_desc_suffix: ""
+ami_desc_suffix: " - https://github.com/mcrute/alpine-ec2-ami"
 
 # List of custom lines to add to /etc/apk/repositories
 add_repos:

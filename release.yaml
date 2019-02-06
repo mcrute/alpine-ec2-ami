@@ -1,21 +1,22 @@
-Alpine-3.7-Hardened-EC2:
-  description: "Alpine Linux 3.7 Release with Hardened Kernel and EC2 Optimizations"
-  alpine-release: 3.7
-  kernel-flavor: hardened
-  ami-release-date: "2017-12-25 03:02:00"
+alpine-ami-3.9.0-x86_64:
+  description: "Alpine Linux 3.9.0 x86_64"
+  alpine-release: 3.9.0
+  kernel-flavor: virt
+  ami-release-date: "2019-02-06 01:42:52"
   region-identifiers:
-    #eu-west-3: ami-XXXXXXXX
-    ap-northeast-1: ami-361c8850
-    ap-northeast-2: ami-b96ccdd7
-    ap-south-1: ami-29c28846
-    ap-southeast-1: ami-25a8c059
-    ap-southeast-2: ami-7628d814
-    ca-central-1: ami-293d874d
-    eu-central-1: ami-a96ff8c6
-    eu-west-1: ami-66de501f
-    eu-west-2: ami-9ea2bbfa
-    sa-east-1: ami-ae5414c2
-    us-east-1: ami-976020ed
-    us-east-2: ami-c487afa1
-    us-west-1: ami-1c393f7c
-    us-west-2: ami-e474db9c
+    ap-northeast-1: ami-025126171658214aa
+    ap-northeast-2: ami-05094dd0e72c458fb
+    ap-south-1: ami-07cb8c31eabcd3b4e
+    ap-southeast-1: ami-0928dec71013505b0
+    ap-southeast-2: ami-0a5abea120f732aea
+    ca-central-1: ami-08548db765868091d
+    eu-central-1: ami-0a42df7e65590651e
+    eu-north-1: ami-08b5a6088d1592e5b
+    eu-west-1: ami-07bf2c996b3bec293
+    eu-west-2: ami-07642a3118c43a4e6
+    eu-west-3: ami-0916d5db3c81d60ce
+    sa-east-1: ami-0a96fe9195efbba2b
+    us-east-1: ami-00e433019a9c7aa76
+    us-east-2: ami-029e1787b7a57b032
+    us-west-1: ami-0091bd0c0b9ad4b6b
+    us-west-2: ami-0fa1d403af627f066
