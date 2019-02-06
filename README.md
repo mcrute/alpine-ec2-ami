@@ -59,8 +59,8 @@ its development and thus there are some sharp edges.
   what was configured during instance launch.  User data is supported as long
   as it's a shell script (starts with #!).  See the tiny-ec2-bootstrap README
   for more details.  You can still install cloud-init (from the edge testing
-  repositories), but we haven't tested whether it will not work correctly for
-  this AMI.  If full cloud-init support is important to you please file a bug
+  repositories), but we haven't tested whether it will work correctly for this
+  AMI.  If full cloud-init support is important to you please file a bug
   against this project.
 
 - CloudFormation support is still forthcoming.  This requires patches and
