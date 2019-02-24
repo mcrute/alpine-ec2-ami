@@ -142,8 +142,9 @@ install_core_packages() {
     chroot "$target" apk --no-cache add \
         linux-virt \
         alpine-mirrors \
-        nvme-cli \
         chrony \
+        haveged \
+        nvme-cli \
         openssh \
         sudo \
         tiny-ec2-bootstrap \
@@ -240,10 +241,10 @@ enable_services() {
     local target="$1"
     local add_svcs="$2"
 
-    rc_add "$target" default sshd chronyd networking tiny-ec2-bootstrap
-    rc_add "$target" sysinit devfs dmesg mdev hwdrivers
-    rc_add "$target" boot modules hwclock swap hostname sysctl bootmisc syslog acpid
-    rc_add "$target" shutdown killprocs savecache mount-ro
+    rc_add "$target" default chronyd networking sshd tiny-ec2-bootstrap
+    rc_add "$target" sysinit devfs dmesg hwdrivers mdev
+    rc_add "$target" boot acpid bootmisc haveged hostname hwclock modules swap sysctl syslog
+    rc_add "$target" shutdown killprocs mount-ro savecache
 
     if [ -n "$add_svcs" ]; then
         local lvl_svcs; for lvl_svcs in $(echo "$add_svcs" | tr : ' '); do
