@@ -25,22 +25,22 @@ in the not-too-distant future.*
 
 | Alpine Release | Region Code | AMI ID |
 | :------------: | ----------- | ------ |
-| 3.9.0-1 | ap-northeast-1 | [ami-0eaff92f5f149a429](https://ap-northeast-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0eaff92f5f149a429) |
-| 3.9.0-1 | ap-northeast-2 | [ami-0def256d4730ba94a](https://ap-northeast-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0def256d4730ba94a) |
-| 3.9.0-1 | ap-south-1 | [ami-026f34bef63412f33](https://ap-south-1.console.aws.amazon.com/ec2/home#launchAmi=ami-026f34bef63412f33) |
-| 3.9.0-1 | ap-southeast-1 | [ami-04a2ad17b9b13d4ec](https://ap-southeast-1.console.aws.amazon.com/ec2/home#launchAmi=ami-04a2ad17b9b13d4ec) |
-| 3.9.0-1 | ap-southeast-2 | [ami-03c7885750c554d30](https://ap-southeast-2.console.aws.amazon.com/ec2/home#launchAmi=ami-03c7885750c554d30) |
-| 3.9.0-1 | ca-central-1 | [ami-0ef17552c0ecbfc4e](https://ca-central-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0ef17552c0ecbfc4e) |
-| 3.9.0-1 | eu-central-1 | [ami-036c913a519569a6d](https://eu-central-1.console.aws.amazon.com/ec2/home#launchAmi=ami-036c913a519569a6d) |
-| 3.9.0-1 | eu-north-1 | [ami-0e86b5fc1e6414006](https://eu-north-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0e86b5fc1e6414006) |
-| 3.9.0-1 | eu-west-1 | [ami-069efddebf851614d](https://eu-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-069efddebf851614d) |
-| 3.9.0-1 | eu-west-2 | [ami-0aa8ab64c1c6a2a3a](https://eu-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0aa8ab64c1c6a2a3a) |
-| 3.9.0-1 | eu-west-3 | [ami-00d39f7e016c2dd2b](https://eu-west-3.console.aws.amazon.com/ec2/home#launchAmi=ami-00d39f7e016c2dd2b) |
-| 3.9.0-1 | sa-east-1 | [ami-028a5b577032629ee](https://sa-east-1.console.aws.amazon.com/ec2/home#launchAmi=ami-028a5b577032629ee) |
-| 3.9.0-1 | us-east-1 | [ami-0b62ea2089812c46b](https://us-east-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0b62ea2089812c46b) |
-| 3.9.0-1 | us-east-2 | [ami-083b8d0f14c76dfd7](https://us-east-2.console.aws.amazon.com/ec2/home#launchAmi=ami-083b8d0f14c76dfd7) |
-| 3.9.0-1 | us-west-1 | [ami-0dd01136582d41914](https://us-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0dd01136582d41914) |
-| 3.9.0-1 | us-west-2 | [ami-0efc4434c74bde9fe](https://us-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0efc4434c74bde9fe) |
+| 3.9.1 | ap-northeast-1 | [ami-0ea7c699bf8c8dbdb](https://ap-northeast-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0ea7c699bf8c8dbdb) |
+| 3.9.1 | ap-northeast-2 | [ami-073bfec8980f57d41](https://ap-northeast-2.console.aws.amazon.com/ec2/home#launchAmi=ami-073bfec8980f57d41) |
+| 3.9.1 | ap-south-1 | [ami-0c305b2e446b07208](https://ap-south-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0c305b2e446b07208) |
+| 3.9.1 | ap-southeast-1 | [ami-054428bd9a4f1da32](https://ap-southeast-1.console.aws.amazon.com/ec2/home#launchAmi=ami-054428bd9a4f1da32) |
+| 3.9.1 | ap-southeast-2 | [ami-0162473012357913f](https://ap-southeast-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0162473012357913f) |
+| 3.9.1 | ca-central-1 | [ami-034123f6e4bf47ebe](https://ca-central-1.console.aws.amazon.com/ec2/home#launchAmi=ami-034123f6e4bf47ebe) |
+| 3.9.1 | eu-central-1 | [ami-041e9f940aa47cc57](https://eu-central-1.console.aws.amazon.com/ec2/home#launchAmi=ami-041e9f940aa47cc57) |
+| 3.9.1 | eu-north-1 | [ami-02c9b9573dd51be66](https://eu-north-1.console.aws.amazon.com/ec2/home#launchAmi=ami-02c9b9573dd51be66) |
+| 3.9.1 | eu-west-1 | [ami-08189341fffe63299](https://eu-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-08189341fffe63299) |
+| 3.9.1 | eu-west-2 | [ami-0f77a3082ff94976e](https://eu-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0f77a3082ff94976e) |
+| 3.9.1 | eu-west-3 | [ami-01a9f762e03dc71c4](https://eu-west-3.console.aws.amazon.com/ec2/home#launchAmi=ami-01a9f762e03dc71c4) |
+| 3.9.1 | sa-east-1 | [ami-074d84594f4b09480](https://sa-east-1.console.aws.amazon.com/ec2/home#launchAmi=ami-074d84594f4b09480) |
+| 3.9.1 | us-east-1 | [ami-0a788795af2d924bd](https://us-east-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0a788795af2d924bd) |
+| 3.9.1 | us-east-2 | [ami-09056926c45de21cd](https://us-east-2.console.aws.amazon.com/ec2/home#launchAmi=ami-09056926c45de21cd) |
+| 3.9.1 | us-west-1 | [ami-0daf0dfadc0840523](https://us-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0daf0dfadc0840523) |
+| 3.9.1 | us-west-2 | [ami-0829c32e97b009f6f](https://us-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0829c32e97b009f6f) |
 
 ## Caveats
 
@@ -49,8 +49,7 @@ its development and thus there are some sharp edges.
 
 - As of 3.9.0-1, this AMI starts `haveged` at the boot runlevel, to provide
   additional initial entropy as discussed in issue #39.  In the long term, we
-  expect the official Alpine Linux kernel configs will be updated to resolve
-  the situation.
+  hope to find an alternative solution.
 
 - Only EBS-backed HVM instances are supported.  While paravirtualized instances
   are still available from AWS they are not supported on any of the newer

@@ -20,7 +20,7 @@ public_ip: ""
 
 # Uncomment/increment every for every rebuild of an Alpine release;
 # re-comment/zero for every new Alpine release
-revision: "-1"
+#revision: "-1"
 
 # AMI name prefix and suffix
 ami_name_prefix: "alpine-ami-"

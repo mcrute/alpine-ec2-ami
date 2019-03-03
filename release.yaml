@@ -1,22 +1,22 @@
-alpine-ami-3.9.0-1-x86_64:
-  description: "Alpine Linux 3.9.0-1 x86_64"
-  alpine-release: 3.9.0-1
+alpine-ami-3.9.1-x86_64:
+  description: "Alpine Linux 3.9.1 x86_64"
+  alpine-release: 3.9.1
   kernel-flavor: virt
-  ami-release-date: "2019-02-24 21:18:47"
+  ami-release-date: "2019-03-03 01:03:41"
   region-identifiers:
-    ap-northeast-1: ami-0eaff92f5f149a429
-    ap-northeast-2: ami-0def256d4730ba94a
-    ap-south-1: ami-026f34bef63412f33
-    ap-southeast-1: ami-04a2ad17b9b13d4ec
-    ap-southeast-2: ami-03c7885750c554d30
-    ca-central-1: ami-0ef17552c0ecbfc4e
-    eu-central-1: ami-036c913a519569a6d
-    eu-north-1: ami-0e86b5fc1e6414006
-    eu-west-1: ami-069efddebf851614d
-    eu-west-2: ami-0aa8ab64c1c6a2a3a
-    eu-west-3: ami-00d39f7e016c2dd2b
-    sa-east-1: ami-028a5b577032629ee
-    us-east-1: ami-0b62ea2089812c46b
-    us-east-2: ami-083b8d0f14c76dfd7
-    us-west-1: ami-0dd01136582d41914
-    us-west-2: ami-0efc4434c74bde9fe
+    ap-northeast-1: ami-0ea7c699bf8c8dbdb
+    ap-northeast-2: ami-073bfec8980f57d41
+    ap-south-1: ami-0c305b2e446b07208
+    ap-southeast-1: ami-054428bd9a4f1da32
+    ap-southeast-2: ami-0162473012357913f
+    ca-central-1: ami-034123f6e4bf47ebe
+    eu-central-1: ami-041e9f940aa47cc57
+    eu-north-1: ami-02c9b9573dd51be66
+    eu-west-1: ami-08189341fffe63299
+    eu-west-2: ami-0f77a3082ff94976e
+    eu-west-3: ami-01a9f762e03dc71c4
+    sa-east-1: ami-074d84594f4b09480
+    us-east-1: ami-0a788795af2d924bd
+    us-east-2: ami-09056926c45de21cd
+    us-west-1: ami-0daf0dfadc0840523
+    us-west-2: ami-0829c32e97b009f6f
