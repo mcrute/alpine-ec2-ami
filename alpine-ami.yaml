@@ -6,7 +6,7 @@ variables:
   # NOTE:  Changing arch/version/release may require modifying 'make_ami.sh'.
   arch: x86_64
   version: "3.9"
-  release: "3.9.1"
+  release: "3.9.2"
   revision: ""
 
 builders:
