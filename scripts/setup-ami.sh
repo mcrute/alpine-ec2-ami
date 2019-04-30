@@ -3,6 +3,9 @@
 
 set -eu
 
+# what bootloader should we use?
+[ -d "/sys/firmware/efi" ] && BOOTLOADER=grub-efi || BOOTLOADER=syslinux
+
 die() {
     printf '\033[1;31mERROR:\033[0m %s\n' "$@" >&2  # bold red
     exit 1
@@ -55,21 +58,55 @@ fetch_apk_tools() {
     find "$store" -name apk
 }
 
-make_filesystem() {
-    local device="$1"  # target device path
-    local target="$2"  # mount target
+# mostly from Alpine's /sbin/setup-disk
+setup_partitions() {
+    # TODO: do we really need to waste 1M?
+    local diskdev="$1" start=1M line=
+    shift
 
-    mkfs.ext4 -O ^64bit "$device"
-    e2label "$device" /
-    mount "$device" "$target"
+    # create new partitions
+    (
+        for line in "$@"; do
+            case "$line" in
+            0M*) ;;
+            *) echo "$start,$line"; start= ;;
+            esac
+        done
+    ) | sfdisk --quiet --label $DISKLABEL $diskdev
+
+    # create device nodes if not exist
+    mdev -s
+}
+
+make_filesystem() {
+    local device="$1"   # target device path
+    local root_dev="$1" # root partition
+    local target="$2"   # mount target
+    local efi_dev=      # EFI partition
+
+    if [ "$BOOTLOADER" = 'grub-efi' ]; then
+        # create a small EFI partition (remainder for root), and format it
+        setup_partitions "$device" '5M,EF' ',L'
+        efi_dev="${device}1"
+        root_dev="${device}2"
+        mkfs.vfat -n EFI "${device}1"
+    fi
+
+    mkfs.ext4 -O ^64bit -L / "$root_dev"
+    mount "$root_dev" "$target"
+
+    if [ "$BOOTLOADER" = 'grub-efi' ]; then
+        mkdir -p "$target"/boot/efi
+        mount -t vfat "$efi_dev" "$target"/boot/efi
+    fi
+    # TODO? return "$root_dev"
 }
 
 setup_repositories() {
     local target="$1"   # target directory
-    local repos="$2"    # repositories
 
     mkdir -p "$target"/etc/apk/keys
-    echo "$repos" > "$target"/etc/apk/repositories
+    echo "$REPOS" > "$target"/etc/apk/repositories
 }
 
 fetch_keys() {
@@ -107,9 +144,8 @@ setup_chroot() {
 
 install_core_packages() {
     local target="$1"    # target directory
-    local pkgs="$2"      # packages, space separated
 
-    chroot "$target" apk --no-cache add $pkgs
+    chroot "$target" apk --no-cache add $PKGS
 
     chroot "$target" apk --no-cache add --no-scripts $BOOTLOADER
 
@@ -131,26 +167,28 @@ setup_mdev() {
     sed -n -i -e '/# fallback/r /tmp/nvme-ebs-mdev.conf' -e 1x -e '2,${x;p}' -e '${x;p}' "$target"/etc/mdev.conf
 }
 
-# TODO: use alpine-conf setup-*? (based on $BOOTLOADER)
 create_initfs() {
     local target="$1"
 
-    # TODO: other useful mkinitfs stuff?
-
-    # Create ENA feature for mkinitfs
-    echo "kernel/drivers/net/ethernet/amazon" > \
-        "$target"/etc/mkinitfs/features.d/ena.modules
-
     # Enable ENA and NVME features these don't hurt for any instance and are
     # hard requirements of the 5 series and i3 series of instances
+    # TODO: profile-ize?
     sed -Ei 's/^features="([^"]+)"/features="\1 nvme ena"/' \
         "$target"/etc/mkinitfs/mkinitfs.conf
 
     chroot "$target" /sbin/mkinitfs $(basename $(find "$target"/lib/modules/* -maxdepth 0))
 }
 
-# TODO: this is for syslinux only, there's likely a grub equivalence
-setup_extlinux() {
+install_bootloader() {
+    local target="$1"
+    case "$BOOTLOADER" in
+        syslinux)   install_extlinux "$target" ;;
+        grub-efi)   install_grub_efi "$target" ;;
+        *)          die "unknown bootloader '$BOOTLOADER'" ;;
+    esac
+}
+
+install_extlinux() {
     local target="$1"
 
     # Must use disk labels instead of UUID or devices paths so that this works
@@ -159,26 +197,51 @@ setup_extlinux() {
     #
     # Enable ext4 because the root device is formatted ext4
     #
-    # Shorten timeout because EC2 has no way to interact with instance console
+    # Shorten timeout (1/10s) as EC2 has no way to interact with instance console
     #
     # ttyS0 is the target for EC2s "Get System Log" feature whereas tty0 is the
     # target for EC2s "Get Instance Screenshot" feature. Enabling the serial
     # port early in extlinux gives the most complete output in the system log.
     sed -Ei -e "s|^[# ]*(root)=.*|\1=LABEL=/|" \
-        -e "s|^[# ]*(default_kernel_opts)=.*|\1=\"console=ttyS0 console=tty0\"|" \
+        -e "s|^[# ]*(default_kernel_opts)=.*|\1=\"$KERNEL_OPTS\"|" \
         -e "s|^[# ]*(serial_port)=.*|\1=ttyS0|" \
-        -e "s|^[# ]*(modules)=.*|\1=sd-mod,usb-storage,ext4|" \
+        -e "s|^[# ]*(modules)=.*|\1=$KERNEL_MODS|" \
         -e "s|^[# ]*(default)=.*|\1=virt|" \
         -e "s|^[# ]*(timeout)=.*|\1=1|" \
         "$target"/etc/update-extlinux.conf
-}
-
-# TODO: this is for syslinux only, there's likely a grub equivalence
-install_extlinux() {
-    local target="$1"
 
     chroot "$target" /sbin/extlinux --install /boot
     chroot "$target" /sbin/update-extlinux --warn-only
+}
+
+install_grub_efi() {
+    local target="$1"
+
+    case "$ARCH" in
+        x86_64)     grub_target=x86_64-efi ; fwa=x64 ;;
+        aarch64)    grub_target=arm64-efi ; fwa=aa64 ;;
+        *)          die "ARCH=$ARCH is currently unsupported" ;;
+    esac
+
+    # TODO: this should be set up when we mkfs/mount
+    #mkdir -p "$target"/boot/efi
+
+    # disable nvram so grub doesn't call efibootmgr
+    chroot "$target" /sbin/grub-install --target=$grub_target --efi-directory=/boot/efi \
+        --bootloader-id=alpine --boot-directory=/boot --no-nvram
+
+    # fallback mode
+    install -D "$target"/boot/efi/EFI/alpine/grub$fwa.efi "$target"/boot/efi/EFI/boot/$fwa.efi
+
+    # add cmdline linux defaults to /etc/default/grub
+    echo "GRUB_CMDLINE_LINUX_DEFAULT=\"modules=$KERNEL_MODS $KERNEL_OPTS\"" >> "$target"/etc/default/grub
+
+    # eliminate grub pause
+    sed -ie 's/^GRUB_TIMEOUT=.$/GRUB_TIMEOUT=0/' "$target"/etc/default/grub
+
+    # generate/install new config
+    [ -e "$target"/boot/grub/grub.cfg ] && cp "$target"/boot/grub/grub.cfg "$target"/boot/grub/grub.cfg.backup
+    chroot "$target" grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 setup_fstab() {
@@ -188,6 +251,11 @@ setup_fstab() {
 # <fs>      <mountpoint>   <type>   <opts>              <dump/pass>
 LABEL=/     /              ext4     defaults,noatime    1 1
 EOF
+
+    # if we're using grub-efi bootloader, add extra line for EFI partition
+    if [ "$BOOTLOADER" = 'grub-efi' ]; then
+        echo "LABEL=EFI   /boot/efi      vfat     defaults,noatime,uid=0,gid=0,umask=077  0 0" >> "$target"/etc/fstab
+    fi
 }
 
 setup_networking() {
@@ -204,9 +272,8 @@ EOF
 
 enable_services() {
     local target="$1"
-    local svcs="$2"
 
-    local lvl_svcs; for lvl_svcs in $svcs; do
+    local lvl_svcs; for lvl_svcs in $SVCS; do
         rc_add "$target" $(echo "$lvl_svcs" | tr =, ' ')
     done
 }
@@ -267,10 +334,6 @@ cleanup() {
 }
 
 main() {
-    local repos=$(echo "$REPOS" | tr , "\n")
-    local pkgs=$(echo "$PKGS" | tr , ' ')
-    local svcs=$(echo "$SVCS" | tr : ' ')
-
     local device="/dev/xvdf"
     local target="/mnt/target"
 
@@ -285,7 +348,7 @@ main() {
     make_filesystem "$device" "$target"
 
     einfo "Configuring Alpine repositories"
-    setup_repositories "$target" "$repos"
+    setup_repositories "$target"
 
     einfo "Fetching Alpine signing keys"
     fetch_keys "$target"
@@ -296,19 +359,17 @@ main() {
     setup_chroot "$target"
 
     einfo "Installing core packages"
-    install_core_packages "$target" "$pkgs"
+    install_core_packages "$target"
 
-    # TODO: syslinux vs grub, maybe use setup-* scripts?
     einfo "Configuring and enabling boot loader"
     create_initfs "$target"
-    setup_extlinux "$target"
-    install_extlinux "$target"
+    install_bootloader "$target"
 
     einfo "Configuring system"
     setup_mdev "$target"
     setup_fstab "$target"
     setup_networking "$target"
-    enable_services "$target" "$svcs"
+    enable_services "$target"
     create_alpine_user "$target"
     configure_ntp "$target"
 

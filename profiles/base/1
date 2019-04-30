@@ -41,7 +41,6 @@ apk_tools           = null
 apk_tools_sha256    = null
 alpine_keys         = null
 alpine_keys_sha256  = null
-bootloader          = null
 repos {}
 pkgs {
   linux-virt          = true
@@ -55,12 +54,10 @@ pkgs {
   tzdata              = true
 }
 svcs {
-  # sysinit
   devfs     = "sysinit"
   dmesg     = "sysinit"
   hwdrivers = "sysinit"
   mdev      = "sysinit"
-  # boot
   acpid     = "boot"
   bootmisc  = "boot"
   haveged   = "boot"
@@ -70,13 +67,20 @@ svcs {
   swap      = "boot"
   sysctl    = "boot"
   syslog    = "boot"
-  # default
   chronyd             = "default"
   networking          = "default"
   sshd                = "default"
   tiny-ec2-bootstrap  = "default"
-  # shutdown
   killprocs = "shutdown"
   mount-ro  = "shutdown"
   savecache = "shutdown"
+}
+kernel_modules {
+  "sd-mod"      = true
+  "usb-storage" = true
+  "ext4"        = true
+}
+kernel_options {
+  "console=ttyS0" = true
+  "console=tty0"  = true
 }
