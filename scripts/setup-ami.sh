@@ -72,10 +72,15 @@ setup_partitions() {
             *) echo "$start,$line"; start= ;;
             esac
         done
-    ) | sfdisk --quiet --label $DISKLABEL $diskdev
+    ) | sfdisk --quiet --label dos $diskdev
 
-    # create device nodes if not exist
-    mdev -s
+    # we assume that the build host will create the new devices within 5s
+    local tries=5
+    while [ ! -e "${diskdev}1" ]; do
+        [ $tries -eq 0 ] && break || sleep 1
+        tries=$(( $tries - 1 ))
+    done
+    [ -e "${diskdev}1" ] || die "Expected new device ${diskdev}1 not created"
 }
 
 make_filesystem() {
@@ -227,7 +232,7 @@ install_grub_efi() {
     #mkdir -p "$target"/boot/efi
 
     # disable nvram so grub doesn't call efibootmgr
-    chroot "$target" /sbin/grub-install --target=$grub_target --efi-directory=/boot/efi \
+    chroot "$target" /usr/sbin/grub-install --target=$grub_target --efi-directory=/boot/efi \
         --bootloader-id=alpine --boot-directory=/boot --no-nvram
 
     # fallback mode
@@ -324,6 +329,8 @@ cleanup() {
         "$target"/etc/resolv.conf \
         "$target"/root/.ash_history \
         "$target"/etc/*-
+
+    [ "$BOOTLOADER" = 'grub-efi' ] && umount "$target"/boot/efi
 
     umount \
         "$target"/dev \

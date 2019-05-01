@@ -9,9 +9,12 @@ release     = "edge"
 end_of_life = "@TODAY@"
 revision    = "@NOW@"
 
-repos = null  # undo "current" repos
+repos = null  # reset hash from 'current'
 repos {
   "http://dl-cdn.alpinelinux.org/alpine/edge/main":       true
   "http://dl-cdn.alpinelinux.org/alpine/edge/community":  true
   "http://dl-cdn.alpinelinux.org/alpine/edge/testing":    true
 }
+# haveged/rngd no longer needed with Alpine kernels >= 4.19.36
+pkgs { haveged = false }
+svcs { haveged = false }
