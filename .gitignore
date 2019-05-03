@@ -1,8 +1,8 @@
 **/*~
 **/*.swp
 /build/
-/.py3/
-/variables.yaml
-/variables.yaml_*
 /scrub-old-amis.py
 /gen-readme.py
+/profiles/*.conf
+!/profiles/alpine-amis.conf
+!/profiles/test.conf.conf

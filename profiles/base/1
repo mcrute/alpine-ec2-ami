@@ -3,7 +3,7 @@
 # Profile/Build
 profile       = null
 profile_build = null
-revision      = 'r0'
+revision      = "r0"
 
 # Versioning
 version     = null
@@ -17,7 +17,6 @@ build_arch  = null
 # Builder-instance
 build_region          = null
 build_subnet          = null
-build_security_group  = null
 build_instance_type   = "t3.nano"
 build_public_ip       = null
 build_user            = "ec2-user"

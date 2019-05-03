@@ -119,7 +119,7 @@ fetch_keys() {
     local tmp="$(mktemp -d)"
 
     wgets "$ALPINE_KEYS" "$ALPINE_KEYS_SHA256" "$tmp/alpine-keys.apk"
-    tar -C "$target" -xvf "$tmp"/alpine-keys.apk etc/apk/keys
+    tar -C "$target" --warning=no-unknown-keyword -xvf "$tmp"/alpine-keys.apk etc/apk/keys
     rm -rf "$tmp"
 }
 
