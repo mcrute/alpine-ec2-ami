@@ -3,6 +3,9 @@
 /build/
 /scrub-old-amis.py
 /gen-readme.py
-/profiles/*.conf
+/profiles/*
+!/profiles/base
+!/profiles/arch
+!/profiles/version
 !/profiles/alpine-amis.conf
 !/profiles/test.conf.conf
