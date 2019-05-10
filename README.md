@@ -44,28 +44,35 @@ in the not-too-distant future.*
 
 ## Caveats
 
-This image is being used in production but it's still somewhat early stage in
-its development and thus there are some sharp edges.
+This image is being used in production but it's still in development, and thus
+there may be some sharp edges.
 
-- As of 3.9.0-1, this AMI starts `haveged` at the boot runlevel, to provide
-  additional initial entropy as discussed in issue #39.  In the long term, we
-  hope to find an alternative solution.
+- This image uses the lightweight [tiny-ec2-bootstrap](https://github.com/mcrute/tiny-ec2-bootstrap)
+  init script to set the instance's hostname, install SSH authorized_keys for
+  the 'alpine' user, disable 'root' and 'alpine' users' passwords, expand the
+  root partition to use all available space, and execute a user-data script (as
+  long as it's a shell script that starts with `#!`) on its first boot.
+
+- Please note that if you use these AMIs to launch instances to build other
+  images (via [Packer](https://packer.io), etc.), don't forget to remove
+  `/var/lib/cloud/.bootstrap-complete` -- otherwise, instances launched from
+  those AMIs will not run `tiny-ec2-bootstrap` on their first boot.
+
+- The more familiar [cloud-init](https://cloudinit.readthedocs.io/en/latest/)
+  is not currently supported on Alpine Linux.  You can install cloud-init (from
+  the edge testing repository), but it hasn't been tested with this AMI. If
+  `cloud-init` support is important to you please, file a bug against this
+  project.
+
+- AMIs between 3.9.0-1 and 3.9.3 start `haveged` at the boot runlevel, to
+  provide additional initial entropy as discussed in issue #39.  The kernel
+  config issue has been resolved, and future releases will not need an
+  entropy-gathering daemon started at boot.
 
 - Only EBS-backed HVM instances are supported.  While paravirtualized instances
   are still available from AWS they are not supported on any of the newer
   hardware so it seems unlikely that they will be supported going forward.
   Thus this project does not support them.
-
-- [cloud-init](https://cloudinit.readthedocs.io/en/latest/) is not currently
-  supported on Alpine Linux.  Instead this image uses
-  [tiny-ec2-bootstrap](https://github.com/mcrute/tiny-ec2-bootstrap).  Hostname
-  setting will work, as will setting the ssh keys for the Alpine user based on
-  what was configured during instance launch.  User data is supported as long
-  as it's a shell script (starts with #!).  See the tiny-ec2-bootstrap README
-  for more details.  You can still install cloud-init (from the edge testing
-  repositories), but we haven't tested whether it will work correctly for this
-  AMI.  If full cloud-init support is important to you please file a bug
-  against this project.
 
 - CloudFormation support is still forthcoming.  This requires patches and
   packaging for the upstream cfn tools that have not yet been accepted.
