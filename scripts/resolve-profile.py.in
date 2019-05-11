@@ -11,7 +11,7 @@ profile = sys.argv[1]
 profile_conf = os.path.join(script_dir, '..', 'profiles', profile + '.conf')
 
 # where we store profile's builds
-profile_dir = os.path.join(script_dir, 'profile')
+profile_dir = os.path.join(script_dir, 'profile', profile)
 
 builds = ConfigFactory.parse_file(profile_conf)['builds']
 

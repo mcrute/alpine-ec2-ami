@@ -1,13 +1,27 @@
 #!/bin/sh
 
+export PACKER=${PACKER:-packer}
+
 cd build
 
-# if no build(s) specified, do all profile's builds!
-[ $# -gt 0 ] && BUILDS="$@" || BUILDS=$(ls profile)
+# we need a profile
+if [ $# -eq 0 ]; then
+  echo "Usage: $(basename $0) <profile> [ <build> ... ]" >&2
+  exit 1
+fi
+
+PROFILE=$1; shift
+
+# no build(s) specified?  do all the builds!
+[ $# -gt 0 ] && BUILDS="$@" || BUILDS=$(ls profile/$PROFILE)
 
 for B in $BUILDS
 do
-  BUILD="profile/$B"
-  ( packer build -var-file=$BUILD/vars.json packer.json; echo $? >$BUILD/exit ) | tee $BUILD/output
+  BUILD="profile/$PROFILE/$B"
+  ( "$PACKER" build -var-file=$BUILD/vars.json packer.json; echo $? >$BUILD/exit ) | tee $BUILD/output
   echo "=-> $(cat $BUILD/exit) <-="
+  # TODO: check exit & output
+  #  - AMI already exist?  continue in case other builds need building
+  #  - New release for version?  maybe update release var and try again?
+  #  - SIGINT or unknown issue?  cleanup / exit
 done

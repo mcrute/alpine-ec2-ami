@@ -45,7 +45,6 @@ pkgs {
   linux-virt          = true
   alpine-mirrors      = true
   chrony              = true
-  haveged             = true
   nvme-cli            = true
   openssh             = true
   sudo                = true
@@ -59,7 +58,6 @@ svcs {
   mdev      = "sysinit"
   acpid     = "boot"
   bootmisc  = "boot"
-  haveged   = "boot"
   hostname  = "boot"
   hwclock   = "boot"
   modules   = "boot"

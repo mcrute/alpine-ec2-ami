@@ -15,6 +15,3 @@ repos {
   "http://dl-cdn.alpinelinux.org/alpine/edge/community":  true
   "http://dl-cdn.alpinelinux.org/alpine/edge/testing":    true
 }
-# haveged/rngd no longer needed with Alpine kernels >= 4.19.36
-pkgs { haveged = false }
-svcs { haveged = false }
