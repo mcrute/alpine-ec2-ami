@@ -1,0 +1,115 @@
+@PYTHON@
+# vim: ts=4 et:
+
+from datetime import datetime
+from distutils.version import StrictVersion
+import functools
+import os
+import re
+import sys
+import yaml
+
+if len(sys.argv) != 2:
+    sys.exit("Usage: " + os.path.basename(__file__) + "<profile>")
+
+PROFILE = sys.argv[1]
+
+RELEASE_DIR = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    '..', 'releases'
+)
+
+README_MD = os.path.join( RELEASE_DIR, 'README.md')
+RELEASE_YAML = os.path.join( RELEASE_DIR, PROFILE + '.yaml')
+
+# read in releases/<profile>.yaml
+with open(RELEASE_YAML, 'r') as data:
+    RELEASES = yaml.safe_load(data)
+
+sections = {}
+
+for build, releases in RELEASES.items():
+    for release, amis in releases.items():
+        if release in sections:
+            rel = sections[release]
+        else:
+            rel = {
+                'built': {},
+                'name': {},
+                'ami': {}
+            }
+        for name, info in amis.items():
+            arch = info['arch']
+            built = info['build_time']
+            if (arch not in rel['built'] or
+                    rel['built'][arch] < built):
+                rel['name'][arch] = name
+                rel['built'][arch] = built
+                for region, ami in info['artifacts'].items():
+                    if region not in rel['ami']:
+                        rel['ami'][region] = {}
+                    rel['ami'][region][arch] = ami
+        sections[release] = rel
+
+SECTION = """
+### Alpine Linux {release} ({date})
+<details><summary><i>click to show/hide</i></summary><p>
+
+{rows}
+
+</p></details>
+"""
+
+AMI = " [{id}](https://{r}.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId={id}) " + \
+      "([launch](https://{r}.console.aws.amazon.com/ec2/home#launchAmi={id})) |"
+
+ARCHS = ['x86_64', 'aarch64']
+
+
+# most -> least recent version, edge at end
+def ver_cmp(a, b):
+    try:
+        if StrictVersion(a) < StrictVersion(b):
+            return 1
+        if StrictVersion(a) > StrictVersion(b):
+            return -1
+        return 0
+    except ValueError:
+        # "edge" doesn't work with StrictVersion
+        if a == 'edge':
+            return 1
+        if b == 'edge':
+            return -1
+        return 0
+
+
+ami_list = "## AMIs\n"
+
+for release in sorted(list(sections.keys()), key=functools.cmp_to_key(ver_cmp)):
+    info = sections[release]
+    rows = []
+    rows.append('| Region |')
+    rows.append('| ------ |')
+    for arch in ARCHS:
+        if arch in info['name']:
+            rows[0] += ' {n} |'.format(n=info['name'][arch])
+            rows[1] += ' --- |'
+    for region, amis in info['ami'].items():
+        row = '| {r} |'.format(r=region)
+        for arch in ARCHS:
+            if arch in amis:
+                row += AMI.format(r=region, id=amis[arch])
+        rows.append(row)
+    ami_list += SECTION.format(
+        release=release.capitalize(),
+        date=datetime.utcfromtimestamp(max(info['built'].values())).date(),
+        rows="\n".join(rows)
+    )
+
+with open(README_MD, 'r') as file:
+    readme = file.read()
+
+readme_re = re.compile('## AMIs.*\Z', re.S)
+
+with open(README_MD, 'w') as file:
+    file.write(readme_re.sub(ami_list, readme))

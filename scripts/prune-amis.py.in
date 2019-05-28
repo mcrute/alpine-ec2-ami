@@ -1,0 +1,133 @@
+@PYTHON@
+# vim: ts=4 et:
+
+from datetime import datetime
+import os
+import sys
+import boto3
+import yaml
+
+LEVELS = ['revision', 'release', 'version']
+
+if 3 < len(sys.argv) > 4 or sys.argv[1] not in LEVELS:
+    sys.exit("Usage: " + os.path.basename(__file__) + """ <level> <profile> [<build>]
+<level> :-
+    revision  - keep only the latest revision per release
+    release   - keep only the latest release per version
+    version   - keep only the versions that aren't end-of-life""")
+
+NOW = datetime.utcnow()
+LEVEL = sys.argv[1]
+PROFILE = sys.argv[2]
+BUILD = None if len(sys.argv) == 3 else sys.argv[3]
+
+RELEASE_YAML = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)),
+    '..', 'releases', PROFILE + '.yaml'
+)
+
+with open(RELEASE_YAML, 'r') as data:
+    BEFORE = yaml.safe_load(data)
+
+known = {}
+prune = {}
+after = {}
+
+# for all builds in the profile...
+for build_name, releases in BEFORE.items():
+
+    # this is not the build that was specified
+    if BUILD is not None and BUILD != build_name:
+        print('< skipping {0}/{1}'.format(PROFILE, build_name))
+        # ensure its release data remains intact
+        after[build_name] = BEFORE[build_name]
+        continue
+    else:
+        print('> PRUNING {0}/{1} for {2}'.format(PROFILE, build_name, LEVEL))
+
+    criteria = {}
+
+    # scan releases for pruning criteria
+    for release, amis in releases.items():
+        for ami_name, info in amis.items():
+            version = info['version']
+            if info['end_of_life']:
+                eol = datetime.fromisoformat(info['end_of_life'])
+            else:
+                eol = None
+            built = info['build_time']
+            for region, ami_id in info['artifacts'].items():
+                if region not in known:
+                    known[region] = []
+                known[region].append(ami_id)
+
+            if LEVEL == 'revision':
+                # find build timestamp of most recent revision, per release
+                if release not in criteria or built > criteria[release]:
+                    criteria[release] = built
+            elif LEVEL == 'release':
+                # find build timestamp of most recent revision, per version
+                if version not in criteria or built > criteria[version]:
+                    criteria[version] = built
+            elif LEVEL == 'version':
+                # find latest EOL date, per version
+                if (version not in criteria or not criteria[version]) or (
+                        eol and eol > criteria[version]):
+                    criteria[version] = eol
+
+    # rescan again to determine what doesn't make the cut
+    for release, amis in releases.items():
+        for ami_name, info in amis.items():
+            version = info['version']
+            if info['end_of_life']:
+                eol = datetime.fromisoformat(info['end_of_life'])
+            else:
+                eol = None
+            built = info['build_time']
+            if ((LEVEL == 'revision' and built < criteria[release]) or
+                    (LEVEL == 'release' and built < criteria[version]) or
+                    (LEVEL == 'version' and criteria[version] and (
+                        (version != 'edge' and criteria[version] < NOW) or
+                        (version == 'edge' and ((not eol) or (eol < NOW)))
+                    ))):
+                for region, ami_id in info['artifacts'].items():
+                    if region not in prune:
+                        prune[region] = []
+                    prune[region].append(ami_id)
+            else:
+                if build_name not in after:
+                    after[build_name] = {}
+                if release not in after[build_name]:
+                    after[build_name][release] = {}
+                after[build_name][release][ami_name] = info
+
+# scan all regions for AMIs
+AWS = boto3.session.Session()
+for region in AWS.get_available_regions('ec2'):
+    print("* scanning: " + region + '...')
+    EC2 = AWS.client('ec2', region_name=region)
+
+    for image in EC2.describe_images(Owners=['self'])['Images']:
+
+        action = '? UNKNOWN'
+        if region in prune and image['ImageId'] in prune[region]:
+            action = '- REMOVING'
+        elif region in known and image['ImageId'] in known[region]:
+            action = '+ KEEPING'
+
+        print('  ' + action + ': ' + image['Name'] +
+              "\n    = " + image['ImageId'], end='', flush=True)
+        if action[0] == '-':
+            EC2.deregister_image(ImageId=image['ImageId'])
+        for blockdev in image['BlockDeviceMappings']:
+            if 'Ebs' in blockdev:
+                print(', ' + blockdev['Ebs']['SnapshotId'],
+                      end='', flush=True)
+                if action[0] == '-':
+                    EC2.delete_snapshot(
+                        SnapshotId=blockdev['Ebs']['SnapshotId'])
+        print()
+
+# update releases/<profile>.yaml
+with open(RELEASE_YAML, 'w') as data:
+    yaml.dump(after, data, sort_keys=False)

@@ -1,44 +1,43 @@
-.PHONY: ami
+# vim: ts=8 noet:
 
-ami: convert
-	packer build -var-file=build/variables.json build/alpine-ami.json
+ALL_SCRIPTS := $(wildcard scripts/*)
+CORE_PROFILES := $(wildcard profiles/*/*)
+TARGET_PROFILES := $(wildcard profiles/*.conf)
+PROFILE :=
+BUILD :=
+BUILDS := $(BUILD)
+LEVEL :=
 
-edge: convert
-	@echo '{ "version": "edge", "release": "edge", "revision": "'-`date +%Y%m%d%H%M%S`'" }' > build/edge.json
-	packer build -var-file=build/variables.json -var-file=build/edge.json build/alpine-ami.json
+# by default, use the 'packer' in the path
+PACKER := packer
+export PACKER
 
-convert: build/convert
-	[ -f variables.yaml ] || cp variables.yaml-default variables.yaml
-	build/convert variables.yaml > build/variables.json
-	build/convert alpine-ami.yaml > build/alpine-ami.json
+.PHONY: amis prune release-readme clean
 
-build/convert:
-	[ -d ".py3" ] || python3 -m venv .py3
-	.py3/bin/pip install pyyaml boto3
+amis: build build/packer.json build/profile/$(PROFILE) build/update-release.py
+	build/make-amis $(PROFILE) $(BUILDS)
 
-	[ -d "build" ] || mkdir build
+prune: build build/prune-amis.py
+	build/prune-amis.py $(LEVEL) $(PROFILE) $(BUILD)
 
-	# Make stupid simple little YAML/JSON converter so we can maintain our
-	# packer configs in a sane format that allows comments but also use packer
-	# which only supports JSON
-	@echo "#!`pwd`/.py3/bin/python" > build/convert
-	@echo "import yaml, json, sys" >> build/convert
-	@echo "y = yaml.full_load(open(sys.argv[1]))" >> build/convert
-	@echo "for k in ['ami_access','deploy_regions','add_repos','add_pkgs','add_svcs']:" >> build/convert
-	@echo "  if k in y and isinstance(y[k], list):" >> build/convert
-	@echo "    y[k] = ','.join(str(x) for x in y[k])" >> build/convert
-	@echo "  if k in y and isinstance(y[k], dict):" >> build/convert
-	@echo "    y[k] = ':'.join(str(l) + '=' + ','.join(str(s) for s in ss) for l, ss in y[k].items())" >> build/convert
-	@echo "json.dump(y, sys.stdout, indent=4, separators=(',', ': '))" >> build/convert
-	@chmod +x build/convert
+release-readme: build build/gen-release-readme.py
+	build/gen-release-readme.py $(PROFILE)
 
-%.py: %.py.in
-	sed "s|@PYTHON@|#!`pwd`/.py3/bin/python|" $< > $@
+build: $(SCRIPTS)
+	[ -d build/profile ] || mkdir -p build/profile
+	python3 -m venv build/.py3
+	build/.py3/bin/pip install pyhocon pyyaml boto3
+	(cd build; for i in $(ALL_SCRIPTS); do ln -sf ../$$i .; done)
+
+build/packer.json: build packer.conf
+	build/.py3/bin/pyhocon -i packer.conf -f json > build/packer.json
+
+build/profile/$(PROFILE): build build/resolve-profile.py $(CORE_PROFILES) $(TARGET_PROFILES)
+	build/resolve-profile.py $(PROFILE)
+
+%.py: %.py.in build
+	sed "s|@PYTHON@|#!`pwd`/build/.py3/bin/python|" $< > $@
 	chmod +x $@
 
-.PHONY: clean
 clean:
-	rm -rf build .py3 scrub-old-amis.py gen-readme.py
-
-distclean: clean
-	rm -f variables.yaml
+	rm -rf build

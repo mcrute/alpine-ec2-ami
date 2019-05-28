@@ -2,7 +2,7 @@
 
 [ -x /usr/sbin/nvme ] || exit
 
-PROC="$(basename $0)[$$]"
+PROC="$(basename "$0")[$$]"
 
 log() {
   FACILITY="kern.$1"
@@ -16,8 +16,8 @@ raw_ebs_alias() {
 
 case $ACTION in
   add|"")
-    BASE=$(echo $MDEV | sed -re 's/^(nvme[0-9]+n[0-9]+).*/\1/')
-    PART=$(echo $MDEV | sed -re 's/nvme[0-9]+n[0-9]+p?//g')
+    BASE=$(echo "$MDEV" | sed -re 's/^(nvme[0-9]+n[0-9]+).*/\1/')
+    PART=$(echo "$MDEV" | sed -re 's/nvme[0-9]+n[0-9]+p?//g')
     MAXTRY=50
     TRY=0
     until [ -n "$EBS" ]; do
@@ -30,14 +30,15 @@ case $ACTION in
       fi
       sleep 0.1
     done
-    EBS=${EBS#/dev/}$PART
-    ln -sf "$MDEV" "${EBS/xvd/sd}" && log notice "Added ${EBS/xvd/sd} symlink for $MDEV"
-    ln -sf "$MDEV" "${EBS/sd/xvd}" && log notice "Added ${EBS/sd/xvd} symlink for $MDEV"
+    # remove any leading '/dev/', 'sd', or 'xvd', and append partition
+    EBS="${${${EBS#/dev/}#sd}#xvd}$PART"
+    ln -sf "$MDEV" "sd$EBS" && log notice "Added sd$EBS symlink for $MDEV"
+    ln -sf "$MDEV" "xvd$EBS" && log notice "Added xvd$EBS symlink for $MDEV"
     ;;
   remove)
     for TARGET in sd* xvd*
     do
-      [ "$(readlink $TARGET 2>/dev/null)" = "$MDEV" ] && rm -f "$TARGET" && log notice "Removed $TARGET symlink for $MDEV"
+      [ "$(readlink "$TARGET" 2>/dev/null)" = "$MDEV" ] && rm -f "$TARGET" && log notice "Removed $TARGET symlink for $MDEV"
     done
     ;;
 esac

@@ -1,0 +1,105 @@
+@PYTHON@
+# vim: set ts=4 et:
+
+import json
+import os
+import shutil
+import sys
+from datetime import datetime, timedelta
+from pyhocon import ConfigFactory
+
+if len(sys.argv) != 2:
+    sys.exit("Usage: " + os.path.basename(__file__) + " <profile>")
+
+PROFILE = sys.argv[1]
+
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+
+# path to the profile config file
+PROFILE_CONF = os.path.join(SCRIPT_DIR, '..', 'profiles', PROFILE + '.conf')
+
+# load the profile's build configuration
+BUILDS = ConfigFactory.parse_file(PROFILE_CONF)['BUILDS']
+
+# where we store the profile's builds' config/output
+PROFILE_DIR = os.path.join(SCRIPT_DIR, 'profile', PROFILE)
+if not os.path.exists(PROFILE_DIR):
+    os.makedirs(PROFILE_DIR)
+
+# fold these build config keys' dict to scalar
+FOLD_DICTS = {
+    'ami_access': ',{0}',
+    'ami_regions': ',{0}',
+    'repos': "\n@{1} {0}",
+    'pkgs': ' {0}@{1}',
+    'kernel_modules': ',{0}',
+    'kernel_options': ' {0}'
+}
+
+NOW = datetime.utcnow()
+ONE_DAY = timedelta(days=1)
+
+
+# func to fold dict down to scalar
+def fold(fdict, ffmt):
+    folded = ''
+    for fkey, fval in fdict.items():
+        fkey = fkey.strip('"')    # complex keys may be in quotes
+        if fval is True:
+            folded += ffmt[0] + fkey
+        elif not (fval is None or fval is False):
+            folded += ffmt.format(fkey, fval)
+    return folded[1:]
+
+
+# parse/resolve HOCON profile's builds' config
+for build, cfg in BUILDS.items():
+    build_dir = os.path.join(PROFILE_DIR, build)
+
+    # make a fresh profile build directory
+    if os.path.exists(build_dir):
+        shutil.rmtree(build_dir)
+    os.makedirs(build_dir)
+
+    # populate profile build vars
+    cfg['profile'] = PROFILE
+    cfg['profile_build'] = build
+
+    # mostly edge-related temporal substitutions
+    if cfg['end_of_life'] == '@TOMORROW@':
+        cfg['end_of_life'] = (NOW + ONE_DAY).isoformat(timespec='seconds')
+    elif cfg['end_of_life'] is not None:
+        # to explicitly UTC-ify end_of_life
+        cfg['end_of_life'] = datetime.fromisoformat(
+            cfg['end_of_life'] + '+00:00').isoformat(timespec='seconds')
+    if cfg['revision'] == '@NOW@':
+        cfg['revision'] = NOW.strftime('%Y%m%d%H%M%S')
+
+    # fold dict vars to scalars
+    for foldkey, foldfmt in FOLD_DICTS.items():
+        cfg[foldkey] = fold(cfg[foldkey], foldfmt)
+
+    # fold 'svcs' dict to scalar
+    lvls = {}
+    for svc, lvl in cfg['svcs'].items():
+        if lvl is True:
+            # service in default runlevel
+            lvls['default'].append(svc)
+        elif not (lvl is None or lvl is False):
+            # service in specified runlevel (skip svc when false/null)
+            if lvl not in lvls.keys():
+                lvls[lvl] = []
+            lvls[lvl].append(svc)
+    cfg['svcs'] = ' '.join(
+        str(lvl) + '=' + ','.join(
+            str(svc) for svc in svcs
+        ) for lvl, svcs in lvls.items()
+    )
+
+    # resolve ami_name and ami_desc
+    cfg['ami_name'] = cfg['ami_name'].format(var=cfg)
+    cfg['ami_desc'] = cfg['ami_desc'].format(var=cfg)
+
+    # write build vars file
+    with open(os.path.join(build_dir, 'vars.json'), 'w') as out:
+        json.dump(cfg, out, indent=4, separators=(',', ': '))

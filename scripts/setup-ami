@@ -1,0 +1,344 @@
+#!/bin/sh
+# vim: set ts=4 et:
+
+set -eu
+
+DEVICE=/dev/xvdf
+TARGET=/mnt/target
+
+# what bootloader should we use?
+[ -d "/sys/firmware/efi" ] && BOOTLOADER=grub-efi || BOOTLOADER=syslinux
+
+die() {
+    printf '\033[1;31mERROR:\033[0m %s\n' "$@" >&2  # bold red
+    exit 1
+}
+
+einfo() {
+    printf '\n\033[1;36m> %s\033[0m\n' "$@" >&2  # bold cyan
+}
+
+rc_add() {
+    runlevel="$1"; shift  # runlevel name
+    services="$*"         # names of services
+
+    for svc in $services; do
+        mkdir -p "$TARGET/etc/runlevels/$runlevel"
+        ln -s "/etc/init.d/$svc" "$TARGET/etc/runlevels/$runlevel/$svc"
+        echo " * service $svc added to runlevel $runlevel"
+    done
+}
+
+wgets() (
+    url="$1"     # url to fetch
+    sha256="$2"  # expected SHA256 sum of output
+    dest="$3"    # output path and filename
+
+    wget -T 10 -q -O "$dest" "$url"
+    echo "$sha256  $dest" | sha256sum -c > /dev/null
+)
+
+validate_block_device() {
+    lsblk -P --fs "$DEVICE" >/dev/null 2>&1 || \
+        die "'$DEVICE' is not a valid block device"
+
+    if lsblk -P --fs "$DEVICE" | grep -vq 'FSTYPE=""'; then
+        die "Block device '$DEVICE' is not blank"
+    fi
+}
+
+fetch_apk_tools() {
+    store="$(mktemp -d)"
+    tarball="$(basename "$APK_TOOLS")"
+
+    wgets "$APK_TOOLS" "$APK_TOOLS_SHA256" "$store/$tarball"
+    tar -C "$store" -xf "$store/$tarball"
+
+    find "$store" -name apk
+}
+
+# mostly from Alpine's /sbin/setup-disk
+setup_partitions() {
+    start=1M    # TODO: do we really need to waste 1M?
+    line=
+
+    # create new partitions
+    (
+        for line in "$@"; do
+            case "$line" in
+            0M*) ;;
+            *) echo "$start,$line"; start= ;;
+            esac
+        done
+    ) | sfdisk --quiet --label dos "$DEVICE"
+
+    # we assume that the build host will create the new devices within 5s
+    tries=5
+    while [ ! -e "${DEVICE}1" ]; do
+        [ $tries -eq 0 ] && break
+        sleep 1
+        tries=$(( tries - 1 ))
+    done
+    [ -e "${DEVICE}1" ] || die "Expected new device ${DEVICE}1 not created"
+}
+
+make_filesystem() {
+    root_dev="$DEVICE"
+
+    if [ "$BOOTLOADER" = 'grub-efi' ]; then
+        # create a small EFI partition (remainder for root), and mount it
+        setup_partitions '5M,EF' ',L'
+        root_dev="${DEVICE}2"
+        mkfs.vfat -n EFI "${DEVICE}1"
+    fi
+
+    mkfs.ext4 -O ^64bit -L / "$root_dev"
+    mount "$root_dev" "$TARGET"
+
+    if [ "$BOOTLOADER" = 'grub-efi' ]; then
+        mkdir -p "$TARGET/boot/efi"
+        mount -t vfat "${DEVICE}1" "$TARGET/boot/efi"
+    fi
+}
+
+setup_repositories() {
+    mkdir -p "$TARGET/etc/apk/keys"
+    echo "$REPOS" > "$TARGET/etc/apk/repositories"
+}
+
+fetch_keys() {
+    tmp="$(mktemp -d)"
+
+    wgets "$ALPINE_KEYS" "$ALPINE_KEYS_SHA256" "$tmp/alpine-keys.apk"
+    tar -C "$TARGET" --warning=no-unknown-keyword -xvf "$tmp/alpine-keys.apk" etc/apk/keys
+    rm -rf "$tmp"
+}
+
+install_base() {
+    $apk add --root "$TARGET" --no-cache --initdb alpine-base
+    # verify release matches
+    if [ "$VERSION" != "edge" ]; then
+        ALPINE_RELEASE=$(cat "$TARGET/etc/alpine-release")
+        [ "$RELEASE" = "$ALPINE_RELEASE" ] || \
+            die "Newer Alpine release detected: $ALPINE_RELEASE"
+    fi
+}
+
+setup_chroot() {
+    mount -t proc none "$TARGET/proc"
+    mount --bind /dev "$TARGET/dev"
+    mount --bind /sys "$TARGET/sys"
+
+    # Needed for bootstrap, will be removed in the cleanup stage.
+    install -Dm644 /etc/resolv.conf "$TARGET/etc/resolv.conf"
+}
+
+install_core_packages() {
+    chroot "$TARGET" apk --no-cache add $PKGS
+    chroot "$TARGET" apk --no-cache add --no-scripts $BOOTLOADER
+
+    # Disable starting getty for physical ttys because they're all inaccessible
+    # anyhow. With this configuration boot messages will still display in the
+    # EC2 console.
+    sed -Ei '/^tty[0-9]/s/^/#/' "$TARGET/etc/inittab"
+
+    # Make it a little more obvious who is logged in by adding username to the
+    # prompt
+    sed -i "s/^export PS1='/&\\\\u@/" "$TARGET/etc/profile"
+}
+
+setup_mdev() {
+    cp /tmp/nvme-ebs-links "$TARGET/lib/mdev"
+    # insert nvme ebs mdev configs just above "# fallback" comment
+    sed -n -i -e '/# fallback/r /tmp/nvme-ebs-mdev.conf' -e 1x -e '2,${x;p}' -e '${x;p}' "$TARGET/etc/mdev.conf"
+}
+
+create_initfs() {
+    # Enable ENA and NVME features these don't hurt for any instance and are
+    # hard requirements of the 5 series and i3 series of instances
+    # TODO: profile-ize?
+    sed -Ei 's/^features="([^"]+)"/features="\1 nvme ena"/' \
+        "$TARGET/etc/mkinitfs/mkinitfs.conf"
+
+    chroot "$TARGET" /sbin/mkinitfs $(basename $(find "$TARGET/lib/modules/"* -maxdepth 0))
+}
+
+install_bootloader() {
+    case "$BOOTLOADER" in
+        syslinux)   install_extlinux ;;
+        grub-efi)   install_grub_efi ;;
+        *)          die "unknown bootloader '$BOOTLOADER'" ;;
+    esac
+}
+
+install_extlinux() {
+    # Must use disk labels instead of UUID or devices paths so that this works
+    # across instance familes. UUID works for many instances but breaks on the
+    # NVME ones because EBS volumes are hidden behind NVME devices.
+    #
+    # Enable ext4 because the root device is formatted ext4
+    #
+    # Shorten timeout (1/10s) as EC2 has no way to interact with instance console
+    #
+    # ttyS0 is the target for EC2s "Get System Log" feature whereas tty0 is the
+    # target for EC2s "Get Instance Screenshot" feature. Enabling the serial
+    # port early in extlinux gives the most complete output in the system log.
+    sed -Ei -e "s|^[# ]*(root)=.*|\1=LABEL=/|" \
+        -e "s|^[# ]*(default_kernel_opts)=.*|\1=\"$KERNEL_OPTS\"|" \
+        -e "s|^[# ]*(serial_port)=.*|\1=ttyS0|" \
+        -e "s|^[# ]*(modules)=.*|\1=$KERNEL_MODS|" \
+        -e "s|^[# ]*(default)=.*|\1=virt|" \
+        -e "s|^[# ]*(timeout)=.*|\1=1|" \
+        "$TARGET/etc/update-extlinux.conf"
+
+    chroot "$TARGET" /sbin/extlinux --install /boot
+    chroot "$TARGET" /sbin/update-extlinux --warn-only
+}
+
+# TODO: this isn't quite working for some reason
+install_grub_efi() {
+    case "$ARCH" in
+        x86_64)     grub_target=x86_64-efi ; fwa=x64 ;;
+        aarch64)    grub_target=arm64-efi ; fwa=aa64 ;;
+        *)          die "ARCH=$ARCH is currently unsupported" ;;
+    esac
+
+    # disable nvram so grub doesn't call efibootmgr
+    chroot "$TARGET" /usr/sbin/grub-install --target="$grub_target" --efi-directory=/boot/efi \
+        --bootloader-id=alpine --boot-directory=/boot --no-nvram
+
+    # fallback mode
+    install -D "$TARGET/boot/efi/EFI/alpine/grub$fwa.efi" "$TARGET/boot/efi/EFI/boot/$fwa.efi"
+
+    # add cmdline linux defaults to /etc/default/grub
+    echo "GRUB_CMDLINE_LINUX_DEFAULT=\"modules=$KERNEL_MODS $KERNEL_OPTS\"" >> "$TARGET"/etc/default/grub
+
+    # eliminate grub pause
+    sed -ie 's/^GRUB_TIMEOUT=.$/GRUB_TIMEOUT=0/' "$TARGET/etc/default/grub"
+
+    # generate/install new config
+    [ -e "$TARGET/boot/grub/grub.cfg" ] && cp "$TARGET/boot/grub/grub.cfg" "$TARGET/boot/grub/grub.cfg.backup"
+    chroot "$TARGET" grub-mkconfig -o /boot/grub/grub.cfg
+}
+
+setup_fstab() {
+    cat > "$TARGET/etc/fstab" <<EOF
+# <fs>      <mountpoint>   <type>   <opts>              <dump/pass>
+LABEL=/     /              ext4     defaults,noatime    1 1
+EOF
+
+    # if we're using grub-efi bootloader, add extra line for EFI partition
+    if [ "$BOOTLOADER" = 'grub-efi' ]; then
+        echo "LABEL=EFI   /boot/efi      vfat     defaults,noatime,uid=0,gid=0,umask=077  0 0" >> "$TARGET/etc/fstab"
+    fi
+}
+
+setup_networking() {
+    cat > "$TARGET/etc/network/interfaces" <<EOF
+auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+EOF
+}
+
+enable_services() {
+    for lvl_svcs in $SVCS; do
+        rc_add $(echo "$lvl_svcs" | tr '=,' ' ')
+    done
+}
+
+# TODO: allow profile to specify alternate ALPINE_USER?
+# NOTE: tiny-ec2-bootstrap will need to be updated to support that!
+create_alpine_user() {
+    # Allow members of the wheel group to sudo without a password. By default
+    # this will only be the alpine user. This allows us to ship an AMI that is
+    # accessible via SSH using the user's configured SSH keys (thanks to
+    # tiny-ec2-bootstrap) but does not allow remote root access which is the
+    # best-practice.
+    sed -i '/%wheel .* NOPASSWD: .*/s/^# //' "$TARGET/etc/sudoers"
+
+    # There is no real standard ec2 username across AMIs, Amazon uses ec2-user
+    # for their Amazon Linux AMIs but Ubuntu uses ubuntu, Fedora uses fedora,
+    # etc... (see: https://alestic.com/2014/01/ec2-ssh-username/). So our user
+    # and group are alpine because this is Alpine Linux. On instance bootstrap
+    # the user can create whatever users they want and delete this one.
+    chroot "$TARGET" /usr/sbin/addgroup alpine
+    chroot "$TARGET" /usr/sbin/adduser -h /home/alpine -s /bin/sh -G alpine -D alpine
+    chroot "$TARGET" /usr/sbin/addgroup alpine wheel
+    chroot "$TARGET" /usr/bin/passwd -u alpine
+}
+
+configure_ntp() {
+    # EC2 provides an instance-local NTP service syncronized with GPS and
+    # atomic clocks in-region. Prefer this over external NTP hosts when running
+    # in EC2.
+    #
+    # See: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/set-time.html
+    sed -e 's/^pool /server /' \
+        -e 's/pool.ntp.org/169.254.169.123/g' \
+        -i "$TARGET/etc/chrony/chrony.conf"
+}
+
+cleanup() {
+    # Sweep cruft out of the image that doesn't need to ship or will be
+    # re-generated when the image boots
+    rm -f \
+        "$TARGET/var/cache/apk/"* \
+        "$TARGET/etc/resolv.conf" \
+        "$TARGET/root/.ash_history" \
+        "$TARGET/etc/"*-
+
+    [ "$BOOTLOADER" = 'grub-efi' ] && umount "$TARGET/boot/efi"
+
+    umount \
+        "$TARGET/dev" \
+        "$TARGET/proc" \
+        "$TARGET/sys"
+
+    umount "$TARGET"
+}
+
+main() {
+    validate_block_device
+
+    [ -d "$TARGET" ] || mkdir "$TARGET"
+
+    einfo "Fetching static APK tools"
+    apk="$(fetch_apk_tools)"
+
+    einfo "Creating root filesystem"
+    make_filesystem
+
+    einfo "Configuring Alpine repositories"
+    setup_repositories
+
+    einfo "Fetching Alpine signing keys"
+    fetch_keys
+
+    einfo "Installing base system"
+    install_base
+
+    setup_chroot
+
+    einfo "Installing core packages"
+    install_core_packages
+
+    einfo "Configuring and enabling boot loader"
+    create_initfs
+    install_bootloader
+
+    einfo "Configuring system"
+    setup_mdev
+    setup_fstab
+    setup_networking
+    enable_services
+    create_alpine_user
+    configure_ntp
+
+    einfo "All done, cleaning up"
+    cleanup
+}
+
+main "$@"

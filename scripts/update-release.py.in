@@ -1,0 +1,62 @@
+@PYTHON@
+# vim: set ts=4 et:
+
+import json
+import os
+import re
+import sys
+import yaml
+
+if len(sys.argv) != 3:
+    sys.exit("Usage: " + os.path.basename(__file__) + " <profile> <build>")
+
+PROFILE = sys.argv[1]
+BUILD = sys.argv[2]
+
+SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+MANIFEST_JSON = os.path.join(
+    SCRIPT_DIR, 'profile', PROFILE, BUILD, 'manifest.json'
+)
+
+RELEASE_DIR = os.path.join(SCRIPT_DIR, '..', 'releases')
+RELEASE_YAML = os.path.join(RELEASE_DIR, PROFILE + '.yaml')
+
+if not os.path.exists(RELEASE_DIR):
+    os.makedirs(RELEASE_DIR)
+
+releases = {}
+if os.path.exists(RELEASE_YAML):
+    with open(RELEASE_YAML, 'r') as data:
+        releases = yaml.safe_load(data)
+
+with open(MANIFEST_JSON, 'r') as data:
+    MANIFEST = json.load(data)
+
+A = re.split(':|,', MANIFEST['builds'][0]['artifact_id'])
+ARTIFACTS = dict(zip(A[0::2], A[1::2]))
+BUILD_TIME = MANIFEST['builds'][0]['build_time']
+DATA = MANIFEST['builds'][0]['custom_data']
+RELEASE = DATA['release']
+
+if BUILD not in releases:
+    releases[BUILD] = {}
+if RELEASE not in releases[BUILD]:
+    releases[BUILD][RELEASE] = {}
+
+REVISION = {
+    'description': DATA['ami_desc'],
+    'profile': PROFILE,
+    'profile_build': BUILD,
+    'version': DATA['version'],
+    'release': RELEASE,
+    'arch': DATA['arch'],
+    'revision': DATA['revision'],
+    'end_of_life': DATA['end_of_life'],
+    'build_time': BUILD_TIME,
+    'artifacts': ARTIFACTS
+}
+
+releases[BUILD][RELEASE][DATA['ami_name']] = REVISION
+
+with open(RELEASE_YAML, 'w') as data:
+    yaml.dump(releases, data, sort_keys=False)

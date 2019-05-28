@@ -1,0 +1,87 @@
+### base vars, revision 1
+# vim: ts=2 et:
+
+# Profile/Build
+profile       = null
+profile_build = null
+revision      = "r0"
+
+# Versioning
+version     = null
+release     = null
+end_of_life = null
+
+# Architecture
+arch        = null
+build_arch  = null
+
+# Builder-instance
+build_region          = null
+build_subnet          = null
+build_instance_type   = "t3.nano"
+build_public_ip       = null
+build_user            = "ec2-user"
+build_ami_name        = "amzn2-ami-hvm-2.0.*-gp2"
+build_ami_owner       = "137112412989"
+build_ami_latest      = "true"
+
+# AMI build/deploy
+ami_name_prefix = "alpine-ami-"
+ami_name_suffix = ""
+ami_desc_prefix = "Alpine Linux "
+ami_desc_suffix = ""
+ami_volume_size = "1"
+ami_encrypt     = "false"
+ami_user        = "alpine"  # modification currently not supported
+ami_access      = {}
+ami_regions     = {}
+# NOTE: the following are python format strings, resolved in resolve-profile.py
+ami_name        = "{var.ami_name_prefix}{var.release}-{var.arch}-{var.revision}{var.ami_name_suffix}"
+ami_desc        = "{var.ami_desc_prefix}{var.release} {var.arch} {var.revision}{var.ami_desc_suffix}"
+
+# AMI configuration
+apk_tools           = null
+apk_tools_sha256    = null
+alpine_keys         = null
+alpine_keys_sha256  = null
+repos {}
+pkgs {
+  linux-virt          = true
+  alpine-mirrors      = true
+  chrony              = true
+  nvme-cli            = true
+  openssh             = true
+  sudo                = true
+  tiny-ec2-bootstrap  = true
+  tzdata              = true
+}
+svcs {
+  devfs               = "sysinit"
+  dmesg               = "sysinit"
+  hwdrivers           = "sysinit"
+  mdev                = "sysinit"
+  acpid               = "boot"
+  bootmisc            = "boot"
+  hostname            = "boot"
+  hwclock             = "boot"
+  modules             = "boot"
+  swap                = "boot"
+  sysctl              = "boot"
+  syslog              = "boot"
+  chronyd             = "default"
+  networking          = "default"
+  sshd                = "default"
+  tiny-ec2-bootstrap  = "default"
+  killprocs           = "shutdown"
+  mount-ro            = "shutdown"
+  savecache           = "shutdown"
+}
+kernel_modules {
+  sd-mod      = true
+  usb-storage = true
+  ext4        = true
+}
+kernel_options {
+  "console=ttyS0" = true
+  "console=tty0"  = true
+}

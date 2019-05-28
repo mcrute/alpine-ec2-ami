@@ -1,0 +1,58 @@
+current-x86_64:
+  3.9.4:
+    alpine-ami-3.9.4-x86_64-r0:
+      description: Alpine Linux 3.9.4 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: current-x86_64
+      version: '3.9'
+      release: 3.9.4
+      arch: x86_64
+      revision: r0
+      end_of_life: '2021-01-01T00:00:00'
+      build_time: 1559014278
+      artifacts:
+        ap-northeast-1: ami-0251fa7f8f8ed0a3b
+        ap-northeast-2: ami-0bb32f18ed247323e
+        ap-south-1: ami-0ca42c8d33ec3ef66
+        ap-southeast-1: ami-032330b6de2f39f75
+        ap-southeast-2: ami-0681743c5235cb677
+        ca-central-1: ami-0dfcf967a696ee901
+        eu-central-1: ami-07a8060b90f208cf2
+        eu-north-1: ami-0f25dd1f2ab208b34
+        eu-west-1: ami-07453094c6d42a07e
+        eu-west-2: ami-03fa8e7cff9293332
+        eu-west-3: ami-07aad42fdc4a7e79b
+        sa-east-1: ami-04cac088d12e5ebf0
+        us-east-1: ami-0c2c618b193741157
+        us-east-2: ami-012e1a22371695544
+        us-west-1: ami-00f0f067a7d90b7e4
+        us-west-2: ami-0ed0fed8f127914fb
+edge-x86_64:
+  edge:
+    alpine-ami-edge-x86_64-20190528032210:
+      description: Alpine Linux edge x86_64 20190528032210 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-x86_64
+      version: edge
+      release: edge
+      arch: x86_64
+      revision: '20190528032210'
+      end_of_life: '2019-05-29T03:22:10'
+      build_time: 1559014836
+      artifacts:
+        ap-northeast-1: ami-03a19ed410069a4d8
+        ap-northeast-2: ami-05988a6c4660792ce
+        ap-south-1: ami-08aaeba360cdab5a4
+        ap-southeast-1: ami-01ae6c2b20966a358
+        ap-southeast-2: ami-00193ff2f592dc22c
+        ca-central-1: ami-086b7f5aa4cf0194e
+        eu-central-1: ami-089db5b316937779b
+        eu-north-1: ami-02ed2f6e56115d6f2
+        eu-west-1: ami-0afa00bfa1c870509
+        eu-west-2: ami-0b1e309dfd74525f2
+        eu-west-3: ami-0404d34bb3376e370
+        sa-east-1: ami-053be80e8c7b1ad62
+        us-east-1: ami-0d1ea89d2b00334f5
+        us-east-2: ami-0939714c9fe9ec10e
+        us-west-1: ami-0b9c5086efa0f067b
+        us-west-2: ami-0719ffe4d94e67432
