@@ -1,7 +1,7 @@
 # Profiles
 
 Profiles are collections of related build definitions, which are used to
-generate the `variables.yaml` files that [Packer](https://packer.io) consumes
+generate the `vars.json` files that [Packer](https://packer.io) consumes
 when building AMIs.
 
 Profiles use [HOCON](https://github.com/lightbend/config/blob/master/HOCON.md)
@@ -150,8 +150,3 @@ ami_access {
 * The AMI's login user is currently hard coded to be `alpine`.  Changes to
   [tiny-ec2-bootstrap](https://github.com/mcrute/tiny-ec2-bootstrap) are
   required before we can truly make `ami_user` configurable.
-
-* Currently, it is not possible to add/modify/remove arbitrary files (such as
-  service config files) on the filesystem which ultimately becomes the AMI.
-  One workaround is to use a "user data" script to make any necessary changes
-  (during the "default" runlevel) when an instance first launches.

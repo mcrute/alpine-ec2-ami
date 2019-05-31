@@ -12,18 +12,24 @@ LEVEL :=
 PACKER := packer
 export PACKER
 
+require_var = $(if $(value $1),,$(error $1=... required))
+
 .PHONY: amis prune release-readme clean
 
 amis: build build/packer.json build/profile/$(PROFILE) build/update-release.py
+	@:$(call require_var, PROFILE)
 	build/make-amis $(PROFILE) $(BUILDS)
 
 prune: build build/prune-amis.py
+	@:$(call require_var, LEVEL)
+	@:$(call require_var, PROFILE)
 	build/prune-amis.py $(LEVEL) $(PROFILE) $(BUILD)
 
 release-readme: build build/gen-release-readme.py
+	@:$(call require_var, PROFILE)
 	build/gen-release-readme.py $(PROFILE)
 
-build: $(SCRIPTS)
+build: $(ALL_SCRIPTS)
 	[ -d build/profile ] || mkdir -p build/profile
 	python3 -m venv build/.py3
 	build/.py3/bin/pip install pyhocon pyyaml boto3
@@ -33,6 +39,7 @@ build/packer.json: build packer.conf
 	build/.py3/bin/pyhocon -i packer.conf -f json > build/packer.json
 
 build/profile/$(PROFILE): build build/resolve-profile.py $(CORE_PROFILES) $(TARGET_PROFILES)
+	@:$(call require_var, PROFILE)
 	build/resolve-profile.py $(PROFILE)
 
 %.py: %.py.in build

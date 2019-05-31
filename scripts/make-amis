@@ -18,7 +18,7 @@ PROFILE=$1; shift
 
 for BUILD in $BUILDS
 do
-    printf "\n*** $BUILD ***\n\n"
+    printf "\n*** %s ***\n\n" "$BUILD"
 
     BUILD_DIR="profile/$PROFILE/$BUILD"
 
@@ -36,7 +36,7 @@ do
         )
         # update core version profile's release if necessary
         if [ "$alpine_release" != "$release" ]; then
-            printf "=== New release ($alpine_release) detected! ===\n\n"
+            printf "=== New release (%s) detected! ===\n\n" "$alpine_release"
             sed -i '' -e "s/$release/$alpine_release/" "../profiles/version/$version"
             ./resolve-profile.py "$PROFILE"
             # NOTE: this does NOT update 'revision', it's at target profile/build level
@@ -50,12 +50,10 @@ do
     ) | tee "$BUILD_DIR/output"
     EXIT=$(cat "$BUILD_DIR/exit")
 
-    if [ "$EXIT" = "0" ]; then
+    if [ "$EXIT" -eq 0 ]; then
         ./update-release.py "$PROFILE" "$BUILD"
     else
         # unless AMI revision already exists, exit
         grep -q 'is used by an existing AMI' "$BUILD_DIR/output" || exit "$EXIT"
     fi
 done
-
-# TODO?  if PROFILE = alpine-amis then prune?, gen-releases?

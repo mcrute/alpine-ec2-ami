@@ -2,14 +2,3 @@
 **/*.bak
 **/*.swp
 /build/
-/profiles/*
-!/profiles/README.md
-!/profiles/base/
-!/profiles/arch/
-!/profiles/version/
-!/profiles/alpine.conf
-!/profiles/example.conf
-!/profiles/test.conf
-/releases/*
-!/releases/README.md
-!/releases/alpine.yaml
