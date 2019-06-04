@@ -8,6 +8,23 @@ and supported.**
 ***To get started with one of our pre-built minimalist AMIs, please refer to the
 [README](releases/README.md) in the [releases](releases) subdirectory.***
 
+Alternately, with the right filters, you can query the EC2 API to programmatically
+find our most recent AMIs.  For example, using the `aws` command line tool...
+```
+aws ec2 describe-images \
+  --output text \
+  --filters \
+    Name=owner-id,Values=538276064493 \
+    Name=name,Values='alpine-ami-*' \
+    Name=state,Values=available \
+    Name=tag:profile_build,Values=current-x86_64 \
+  --query 'max_by(Images[], &CreationDate).ImageId'
+```
+...will list the latest AMI id from our collection of 'current-x86_64' builds.
+Refer to the AWS CLI Command Reference for
+[describe-images](https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-images.html)
+for more details.
+
 ## Custom AMIs
 
 Using the scripts and configuration in this project, you can build your own
