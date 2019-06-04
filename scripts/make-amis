@@ -19,29 +19,7 @@ PROFILE=$1; shift
 for BUILD in $BUILDS
 do
     printf "\n*** %s ***\n\n" "$BUILD"
-
     BUILD_DIR="profile/$PROFILE/$BUILD"
-
-    # get version, release, and arch
-    eval "$(
-        grep -E '"(version|release|arch)"' "$BUILD_DIR/vars.json" | \
-            sed -e 's/[ ",]//g' -e 's/:/=/g'
-    )"
-
-    if [ "$version" != 'edge' ]; then
-        # get current Alpine release for this version
-        alpine_release=$(
-            curl -s "http://dl-cdn.alpinelinux.org/alpine/v$version/main/$arch/" | \
-                grep '"alpine-base-' | cut -d'"' -f2 | cut -d- -f3
-        )
-        # update core version profile's release if necessary
-        if [ "$alpine_release" != "$release" ]; then
-            printf "=== New release (%s) detected! ===\n\n" "$alpine_release"
-            sed -i '' -e "s/$release/$alpine_release/" "../profiles/version/$version"
-            ./resolve-profile.py "$PROFILE"
-            # NOTE: this does NOT update 'revision', it's at target profile/build level
-        fi
-    fi
 
     # execute packer, capture output and exit code
     (
