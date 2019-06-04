@@ -81,7 +81,7 @@ sys.stderr.write("\n")
 
 # parse/resolve HOCON profile's builds' config
 for build, cfg in BUILDS.items():
-    sys.stderr.write(f">>> Resolving configuration for '{build}'\n")
+    print(f"\n>>> Resolving configuration for '{build}'")
     build_dir = os.path.join(PROFILE_DIR, build)
 
     # make a fresh profile build directory
@@ -147,3 +147,5 @@ for build, cfg in BUILDS.items():
     # write build vars file
     with open(os.path.join(build_dir, 'vars.json'), 'w') as out:
         json.dump(cfg, out, indent=4, separators=(',', ': '))
+
+print()
