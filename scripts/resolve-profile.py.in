@@ -5,6 +5,8 @@ import json
 import os
 import shutil
 import sys
+import boto3
+from botocore.exceptions import ClientError
 from datetime import datetime, timedelta
 from pyhocon import ConfigFactory
 
@@ -47,13 +49,39 @@ def fold(fdict, ffmt):
         fkey = fkey.strip('"')    # complex keys may be in quotes
         if fval is True:
             folded += ffmt[0] + fkey
-        elif not (fval is None or fval is False):
+        elif fval not in [None, False]:
             folded += ffmt.format(fkey, fval)
     return folded[1:]
 
 
+# list of AWS regions, and whether they're enabled
+all_regions = {}
+AWS = boto3.session.Session()
+sys.stderr.write("\n>>> Determining region availability...")
+sys.stderr.flush()
+for region in AWS.get_available_regions('ec2'):
+    ec2 = AWS.client('ec2', region_name=region)
+    try:
+        ec2.describe_regions()
+    except ClientError as e:
+        if e.response['Error']['Code'] == 'AuthFailure':
+            sys.stderr.write('-')
+            sys.stderr.flush()
+            all_regions[region] = False
+            continue
+        elif e.response['Error']['Code'] == 'UnauthorizedOperation':
+            # have access to the region, but not to ec2:DescribeRegions
+            pass
+        else:
+            raise
+    sys.stderr.write('+')
+    sys.stderr.flush()
+    all_regions[region] = True
+sys.stderr.write("\n")
+
 # parse/resolve HOCON profile's builds' config
 for build, cfg in BUILDS.items():
+    sys.stderr.write(f">>> Resolving configuration for '{build}'\n")
     build_dir = os.path.join(PROFILE_DIR, build)
 
     # make a fresh profile build directory
@@ -75,6 +103,22 @@ for build, cfg in BUILDS.items():
     if cfg['revision'] == '@NOW@':
         cfg['revision'] = NOW.strftime('%Y%m%d%H%M%S')
 
+    # 'ALL' region expansion (or retraction)
+    if 'ALL' in cfg['ami_regions']:
+        all_val = cfg['ami_regions']['ALL']
+        if all_val not in [None, False]:
+            cfg['ami_regions'] = all_regions
+        else:
+            cfg['ami_regions'] = {}
+    else:
+        # warn/remove disabled regions
+        for region, enabled in all_regions.items():
+            if enabled is not False or region not in cfg['ami_regions']:
+                continue
+            if cfg['ami_regions'][region] not in [None, False]:
+                sys.stderr.write(f"*** WARNING: skipping disabled region {region}\n")
+                cfg['ami_regions'][region] = False
+
     # fold dict vars to scalars
     for foldkey, foldfmt in FOLD_DICTS.items():
         cfg[foldkey] = fold(cfg[foldkey], foldfmt)
@@ -85,7 +129,7 @@ for build, cfg in BUILDS.items():
         if lvl is True:
             # service in default runlevel
             lvls['default'].append(svc)
-        elif not (lvl is None or lvl is False):
+        elif lvl not in [None, False]:
             # service in specified runlevel (skip svc when false/null)
             if lvl not in lvls.keys():
                 lvls[lvl] = []

@@ -12,20 +12,29 @@ LEVEL :=
 PACKER := packer
 export PACKER
 
-require_var = $(if $(value $1),,$(error $1=... required))
+
+check_defined = \
+    $(strip $(foreach 1,$1, \
+        $(call __check_defined,$1,$(strip $(value 2)))))
+__check_defined = \
+    $(if $(value $1),, \
+        $(error Undefined $1$(if $2, ($2))$(if $(value @), \
+                required by target `$@')))
+
 
 .PHONY: amis prune release-readme clean
 
 amis: build build/packer.json build/profile/$(PROFILE) build/update-release.py
-	@:$(call require_var, PROFILE)
+	@:$(call check_defined, PROFILE, target profile name)
 	build/make-amis $(PROFILE) $(BUILDS)
 
 prune: build build/prune-amis.py
-	@:$(call require_var, LEVEL)
-	@:$(call require_var, PROFILE)
+	@:$(call check_defined, LEVEL, pruning level)
+	@:$(call check_defined, PROFILE, target profile name)
 	build/prune-amis.py $(LEVEL) $(PROFILE) $(BUILD)
 
 release-readme: build build/gen-release-readme.py
+	@:$(call check_defined, PROFILE, target profile name)
 	@:$(call require_var, PROFILE)
 	build/gen-release-readme.py $(PROFILE)
 
@@ -39,7 +48,7 @@ build/packer.json: build packer.conf
 	build/.py3/bin/pyhocon -i packer.conf -f json > build/packer.json
 
 build/profile/$(PROFILE): build build/resolve-profile.py $(CORE_PROFILES) $(TARGET_PROFILES)
-	@:$(call require_var, PROFILE)
+	@:$(call check_defined, PROFILE, target profile name)
 	build/resolve-profile.py $(PROFILE)
 
 %.py: %.py.in build
