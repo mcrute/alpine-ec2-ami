@@ -96,7 +96,7 @@ pruning:
 * `release` - keep only the latest release for each version
 * `version` - remove any end-of-life versions
 
-To prune a profile (or optionally one build target of a profile...
+To prune a profile (or optionally one build target of a profile)...
 ```
 make prune LEVEL=<level> PROFILE=<profile> [BUILD=<build>]
 ```
