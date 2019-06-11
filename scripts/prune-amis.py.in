@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 import sys
 import boto3
+from botocore.exceptions import ClientError
 import yaml
 
 LEVELS = ['revision', 'release', 'version']
@@ -107,7 +108,8 @@ for region in AWS.get_available_regions('ec2'):
     print("* scanning: " + region + '...')
     EC2 = AWS.client('ec2', region_name=region)
 
-    for image in EC2.describe_images(Owners=['self'])['Images']:
+    try:
+      for image in EC2.describe_images(Owners=['self'])['Images']:
 
         action = '? UNKNOWN'
         if region in prune and image['ImageId'] in prune[region]:
@@ -127,6 +129,8 @@ for region in AWS.get_available_regions('ec2'):
                     EC2.delete_snapshot(
                         SnapshotId=blockdev['Ebs']['SnapshotId'])
         print()
+    except ClientError as e:
+      print(e)
 
 # update releases/<profile>.yaml
 with open(RELEASE_YAML, 'w') as data:
