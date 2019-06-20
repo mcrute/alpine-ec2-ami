@@ -79,9 +79,15 @@ for region in AWS.get_available_regions('ec2'):
     all_regions[region] = True
 sys.stderr.write("\n")
 
+for region, available in all_regions.items():
+    if available is False:
+        sys.stderr.write(f"*** WARNING: skipping disabled region {region}\n")
+
+print()
+
 # parse/resolve HOCON profile's builds' config
 for build, cfg in BUILDS.items():
-    print(f"\n>>> Resolving configuration for '{build}'")
+    print(f">>> Resolving configuration for '{build}'")
     build_dir = os.path.join(PROFILE_DIR, build)
 
     # make a fresh profile build directory
@@ -116,7 +122,6 @@ for build, cfg in BUILDS.items():
             if enabled is not False or region not in cfg['ami_regions']:
                 continue
             if cfg['ami_regions'][region] not in [None, False]:
-                sys.stderr.write(f"*** WARNING: skipping disabled region {region}\n")
                 cfg['ami_regions'][region] = False
 
     # fold dict vars to scalars

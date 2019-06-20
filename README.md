@@ -17,10 +17,10 @@ aws ec2 describe-images \
     Name=owner-id,Values=538276064493 \
     Name=name,Values='alpine-ami-*' \
     Name=state,Values=available \
-    Name=tag:profile_build,Values=current-x86_64 \
+    Name=tag:profile_build,Values=v3_10-x86_64 \
   --query 'max_by(Images[], &CreationDate).ImageId'
 ```
-...will list the latest AMI id from our collection of 'current-x86_64' builds.
+...will list the latest AMI id from our collection of 'v3_10-x86_64' builds.
 Refer to the AWS CLI Command Reference for
 [describe-images](https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-images.html)
 for more details.

@@ -18,7 +18,7 @@ PROFILE=$1; shift
 
 for BUILD in $BUILDS
 do
-    printf "\n*** %s ***\n\n" "$BUILD"
+    printf "\n*** Building %s/%s ***\n\n" "$PROFILE" "$BUILD"
     BUILD_DIR="profile/$PROFILE/$BUILD"
 
     # execute packer, capture output and exit code
@@ -35,3 +35,5 @@ do
         grep -q 'is used by an existing AMI' "$BUILD_DIR/output" || exit "$EXIT"
     fi
 done
+
+echo "\n=== DONE ===\n"
