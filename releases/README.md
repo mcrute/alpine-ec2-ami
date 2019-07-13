@@ -52,30 +52,6 @@ important to you, please open an [issue](https://github.com/mcrute/alpine-ec2-am
 
 </p></details>
 
-### Alpine Linux 3.10.0 (2019-06-20)
-<details><summary><i>click to show/hide</i></summary><p>
-
-| Region | alpine-ami-3.10.0-x86_64-r0 |
-| ------ | --- |
-| ap-northeast-1 | [ami-00d72ba9e4e50e6f0](https://ap-northeast-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-00d72ba9e4e50e6f0) ([launch](https://ap-northeast-1.console.aws.amazon.com/ec2/home#launchAmi=ami-00d72ba9e4e50e6f0)) |
-| ap-northeast-2 | [ami-0b2ab59439d69c87f](https://ap-northeast-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0b2ab59439d69c87f) ([launch](https://ap-northeast-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0b2ab59439d69c87f)) |
-| ap-south-1 | [ami-06ab2e1b19df43403](https://ap-south-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-06ab2e1b19df43403) ([launch](https://ap-south-1.console.aws.amazon.com/ec2/home#launchAmi=ami-06ab2e1b19df43403)) |
-| ap-southeast-1 | [ami-097e487f602370726](https://ap-southeast-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-097e487f602370726) ([launch](https://ap-southeast-1.console.aws.amazon.com/ec2/home#launchAmi=ami-097e487f602370726)) |
-| ap-southeast-2 | [ami-0f2248216c030f2ea](https://ap-southeast-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0f2248216c030f2ea) ([launch](https://ap-southeast-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0f2248216c030f2ea)) |
-| ca-central-1 | [ami-035f9ddc53b8e3c94](https://ca-central-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-035f9ddc53b8e3c94) ([launch](https://ca-central-1.console.aws.amazon.com/ec2/home#launchAmi=ami-035f9ddc53b8e3c94)) |
-| eu-central-1 | [ami-0c2583ed13862fb17](https://eu-central-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0c2583ed13862fb17) ([launch](https://eu-central-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0c2583ed13862fb17)) |
-| eu-north-1 | [ami-069c11c7844825375](https://eu-north-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-069c11c7844825375) ([launch](https://eu-north-1.console.aws.amazon.com/ec2/home#launchAmi=ami-069c11c7844825375)) |
-| eu-west-1 | [ami-076b4d480f72a117f](https://eu-west-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-076b4d480f72a117f) ([launch](https://eu-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-076b4d480f72a117f)) |
-| eu-west-2 | [ami-0a5d209eea58688c2](https://eu-west-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0a5d209eea58688c2) ([launch](https://eu-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0a5d209eea58688c2)) |
-| eu-west-3 | [ami-0385dc3d759aaa464](https://eu-west-3.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0385dc3d759aaa464) ([launch](https://eu-west-3.console.aws.amazon.com/ec2/home#launchAmi=ami-0385dc3d759aaa464)) |
-| sa-east-1 | [ami-04ddd371cd342921d](https://sa-east-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-04ddd371cd342921d) ([launch](https://sa-east-1.console.aws.amazon.com/ec2/home#launchAmi=ami-04ddd371cd342921d)) |
-| us-east-1 | [ami-0647412cf72f247d9](https://us-east-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0647412cf72f247d9) ([launch](https://us-east-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0647412cf72f247d9)) |
-| us-east-2 | [ami-0fb394548acf15691](https://us-east-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0fb394548acf15691) ([launch](https://us-east-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0fb394548acf15691)) |
-| us-west-1 | [ami-04d80966c446c3f58](https://us-west-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-04d80966c446c3f58) ([launch](https://us-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-04d80966c446c3f58)) |
-| us-west-2 | [ami-0c71a8664131b42b3](https://us-west-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0c71a8664131b42b3) ([launch](https://us-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0c71a8664131b42b3)) |
-
-</p></details>
-
 ### Alpine Linux 3.9.4 (2019-06-20)
 <details><summary><i>click to show/hide</i></summary><p>
 

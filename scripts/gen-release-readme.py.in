@@ -30,26 +30,29 @@ sections = {}
 
 for build, releases in RELEASES.items():
     for release, amis in releases.items():
-        if release in sections:
-            rel = sections[release]
-        else:
-            rel = {
-                'built': {},
-                'name': {},
-                'ami': {}
-            }
         for name, info in amis.items():
+            version = info['version']
             arch = info['arch']
             built = info['build_time']
-            if (arch not in rel['built'] or
-                    rel['built'][arch] < built):
-                rel['name'][arch] = name
-                rel['built'][arch] = built
+            if version in sections:
+                ver = sections[version]
+            else:
+                ver = {
+                    'release': '',
+                    'built': {},
+                    'name': {},
+                    'ami': {}
+                }
+            if (arch not in ver['built'] or
+                    ver['built'][arch] < built):
+                ver['release'] = release
+                ver['name'][arch] = name
+                ver['built'][arch] = built
                 for region, ami in info['artifacts'].items():
-                    if region not in rel['ami']:
-                        rel['ami'][region] = {}
-                    rel['ami'][region][arch] = ami
-        sections[release] = rel
+                    if region not in ver['ami']:
+                        ver['ami'][region] = {}
+                    ver['ami'][region][arch] = ami
+            sections[version] = ver
 
 SECTION = """
 ### Alpine Linux {release} ({date})
@@ -85,8 +88,9 @@ def ver_cmp(a, b):
 
 ami_list = "## AMIs\n"
 
-for release in sorted(list(sections.keys()), key=functools.cmp_to_key(ver_cmp)):
-    info = sections[release]
+for version in sorted(list(sections.keys()), key=functools.cmp_to_key(ver_cmp)):
+    info = sections[version]
+    release = info['release']
     rows = []
     rows.append('| Region |')
     rows.append('| ------ |')
