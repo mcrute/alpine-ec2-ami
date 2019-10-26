@@ -27,6 +27,33 @@ edge-x86_64:
         us-east-2: ami-002f49d922035cd6b
         us-west-1: ami-0e146ed2f408cfaee
         us-west-2: ami-052fcb0bc085a75a2
+    alpine-ami-edge-x86_64-20191026200352:
+      description: Alpine Linux edge x86_64 20191026200352 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-x86_64
+      version: edge
+      release: edge
+      arch: x86_64
+      revision: '20191026200352'
+      end_of_life: '2019-10-27T20:03:52'
+      build_time: 1572120756
+      artifacts:
+        ap-northeast-1: ami-0112f6ea81c86d5e6
+        ap-northeast-2: ami-085769ebaedbfdf81
+        ap-south-1: ami-018d0a72b1c1b2923
+        ap-southeast-1: ami-0efbcf7df7751898a
+        ap-southeast-2: ami-06dc954ca0af33023
+        ca-central-1: ami-029fabbc15f6ec893
+        eu-central-1: ami-01353f3799d62f271
+        eu-north-1: ami-0787f149b1a3f8194
+        eu-west-1: ami-068378748044554e5
+        eu-west-2: ami-058faf9bf50c5fdc4
+        eu-west-3: ami-0f0bdda8a983eace3
+        sa-east-1: ami-08b88bdd43ac5d063
+        us-east-1: ami-0193a17629e6377fc
+        us-east-2: ami-03db856d0b5b661ce
+        us-west-1: ami-04864199556e66fad
+        us-west-2: ami-03e59f12dbbee65d4
 v3_10-x86_64:
   3.10.0:
     alpine-ami-3.10.0-x86_64-r0:
@@ -139,6 +166,34 @@ v3_10-x86_64:
         us-east-2: ami-0a87fa8a73b9b850c
         us-west-1: ami-009961e3d2d7ccaa8
         us-west-2: ami-0a083cc95e2bbc4b0
+  3.10.3:
+    alpine-ami-3.10.3-x86_64-r1:
+      description: Alpine Linux 3.10.3 x86_64 r1 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_10-x86_64
+      version: '3.10'
+      release: 3.10.3
+      arch: x86_64
+      revision: r1
+      end_of_life: '2021-05-01T00:00:00'
+      build_time: 1572121673
+      artifacts:
+        ap-northeast-1: ami-0760cd78e75cb77a4
+        ap-northeast-2: ami-0e749a03d064c1e47
+        ap-south-1: ami-0a8839c12787f0c46
+        ap-southeast-1: ami-0f0e2be5d8c0110c1
+        ap-southeast-2: ami-0ca4caea0ce1f4a8a
+        ca-central-1: ami-016d172dee4ff4a22
+        eu-central-1: ami-04e50c8006d4bc2bf
+        eu-north-1: ami-00207f3df9a9cb088
+        eu-west-1: ami-01c1ec8fdefc61650
+        eu-west-2: ami-02520e7e046db5d8f
+        eu-west-3: ami-0ef9a828aded0a0de
+        sa-east-1: ami-0ee958f7773223770
+        us-east-1: ami-063cb098a86c1c4cc
+        us-east-2: ami-0110d80369eb75f49
+        us-west-1: ami-00b06ce695a617956
+        us-west-2: ami-0d0b7768c8cd9a8c8
 v3_9-x86_64:
   3.9.4:
     alpine-ami-3.9.4-x86_64-r0:
