@@ -1,0 +1,14 @@
+### version 3.10 vars
+# vim: ts=2 et:
+
+# start with base vars
+include required("../base/current")
+
+# set version-specific vars
+version     = "3.11"
+release     = "3.11.0"
+#end_of_life = "2021-05-01"   # currently unknown
+repos {
+  "http://dl-cdn.alpinelinux.org/alpine/v3.11/main"      = true
+  "http://dl-cdn.alpinelinux.org/alpine/v3.11/community" = true
+}

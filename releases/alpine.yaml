@@ -54,6 +54,33 @@ edge-x86_64:
         us-east-2: ami-03db856d0b5b661ce
         us-west-1: ami-04864199556e66fad
         us-west-2: ami-03e59f12dbbee65d4
+    alpine-ami-edge-x86_64-20191220032351:
+      description: Alpine Linux edge x86_64 20191220032351 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-x86_64
+      version: edge
+      release: edge
+      arch: x86_64
+      revision: '20191220032351'
+      end_of_life: '2019-12-21T03:23:51'
+      build_time: 1576812862
+      artifacts:
+        ap-northeast-1: ami-09c848c4cb4b2bfcc
+        ap-northeast-2: ami-0ce75b84103d6cf1b
+        ap-south-1: ami-024a83d2f5f690e9c
+        ap-southeast-1: ami-045d3298bde43a38e
+        ap-southeast-2: ami-02a507af131b58f77
+        ca-central-1: ami-00f6c418339093258
+        eu-central-1: ami-00e094f733fa389c1
+        eu-north-1: ami-069b1f7572e57e869
+        eu-west-1: ami-0fe261f4ce1adac48
+        eu-west-2: ami-0c8643b000cb720b6
+        eu-west-3: ami-0bfe5b9d1a2d3c6c9
+        sa-east-1: ami-075e2722dd4b1e660
+        us-east-1: ami-0d42d7ed27a1b508a
+        us-east-2: ami-016775e32e6c85c18
+        us-west-1: ami-065cbd73f2f0dd6d6
+        us-west-2: ami-0897367ecebfd4b79
 v3_10-x86_64:
   3.10.0:
     alpine-ami-3.10.0-x86_64-r0:
@@ -250,3 +277,32 @@ v3_9-x86_64:
         us-east-2: ami-030ce78952c4c097c
         us-west-1: ami-0e27a7d83365f16be
         us-west-2: ami-07f10e32e0621a4eb
+v3_11-x86_64:
+  3.11.0:
+    alpine-ami-3.11.0-x86_64-r0:
+      description: Alpine Linux 3.11.0 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_11-x86_64
+      version: '3.11'
+      release: 3.11.0
+      arch: x86_64
+      revision: r0
+      end_of_life:
+      build_time: 1576813536
+      artifacts:
+        ap-northeast-1: ami-01dd2c66370a9c622
+        ap-northeast-2: ami-06b08ab572a319365
+        ap-south-1: ami-0dba9ec182268ab0a
+        ap-southeast-1: ami-0c210488756706fe7
+        ap-southeast-2: ami-05e1972740cba6e7b
+        ca-central-1: ami-02bb57a6922018826
+        eu-central-1: ami-09a7075582e44cc4a
+        eu-north-1: ami-01dc7a794c0c8062b
+        eu-west-1: ami-0d219c533643cb00f
+        eu-west-2: ami-04426be48498be7af
+        eu-west-3: ami-00d99d7627002d662
+        sa-east-1: ami-05de427871abe1c40
+        us-east-1: ami-00ee2daec698aab7c
+        us-east-2: ami-01d8b7e276ad609aa
+        us-west-1: ami-08d909997839b6030
+        us-west-2: ami-07a62f65352c51750

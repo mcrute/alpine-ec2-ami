@@ -28,6 +28,30 @@ important to you, please open an [issue](https://github.com/mcrute/alpine-ec2-am
 
 ## AMIs
 
+### Alpine Linux 3.11.0 (2019-12-20)
+<details><summary><i>click to show/hide</i></summary><p>
+
+| Region | alpine-ami-3.11.0-x86_64-r0 |
+| ------ | --- |
+| ap-northeast-1 | [ami-01dd2c66370a9c622](https://ap-northeast-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-01dd2c66370a9c622) ([launch](https://ap-northeast-1.console.aws.amazon.com/ec2/home#launchAmi=ami-01dd2c66370a9c622)) |
+| ap-northeast-2 | [ami-06b08ab572a319365](https://ap-northeast-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-06b08ab572a319365) ([launch](https://ap-northeast-2.console.aws.amazon.com/ec2/home#launchAmi=ami-06b08ab572a319365)) |
+| ap-south-1 | [ami-0dba9ec182268ab0a](https://ap-south-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0dba9ec182268ab0a) ([launch](https://ap-south-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0dba9ec182268ab0a)) |
+| ap-southeast-1 | [ami-0c210488756706fe7](https://ap-southeast-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0c210488756706fe7) ([launch](https://ap-southeast-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0c210488756706fe7)) |
+| ap-southeast-2 | [ami-05e1972740cba6e7b](https://ap-southeast-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-05e1972740cba6e7b) ([launch](https://ap-southeast-2.console.aws.amazon.com/ec2/home#launchAmi=ami-05e1972740cba6e7b)) |
+| ca-central-1 | [ami-02bb57a6922018826](https://ca-central-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-02bb57a6922018826) ([launch](https://ca-central-1.console.aws.amazon.com/ec2/home#launchAmi=ami-02bb57a6922018826)) |
+| eu-central-1 | [ami-09a7075582e44cc4a](https://eu-central-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-09a7075582e44cc4a) ([launch](https://eu-central-1.console.aws.amazon.com/ec2/home#launchAmi=ami-09a7075582e44cc4a)) |
+| eu-north-1 | [ami-01dc7a794c0c8062b](https://eu-north-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-01dc7a794c0c8062b) ([launch](https://eu-north-1.console.aws.amazon.com/ec2/home#launchAmi=ami-01dc7a794c0c8062b)) |
+| eu-west-1 | [ami-0d219c533643cb00f](https://eu-west-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0d219c533643cb00f) ([launch](https://eu-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0d219c533643cb00f)) |
+| eu-west-2 | [ami-04426be48498be7af](https://eu-west-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-04426be48498be7af) ([launch](https://eu-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-04426be48498be7af)) |
+| eu-west-3 | [ami-00d99d7627002d662](https://eu-west-3.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-00d99d7627002d662) ([launch](https://eu-west-3.console.aws.amazon.com/ec2/home#launchAmi=ami-00d99d7627002d662)) |
+| sa-east-1 | [ami-05de427871abe1c40](https://sa-east-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-05de427871abe1c40) ([launch](https://sa-east-1.console.aws.amazon.com/ec2/home#launchAmi=ami-05de427871abe1c40)) |
+| us-east-1 | [ami-00ee2daec698aab7c](https://us-east-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-00ee2daec698aab7c) ([launch](https://us-east-1.console.aws.amazon.com/ec2/home#launchAmi=ami-00ee2daec698aab7c)) |
+| us-east-2 | [ami-01d8b7e276ad609aa](https://us-east-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-01d8b7e276ad609aa) ([launch](https://us-east-2.console.aws.amazon.com/ec2/home#launchAmi=ami-01d8b7e276ad609aa)) |
+| us-west-1 | [ami-08d909997839b6030](https://us-west-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-08d909997839b6030) ([launch](https://us-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-08d909997839b6030)) |
+| us-west-2 | [ami-07a62f65352c51750](https://us-west-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-07a62f65352c51750) ([launch](https://us-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-07a62f65352c51750)) |
+
+</p></details>
+
 ### Alpine Linux 3.10.3 (2019-10-26)
 <details><summary><i>click to show/hide</i></summary><p>
 
@@ -76,26 +100,26 @@ important to you, please open an [issue](https://github.com/mcrute/alpine-ec2-am
 
 </p></details>
 
-### Alpine Linux Edge (2019-10-26)
+### Alpine Linux Edge (2019-12-20)
 <details><summary><i>click to show/hide</i></summary><p>
 
-| Region | alpine-ami-edge-x86_64-20191026200352 |
+| Region | alpine-ami-edge-x86_64-20191220032351 |
 | ------ | --- |
-| ap-northeast-1 | [ami-0112f6ea81c86d5e6](https://ap-northeast-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0112f6ea81c86d5e6) ([launch](https://ap-northeast-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0112f6ea81c86d5e6)) |
-| ap-northeast-2 | [ami-085769ebaedbfdf81](https://ap-northeast-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-085769ebaedbfdf81) ([launch](https://ap-northeast-2.console.aws.amazon.com/ec2/home#launchAmi=ami-085769ebaedbfdf81)) |
-| ap-south-1 | [ami-018d0a72b1c1b2923](https://ap-south-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-018d0a72b1c1b2923) ([launch](https://ap-south-1.console.aws.amazon.com/ec2/home#launchAmi=ami-018d0a72b1c1b2923)) |
-| ap-southeast-1 | [ami-0efbcf7df7751898a](https://ap-southeast-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0efbcf7df7751898a) ([launch](https://ap-southeast-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0efbcf7df7751898a)) |
-| ap-southeast-2 | [ami-06dc954ca0af33023](https://ap-southeast-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-06dc954ca0af33023) ([launch](https://ap-southeast-2.console.aws.amazon.com/ec2/home#launchAmi=ami-06dc954ca0af33023)) |
-| ca-central-1 | [ami-029fabbc15f6ec893](https://ca-central-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-029fabbc15f6ec893) ([launch](https://ca-central-1.console.aws.amazon.com/ec2/home#launchAmi=ami-029fabbc15f6ec893)) |
-| eu-central-1 | [ami-01353f3799d62f271](https://eu-central-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-01353f3799d62f271) ([launch](https://eu-central-1.console.aws.amazon.com/ec2/home#launchAmi=ami-01353f3799d62f271)) |
-| eu-north-1 | [ami-0787f149b1a3f8194](https://eu-north-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0787f149b1a3f8194) ([launch](https://eu-north-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0787f149b1a3f8194)) |
-| eu-west-1 | [ami-068378748044554e5](https://eu-west-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-068378748044554e5) ([launch](https://eu-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-068378748044554e5)) |
-| eu-west-2 | [ami-058faf9bf50c5fdc4](https://eu-west-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-058faf9bf50c5fdc4) ([launch](https://eu-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-058faf9bf50c5fdc4)) |
-| eu-west-3 | [ami-0f0bdda8a983eace3](https://eu-west-3.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0f0bdda8a983eace3) ([launch](https://eu-west-3.console.aws.amazon.com/ec2/home#launchAmi=ami-0f0bdda8a983eace3)) |
-| sa-east-1 | [ami-08b88bdd43ac5d063](https://sa-east-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-08b88bdd43ac5d063) ([launch](https://sa-east-1.console.aws.amazon.com/ec2/home#launchAmi=ami-08b88bdd43ac5d063)) |
-| us-east-1 | [ami-0193a17629e6377fc](https://us-east-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0193a17629e6377fc) ([launch](https://us-east-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0193a17629e6377fc)) |
-| us-east-2 | [ami-03db856d0b5b661ce](https://us-east-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-03db856d0b5b661ce) ([launch](https://us-east-2.console.aws.amazon.com/ec2/home#launchAmi=ami-03db856d0b5b661ce)) |
-| us-west-1 | [ami-04864199556e66fad](https://us-west-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-04864199556e66fad) ([launch](https://us-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-04864199556e66fad)) |
-| us-west-2 | [ami-03e59f12dbbee65d4](https://us-west-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-03e59f12dbbee65d4) ([launch](https://us-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-03e59f12dbbee65d4)) |
+| ap-northeast-1 | [ami-09c848c4cb4b2bfcc](https://ap-northeast-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-09c848c4cb4b2bfcc) ([launch](https://ap-northeast-1.console.aws.amazon.com/ec2/home#launchAmi=ami-09c848c4cb4b2bfcc)) |
+| ap-northeast-2 | [ami-0ce75b84103d6cf1b](https://ap-northeast-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0ce75b84103d6cf1b) ([launch](https://ap-northeast-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0ce75b84103d6cf1b)) |
+| ap-south-1 | [ami-024a83d2f5f690e9c](https://ap-south-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-024a83d2f5f690e9c) ([launch](https://ap-south-1.console.aws.amazon.com/ec2/home#launchAmi=ami-024a83d2f5f690e9c)) |
+| ap-southeast-1 | [ami-045d3298bde43a38e](https://ap-southeast-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-045d3298bde43a38e) ([launch](https://ap-southeast-1.console.aws.amazon.com/ec2/home#launchAmi=ami-045d3298bde43a38e)) |
+| ap-southeast-2 | [ami-02a507af131b58f77](https://ap-southeast-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-02a507af131b58f77) ([launch](https://ap-southeast-2.console.aws.amazon.com/ec2/home#launchAmi=ami-02a507af131b58f77)) |
+| ca-central-1 | [ami-00f6c418339093258](https://ca-central-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-00f6c418339093258) ([launch](https://ca-central-1.console.aws.amazon.com/ec2/home#launchAmi=ami-00f6c418339093258)) |
+| eu-central-1 | [ami-00e094f733fa389c1](https://eu-central-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-00e094f733fa389c1) ([launch](https://eu-central-1.console.aws.amazon.com/ec2/home#launchAmi=ami-00e094f733fa389c1)) |
+| eu-north-1 | [ami-069b1f7572e57e869](https://eu-north-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-069b1f7572e57e869) ([launch](https://eu-north-1.console.aws.amazon.com/ec2/home#launchAmi=ami-069b1f7572e57e869)) |
+| eu-west-1 | [ami-0fe261f4ce1adac48](https://eu-west-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0fe261f4ce1adac48) ([launch](https://eu-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0fe261f4ce1adac48)) |
+| eu-west-2 | [ami-0c8643b000cb720b6](https://eu-west-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0c8643b000cb720b6) ([launch](https://eu-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0c8643b000cb720b6)) |
+| eu-west-3 | [ami-0bfe5b9d1a2d3c6c9](https://eu-west-3.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0bfe5b9d1a2d3c6c9) ([launch](https://eu-west-3.console.aws.amazon.com/ec2/home#launchAmi=ami-0bfe5b9d1a2d3c6c9)) |
+| sa-east-1 | [ami-075e2722dd4b1e660](https://sa-east-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-075e2722dd4b1e660) ([launch](https://sa-east-1.console.aws.amazon.com/ec2/home#launchAmi=ami-075e2722dd4b1e660)) |
+| us-east-1 | [ami-0d42d7ed27a1b508a](https://us-east-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0d42d7ed27a1b508a) ([launch](https://us-east-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0d42d7ed27a1b508a)) |
+| us-east-2 | [ami-016775e32e6c85c18](https://us-east-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-016775e32e6c85c18) ([launch](https://us-east-2.console.aws.amazon.com/ec2/home#launchAmi=ami-016775e32e6c85c18)) |
+| us-west-1 | [ami-065cbd73f2f0dd6d6](https://us-west-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-065cbd73f2f0dd6d6) ([launch](https://us-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-065cbd73f2f0dd6d6)) |
+| us-west-2 | [ami-0897367ecebfd4b79](https://us-west-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0897367ecebfd4b79) ([launch](https://us-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0897367ecebfd4b79)) |
 
 </p></details>
