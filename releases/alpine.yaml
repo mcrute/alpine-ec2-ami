@@ -81,6 +81,33 @@ edge-x86_64:
         us-east-2: ami-016775e32e6c85c18
         us-west-1: ami-065cbd73f2f0dd6d6
         us-west-2: ami-0897367ecebfd4b79
+    alpine-ami-edge-x86_64-20200104190012:
+      description: Alpine Linux edge x86_64 20200104190012 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-x86_64
+      version: edge
+      release: edge
+      arch: x86_64
+      revision: '20200104190012'
+      end_of_life: '2020-01-05T19:00:12'
+      build_time: 1578165015
+      artifacts:
+        ap-northeast-1: ami-0fda74ed5ffb7ccd7
+        ap-northeast-2: ami-0be5d677b47fce454
+        ap-south-1: ami-094720b652f133f9c
+        ap-southeast-1: ami-0f7d8a18e9be21cd1
+        ap-southeast-2: ami-0386d4dc2cf9f3d91
+        ca-central-1: ami-0fe2907efc576aa3c
+        eu-central-1: ami-08caf54970e53151e
+        eu-north-1: ami-063212df61bebdfac
+        eu-west-1: ami-034638ad783384202
+        eu-west-2: ami-041fba8b0ded32106
+        eu-west-3: ami-015e5b9edb52ee495
+        sa-east-1: ami-0dbd80d9204b2a206
+        us-east-1: ami-0047bb64e977f5521
+        us-east-2: ami-024246dd06d739e37
+        us-west-1: ami-089f878b5816e24f4
+        us-west-2: ami-0f6dc9ba311992682
 v3_10-x86_64:
   3.10.0:
     alpine-ami-3.10.0-x86_64-r0:
@@ -287,7 +314,7 @@ v3_11-x86_64:
       release: 3.11.0
       arch: x86_64
       revision: r0
-      end_of_life:
+      end_of_life: null
       build_time: 1576813536
       artifacts:
         ap-northeast-1: ami-01dd2c66370a9c622
@@ -306,3 +333,31 @@ v3_11-x86_64:
         us-east-2: ami-01d8b7e276ad609aa
         us-west-1: ami-08d909997839b6030
         us-west-2: ami-07a62f65352c51750
+  3.11.2:
+    alpine-ami-3.11.2-x86_64-r0:
+      description: Alpine Linux 3.11.2 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_11-x86_64
+      version: '3.11'
+      release: 3.11.2
+      arch: x86_64
+      revision: r0
+      end_of_life: '2021-11-01T00:00:00'
+      build_time: 1578165575
+      artifacts:
+        ap-northeast-1: ami-0231a40676931971a
+        ap-northeast-2: ami-066b4452a247d5533
+        ap-south-1: ami-0b0f33d8cfb9e5051
+        ap-southeast-1: ami-0949989f302945c5a
+        ap-southeast-2: ami-08fb0d3aaf8945d02
+        ca-central-1: ami-0e26eeafdc083c6e9
+        eu-central-1: ami-02fa942a71aadf188
+        eu-north-1: ami-03ce6e520f43392b9
+        eu-west-1: ami-07becf48e2f4057c8
+        eu-west-2: ami-02ac6b3300d9070b1
+        eu-west-3: ami-0b0726c29a8feff8a
+        sa-east-1: ami-029a4c0dd953fdc64
+        us-east-1: ami-06dcf76ec7ffac7cb
+        us-east-2: ami-018b2823c3aa8b78e
+        us-west-1: ami-04de5ae2ed495f580
+        us-west-2: ami-0282e49ac0502691d

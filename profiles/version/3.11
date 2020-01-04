@@ -6,8 +6,8 @@ include required("../base/current")
 
 # set version-specific vars
 version     = "3.11"
-release     = "3.11.0"
-#end_of_life = "2021-05-01"   # currently unknown
+release     = "3.11.2"
+end_of_life = "2021-11-01"
 repos {
   "http://dl-cdn.alpinelinux.org/alpine/v3.11/main"      = true
   "http://dl-cdn.alpinelinux.org/alpine/v3.11/community" = true
