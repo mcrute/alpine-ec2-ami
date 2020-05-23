@@ -33,6 +33,7 @@ ami_desc_suffix = ""
 ami_volume_size = "1"
 ami_encrypt     = "false"
 ami_user        = "alpine"  # modification currently not supported
+
 # NOTE: the following are python format strings, resolved in resolve-profile.py
 ami_name        = "{var.ami_name_prefix}{var.release}-{var.arch}-{var.revision}{var.ami_name_suffix}"
 ami_desc        = "{var.ami_desc_prefix}{var.release} {var.arch} {var.revision}{var.ami_desc_suffix}"
@@ -86,10 +87,12 @@ kernel_modules {
   sd-mod      = true
   usb-storage = true
   ext4        = true
+  nvme        = true
+  ena         = true
 }
 kernel_options {
-  "console=ttyS0" = true
-  "console=tty0"  = true
+  "console=ttyS0,115200n8"          = true
+  "nvme_core.io_timeout=4294967295" = true
 }
 # NOTE: nvme and ena are critical for i3, a1, m6g, and anything in the 5 series
 # forward. Without them these instances will not boot.

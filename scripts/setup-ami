@@ -59,7 +59,7 @@ fetch_apk_tools() {
 
 # mostly from Alpine's /sbin/setup-disk
 setup_partitions() {
-    start=1M    # TODO: do we really need to waste 1M?
+    start=2M # Needed to align EBS partitions
     line=
 
     # create new partitions
@@ -70,7 +70,7 @@ setup_partitions() {
             *) echo "$start,$line"; start= ;;
             esac
         done
-    ) | sfdisk --quiet --label dos "$DEVICE"
+    ) | sfdisk --quiet --label gpt "$DEVICE"
 
     # we assume that the build host will create the new devices within 5s
     tries=5
@@ -87,7 +87,7 @@ make_filesystem() {
 
     if [ "$BOOTLOADER" = 'grub-efi' ]; then
         # create a small EFI partition (remainder for root), and mount it
-        setup_partitions '5M,EF' ',L'
+        setup_partitions '5M,U,*' ',L'
         root_dev="${DEVICE}2"
         mkfs.vfat -n EFI "${DEVICE}1"
     fi
@@ -142,9 +142,15 @@ install_core_packages() {
     # EC2 console.
     sed -Ei '/^tty[0-9]/s/^/#/' "$TARGET/etc/inittab"
 
+    # Enable the getty for the serial terminal. This will show the login prompt
+    # in the get-console-output API that's accessible by the CLI and the web
+    # console.
+    sed -Ei '/^#ttyS0:/s/^#//' "$TARGET/etc/inittab"
+
     # Make it a little more obvious who is logged in by adding username to the
     # prompt
     sed -i "s/^export PS1='/&\\\\u@/" "$TARGET/etc/profile"
+
 }
 
 setup_mdev() {
@@ -196,7 +202,6 @@ install_extlinux() {
     chroot "$TARGET" /sbin/update-extlinux --warn-only
 }
 
-# TODO: this isn't quite working for some reason
 install_grub_efi() {
     case "$ARCH" in
         x86_64)     grub_target=x86_64-efi ; fwa=x64 ;;
@@ -209,16 +214,17 @@ install_grub_efi() {
         --bootloader-id=alpine --boot-directory=/boot --no-nvram
 
     # fallback mode
-    install -D "$TARGET/boot/efi/EFI/alpine/grub$fwa.efi" "$TARGET/boot/efi/EFI/boot/$fwa.efi"
+    install -D "$TARGET/boot/efi/EFI/alpine/grub$fwa.efi" "$TARGET/boot/efi/EFI/boot/boot$fwa.efi"
 
-    # add cmdline linux defaults to /etc/default/grub
-    echo "GRUB_CMDLINE_LINUX_DEFAULT=\"modules=$KERNEL_MODS $KERNEL_OPTS\"" >> "$TARGET"/etc/default/grub
-
-    # eliminate grub pause
-    sed -ie 's/^GRUB_TIMEOUT=.$/GRUB_TIMEOUT=0/' "$TARGET/etc/default/grub"
+    cat > "$TARGET/etc/default/grub" <<- EOF
+	GRUB_TIMEOUT=0
+	GRUB_DISABLE_SUBMENU=y
+	GRUB_DISABLE_RECOVERY=true
+	GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"
+	GRUB_CMDLINE_LINUX_DEFAULT="modules=$KERNEL_MODS $KERNEL_OPTS"
+	EOF
 
     # generate/install new config
-    [ -e "$TARGET/boot/grub/grub.cfg" ] && cp "$TARGET/boot/grub/grub.cfg" "$TARGET/boot/grub/grub.cfg.backup"
     chroot "$TARGET" grub-mkconfig -o /boot/grub/grub.cfg
 }
 
