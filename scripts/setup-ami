@@ -149,8 +149,12 @@ install_core_packages() {
 
 setup_mdev() {
     cp /tmp/nvme-ebs-links "$TARGET/lib/mdev"
+
     # insert nvme ebs mdev configs just above "# fallback" comment
-    sed -n -i -e '/# fallback/r /tmp/nvme-ebs-mdev.conf' -e 1x -e '2,${x;p}' -e '${x;p}' "$TARGET/etc/mdev.conf"
+    sed -n -i \
+        -e '/# fallback/i \\n# ebs nvme links\nnvme[0-9]+n[0-9]+.*   root:root 0660 */lib/mdev/nvme-ebs-links' \
+        -e 1x -e '2,${x;p}' -e '${x;p}' \
+        "$TARGET/etc/mdev.conf"
 }
 
 create_initfs() {
