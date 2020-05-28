@@ -481,13 +481,14 @@ class ConfigBuilder:
         self.out_dir = out_dir
 
         self._keys_to_transform = {
-            "kernel_modules" : self.fold_comma,
-            "kernel_options" : self.fold_space,
-            "repos"          : self.fold_repos,
-            "pkgs"           : self.fold_packages,
-            "svcs"           : self.fold_services,
-            "revision"       : self.resolve_now,
-            "end_of_life"    : lambda x: \
+            "kernel_modules"  : self.fold_comma,
+            "kernel_options"  : self.fold_space,
+            "initfs_features" : self.fold_space,
+            "repos"           : self.fold_repos,
+            "pkgs"            : self.fold_packages,
+            "svcs"            : self.fold_services,
+            "revision"        : self.resolve_now,
+            "end_of_life"     : lambda x: \
                 self.force_iso_date(self.resolve_tomorrow(x)),
         }
 

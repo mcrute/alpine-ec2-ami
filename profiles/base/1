@@ -91,3 +91,9 @@ kernel_options {
   "console=ttyS0" = true
   "console=tty0"  = true
 }
+# NOTE: nvme and ena are critical for i3, a1, m6g, and anything in the 5 series
+# forward. Without them these instances will not boot.
+initfs_features {
+  nvme        = true
+  ena         = true
+}

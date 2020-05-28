@@ -158,10 +158,7 @@ setup_mdev() {
 }
 
 create_initfs() {
-    # Enable ENA and NVME features these don't hurt for any instance and are
-    # hard requirements of the 5 series and i3 series of instances
-    # TODO: profile-ize?
-    sed -Ei 's/^features="([^"]+)"/features="\1 nvme ena"/' \
+    sed -Ei "s/^features=\"([^\"]+)\"/features=\"\1 $INITFS_FEATURES\"/" \
         "$TARGET/etc/mkinitfs/mkinitfs.conf"
 
     chroot "$TARGET" /sbin/mkinitfs $(basename $(find "$TARGET/lib/modules/"* -maxdepth 0))
