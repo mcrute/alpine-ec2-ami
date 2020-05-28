@@ -481,8 +481,6 @@ class ConfigBuilder:
         self.out_dir = out_dir
 
         self._keys_to_transform = {
-            "ami_access"     : self.fold_comma,
-            "ami_regions"    : self.fold_comma,
             "kernel_modules" : self.fold_comma,
             "kernel_options" : self.fold_space,
             "repos"          : self.fold_repos,
