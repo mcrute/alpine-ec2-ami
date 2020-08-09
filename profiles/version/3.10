@@ -2,7 +2,7 @@
 # vim: ts=2 et:
 
 # start with base vars
-include required("../base/current")
+include required("../base/1")
 
 # set version-specific vars
 version     = "3.10"

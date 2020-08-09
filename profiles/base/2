@@ -1,0 +1,103 @@
+### base vars, revision 1
+# vim: ts=2 et:
+
+# Profile/Build
+profile       = null
+profile_build = null
+revision      = "r0"
+
+# Versioning
+version     = null
+release     = null
+end_of_life = null
+
+# Architecture
+arch        = null
+build_arch  = null
+
+# Builder-instance
+build_region          = "us-west-2"
+build_subnet          = null
+build_instance_type   = "t3.nano"
+build_public_ip       = null
+build_user            = "ec2-user"
+build_ami_name        = "amzn2-ami-hvm-2.0.*-gp2"
+build_ami_owner       = "137112412989"
+build_ami_latest      = "true"
+
+# AMI build/deploy
+aws_profile     = null  # AWS profile to build AMI
+aws_accounts    = null  # comma-separated AWS accounts allowed to launch AMI
+ami_name_prefix = "alpine-ami-"
+ami_name_suffix = ""
+ami_desc_prefix = "Alpine Linux "
+ami_desc_suffix = ""
+ami_volume_size = "1"
+ami_encrypt     = "false"
+ami_user        = "alpine"  # modification currently not supported
+
+# NOTE: the following are python format strings, resolved in resolve-profile.py
+ami_name        = "{var.ami_name_prefix}{var.release}-{var.arch}-{var.revision}{var.ami_name_suffix}"
+ami_desc        = "{var.ami_desc_prefix}{var.release} {var.arch} {var.revision}{var.ami_desc_suffix}"
+
+# AMI configuration
+apk_tools           = null
+apk_tools_sha256    = null
+alpine_keys         = null
+alpine_keys_sha256  = null
+repos {}
+pkgs {
+  linux-virt          = true
+  chrony              = true
+  nvme-cli            = true
+  openssh             = true
+  sudo                = true
+  tiny-ec2-bootstrap  = true
+  tzdata              = true
+}
+svcs {
+  sysinit {
+    devfs               = true
+    dmesg               = true
+    hwdrivers           = true
+    mdev                = true
+  }
+  boot {
+    acpid               = true
+    bootmisc            = true
+    hostname            = true
+    hwclock             = true
+    modules             = true
+    swap                = true
+    sysctl              = true
+    syslog              = true
+  }
+  default {
+    chronyd             = true
+    networking          = true
+    sshd                = true
+    tiny-ec2-bootstrap  = true
+  }
+  shutdown {
+    killprocs           = true
+    mount-ro            = true
+    savecache           = true
+  }
+}
+kernel_modules {
+  sd-mod      = true
+  usb-storage = true
+  ext4        = true
+  nvme        = true
+  ena         = true
+}
+kernel_options {
+  "console=ttyS0,115200n8"          = true
+  "nvme_core.io_timeout=4294967295" = true
+}
+# NOTE: nvme and ena are critical for i3, a1, m6g, and anything in the 5 series
+# forward. Without them these instances will not boot.
+initfs_features {
+  nvme        = true
+  ena         = true
+}

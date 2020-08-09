@@ -2,7 +2,7 @@
 # vim: ts=2 et:
 
 # based on current
-include required("current")
+include required("../base/current")
 
 # add edge-specific tweaks...
 version     = "edge"
@@ -10,7 +10,6 @@ release     = "edge"
 end_of_life = "@TOMORROW@"
 revision    = "@NOW@"
 
-repos = null  # remove all values from 'current'
 repos {
   "http://dl-cdn.alpinelinux.org/alpine/edge/main"      = true
   "http://dl-cdn.alpinelinux.org/alpine/edge/community" = true
