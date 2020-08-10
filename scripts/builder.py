@@ -513,16 +513,35 @@ class ConfigBuilder:
             profile = os.path.splitext(os.path.split(file)[-1])[0]
             self.build_profile(profile)
 
+    def rel_symlink(self, src_path, dest_dir, dest):
+        os.symlink(
+            os.path.relpath(src_path, dest_dir),
+            os.path.join(dest_dir, dest))
+
     def build_profile(self, profile):
         build_config = pyhocon.ConfigFactory.parse_file(
             os.path.join(self.config_path, f"{profile}.conf"))
 
         for build, cfg in build_config["BUILDS"].items():
             build_dir = os.path.join(self.out_dir, profile, build)
+            setup_dir = os.path.join(build_dir, "setup-ami.d")
 
             # Always start fresh
             shutil.rmtree(build_dir, ignore_errors=True)
-            os.makedirs(build_dir)
+            os.makedirs(setup_dir)
+
+            # symlink nvme script
+            self.rel_symlink("scripts/nvme-ebs-links", setup_dir, "nvme-ebs-links")
+
+            # symlink additional setup_script
+            if "setup_script" in cfg.keys():
+                self.rel_symlink(cfg["setup_script"], setup_dir, "setup_script")
+                del cfg["setup_script"]
+
+            if "setup_copy" in cfg.keys():
+                for dst, src in cfg["setup_copy"].items():
+                    self.rel_symlink(src, setup_dir, dst)
+                del cfg["setup_copy"]
 
             cfg["profile"] = profile
             cfg["profile_build"] = build

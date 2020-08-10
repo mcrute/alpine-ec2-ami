@@ -154,7 +154,7 @@ install_core_packages() {
 }
 
 setup_mdev() {
-    cp /tmp/nvme-ebs-links "$TARGET/lib/mdev"
+    cp /tmp/setup-ami.d/nvme-ebs-links "$TARGET/lib/mdev"
 
     # insert nvme ebs mdev configs just above "# fallback" comment
     sed -n -i \
@@ -288,6 +288,19 @@ configure_ntp() {
         -i "$TARGET/etc/chrony/chrony.conf"
 }
 
+setup_script() {
+    if [ -f /tmp/setup-ami.d/setup_script ]; then
+        einfo "Executing additional setup script"
+        (
+            cd /tmp/setup-ami.d
+            chmod u+x ./setup_script
+            TARGET="$TARGET" ./setup_script
+        )
+    else
+        einfo "No additional setup script"
+    fi
+}
+
 cleanup() {
     # Sweep cruft out of the image that doesn't need to ship or will be
     # re-generated when the image boots
@@ -343,6 +356,8 @@ main() {
     enable_services
     create_alpine_user
     configure_ntp
+
+    setup_script
 
     einfo "All done, cleaning up"
     cleanup
