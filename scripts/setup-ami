@@ -256,8 +256,6 @@ enable_services() {
     done
 }
 
-# TODO: allow profile to specify alternate ALPINE_USER?
-# NOTE: tiny-ec2-bootstrap will need to be updated to support that!
 create_alpine_user() {
     # Allow members of the wheel group to sudo without a password. By default
     # this will only be the alpine user. This allows us to ship an AMI that is
@@ -269,12 +267,17 @@ create_alpine_user() {
     # There is no real standard ec2 username across AMIs, Amazon uses ec2-user
     # for their Amazon Linux AMIs but Ubuntu uses ubuntu, Fedora uses fedora,
     # etc... (see: https://alestic.com/2014/01/ec2-ssh-username/). So our user
-    # and group are alpine because this is Alpine Linux. On instance bootstrap
-    # the user can create whatever users they want and delete this one.
-    chroot "$TARGET" /usr/sbin/addgroup alpine
-    chroot "$TARGET" /usr/sbin/adduser -h /home/alpine -s /bin/sh -G alpine -D alpine
-    chroot "$TARGET" /usr/sbin/addgroup alpine wheel
-    chroot "$TARGET" /usr/bin/passwd -u alpine
+    # and group, by default, are alpine because this is Alpine Linux.
+    user="${EC2_USER:-alpine}"
+    chroot "$TARGET" /usr/sbin/addgroup "$user"
+    chroot "$TARGET" /usr/sbin/adduser -h "/home/$user" -s /bin/sh -G "$user" -D "$user"
+    chroot "$TARGET" /usr/sbin/addgroup "$user" wheel
+    chroot "$TARGET" /usr/bin/passwd -u "$user"
+
+    # Let tiny-ec2-bootstrap know what the EC2 user of the AMI is
+    cat > "$TARGET/etc/conf.d/tiny-ec2-bootstrap" <<EOF
+EC2_USER="$user"
+EOF
 }
 
 configure_ntp() {

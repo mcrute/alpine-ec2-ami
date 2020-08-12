@@ -34,7 +34,7 @@ ami_desc_prefix = "Alpine Linux "
 ami_desc_suffix = ""
 ami_volume_size = "1"
 ami_encrypt     = "false"
-ami_user        = "alpine"  # modification currently not supported
+ami_user        = "alpine"
 
 # NOTE: the following are python format strings, resolved in resolve-profile.py
 ami_name        = "{var.ami_name_prefix}{var.release}-{var.arch}-{var.revision}{var.ami_name_suffix}"
@@ -95,9 +95,18 @@ kernel_options {
   "console=ttyS0,115200n8"          = true
   "nvme_core.io_timeout=4294967295" = true
 }
-# NOTE: nvme and ena are critical for i3, a1, m6g, and anything in the 5 series
-# forward. Without them these instances will not boot.
+# NOTE: nvme and ena are critical for i3, a1, m6g, and anything in the 5
+# series forward.  Without them these instances will not boot.
 initfs_features {
   nvme        = true
   ena         = true
 }
+
+# Local path to additional setup script, runs before setup-ami cleanup.
+setup_script = null
+
+# Files/directories to copy to /tmp/setup-ami.d/ on build instance for
+# setup-script to use.  Map key is the copy target in the build instance
+# /tmp/setup-ami.d/ directory, map value is local file/directory path.
+# Nothing copied ends up in the AMI unless `setup_script` does it.
+setup_copy = null

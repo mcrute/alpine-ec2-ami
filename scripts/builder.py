@@ -534,11 +534,11 @@ class ConfigBuilder:
             self.rel_symlink("scripts/nvme-ebs-links", setup_dir, "nvme-ebs-links")
 
             # symlink additional setup_script
-            if "setup_script" in cfg.keys():
+            if "setup_script" in cfg.keys() and cfg["setup_script"] is not None:
                 self.rel_symlink(cfg["setup_script"], setup_dir, "setup_script")
                 del cfg["setup_script"]
 
-            if "setup_copy" in cfg.keys():
+            if "setup_copy" in cfg.keys() and cfg["setup_copy"] is not None:
                 for dst, src in cfg["setup_copy"].items():
                     self.rel_symlink(src, setup_dir, dst)
                 del cfg["setup_copy"]
