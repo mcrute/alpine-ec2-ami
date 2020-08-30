@@ -242,6 +242,7 @@ EOF
 }
 
 setup_networking() {
+    # configure standard interfaces
     cat > "$TARGET/etc/network/interfaces" <<EOF
 auto lo
 iface lo inet loopback
@@ -249,6 +250,15 @@ iface lo inet loopback
 auto eth0
 iface eth0 inet dhcp
 EOF
+
+    # install ucdhcp hooks for EC2 ENI IPv6 and secondary IPv4
+    install -o root -g root -Dm755 -t "$TARGET/usr/share/udhcpc" \
+        /tmp/setup-ami.d/alpine-ec2-eni-hook
+    for i in post-bound post-renew; do
+        mkdir -p "$TARGET/etc/udhcpc/$i"
+        ln -sf /usr/share/udhcpc/alpine-ec2-eni-hook \
+            "$TARGET/etc/udhcpc/$i"
+    done
 }
 
 enable_services() {

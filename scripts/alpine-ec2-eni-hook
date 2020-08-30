@@ -1,0 +1,112 @@
+#!/usr/bin/env sh
+# vim: set ft=sh noet ts=4:
+
+# This script should be installed as symlinks in
+#   /etc/udhcpc/<hook>/alpine-ec2-eni-hook
+# <hook> :-
+#   post-bound  - after udhcpc binds an IP to the interface
+#   post-renew  - after udhcpc renews the lease for the IP
+#
+# udhcpc provides via ENV...
+#   IFACE  - eth0, etc.
+#   mask   - bits in IPv4 subnet mask
+
+set -e
+
+HOOK="$(basename "$(dirname "$0")")"
+
+log() {
+	LEV="$1"
+	shift
+	logger -s -p "daemon.$LEV" -t "udhcpc/${HOOK}[$$]" "$@"
+}
+
+IMDS="X-aws-ec2-metadata-token"
+
+meta_token() {
+	echo -ne "PUT /latest/api/token HTTP/1.0\r\n$IMDS-ttl-seconds: 5\r\n\r\n" |
+		nc 169.254.169.254 80 | tail -n 1
+}
+
+meta() {
+	wget -qO - --header "$IMDS: $(meta_token)" \
+		"http://169.254.169.254/latest/meta-data/$1" 2>/dev/null \
+		|| true  # when no ipv6s attached, wget will 404 error
+}
+
+iface_mac() {
+	cat "/sys/class/net/$IFACE/address"
+}
+
+iface_ip6s() {
+	# only inet6 lines, except fe80::
+	ip -6 addr show "$IFACE" |
+		sed -E -e '/inet6/!d' \
+			-e '/inet6 fe80::/d' \
+			-e 's/.*inet6 ([0-9a-f:]+).*/\1/'
+}
+
+iface_sec_ip4s() {
+	# only inet secondary lines
+	ip -4 addr show "$IFACE" |
+		sed -E -e '/inet .* secondary/!d' \
+			-e 's/.*inet ([0-9.]+).*/\1/'
+}
+
+ec2_ip6s() {
+	meta "$MAC_PATH/ipv6s"
+}
+
+ec2_sec_ip4s() {
+	# first one listed is primary
+	meta "$MAC_PATH/local-ipv4s" | tail +2
+}
+
+in_list() {
+	echo "$2" | grep -q "^$1$"
+}
+
+ip_addr() {
+	[ "$1" -eq 4 ] && MASK="$mask" || MASK=128
+	MSG="$IFACE $2 $3"
+	if ip -"$1" addr "$2" "$3/$MASK" dev "$IFACE"; then
+		log notice "$MSG - success"
+	else
+		log err "$MSG - FAILED"
+	fi
+}
+
+case "$HOOK" in
+	#pre-deconfig) ACT=del ;; # issues with 'service networking restart'
+	post-bound)   ACT=add ;;
+	post-renew)   ACT=sync ;;
+	*)            log err "Unhandled udhcpc hook: '$HOOK'"; exit 1 ;;
+esac
+
+MAC_PATH="network/interfaces/macs/$(iface_mac)"
+EC2_IP4S="$(ec2_sec_ip4s)"
+EC2_IP6S="$(ec2_ip6s)"
+IFACE_IP4S="$(iface_sec_ip4s)"
+IFACE_IP6S="$(iface_ip6s)"
+
+# add or sync IPs
+if [ "$ACT" != "del" ]; then
+	for ip4 in $EC2_IP4S; do
+		in_list "$ip4" "$IFACE_IP4S" || ip_addr 4 add "$ip4"
+	done
+	for ip6 in $EC2_IP6S; do
+		in_list "$ip6" "$IFACE_IP6S" || ip_addr 6 add "$ip6"
+	done
+fi
+
+# del or sync IPs
+if [ "$ACT" != "add" ]; then
+	for ip4 in $IFACE_IP4S; do
+		[ "$ACT" = "sync" ] && in_list "$ip4" "$EC2_IP4S" && continue
+		ip_addr 4 del "$ip4"
+	done
+	for ip6 in $IFACE_IP6S; do
+		[ "$ACT" = "sync" ] && in_list "$ip6" "$EC2_IP6S" && continue
+		ip_addr 6 del "$ip6"
+	done
+fi
