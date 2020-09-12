@@ -1,10 +1,11 @@
 #!/bin/sh
 # vim: set ts=4 et:
 
-set -eu
+set -eux
 
 DEVICE=/dev/xvdf
 TARGET=/mnt/target
+SETUP=/tmp/setup-ami.d
 
 # what bootloader should we use?
 [ -d "/sys/firmware/efi" ] && BOOTLOADER=grub-efi || BOOTLOADER=syslinux
@@ -85,7 +86,7 @@ setup_partitions() {
 make_filesystem() {
     root_dev="$DEVICE"
 
-    if [ "$BOOTLOADER" = 'grub-efi' ]; then
+    if [ "$BOOTLOADER" = grub-efi ]; then
         # create a small EFI partition (remainder for root), and mount it
         setup_partitions '5M,U,*' ',L'
         root_dev="${DEVICE}2"
@@ -95,7 +96,7 @@ make_filesystem() {
     mkfs.ext4 -O ^64bit -L / "$root_dev"
     mount "$root_dev" "$TARGET"
 
-    if [ "$BOOTLOADER" = 'grub-efi' ]; then
+    if [ "$BOOTLOADER" = grub-efi ]; then
         mkdir -p "$TARGET/boot/efi"
         mount -t vfat "${DEVICE}1" "$TARGET/boot/efi"
     fi
@@ -117,7 +118,7 @@ fetch_keys() {
 install_base() {
     $apk add --root "$TARGET" --no-cache --initdb alpine-base
     # verify release matches
-    if [ "$VERSION" != "edge" ]; then
+    if [ "$VERSION" != edge ]; then
         ALPINE_RELEASE=$(cat "$TARGET/etc/alpine-release")
         [ "$RELEASE" = "$ALPINE_RELEASE" ] || \
             die "Newer Alpine release detected: $ALPINE_RELEASE"
@@ -155,11 +156,12 @@ install_core_packages() {
 
 setup_mdev() {
     install -o root -g root -Dm755 -t "$TARGET/lib/mdev" \
-        /tmp/setup-ami.d/nvme-ebs-links
+        "$SETUP/nvme-ebs-links" \
+        "$SETUP/eth-eni-hotplug"
 
     # insert nvme ebs mdev configs just above "# fallback" comment
     sed -n -i \
-        -e '/# fallback/i \\n# ebs nvme links\nnvme[0-9]+n[0-9]+.*   root:root 0660 */lib/mdev/nvme-ebs-links' \
+        -e "/# fallback/r $SETUP/etc/mdev-ec2.conf" \
         -e 1x -e '2,${x;p}' -e '${x;p}' \
         "$TARGET/etc/mdev.conf"
 }
@@ -217,46 +219,38 @@ install_grub_efi() {
     # fallback mode
     install -D "$TARGET/boot/efi/EFI/alpine/grub$fwa.efi" "$TARGET/boot/efi/EFI/boot/boot$fwa.efi"
 
-    cat > "$TARGET/etc/default/grub" <<- EOF
-	GRUB_TIMEOUT=0
-	GRUB_DISABLE_SUBMENU=y
-	GRUB_DISABLE_RECOVERY=true
-	GRUB_SERIAL_COMMAND="serial --speed=115200 --unit=0 --word=8 --parity=no --stop=1"
-	GRUB_CMDLINE_LINUX_DEFAULT="modules=$KERNEL_MODS $KERNEL_OPTS"
-	EOF
+    # install default grub config
+    install -o root -g root -Dm644 -t "$TARGET/etc/default" \
+        "$SETUP/etc/grub.default" grub
 
     # generate/install new config
     chroot "$TARGET" grub-mkconfig -o /boot/grub/grub.cfg
 }
 
 setup_fstab() {
-    cat > "$TARGET/etc/fstab" <<EOF
-# <fs>      <mountpoint>   <type>   <opts>              <dump/pass>
-LABEL=/     /              ext4     defaults,noatime    1 1
-EOF
+    install -o root -g root -Dm644 -t "$TARGET/etc" \
+        "$SETUP/etc/fstab"
 
     # if we're using grub-efi bootloader, add extra line for EFI partition
-    if [ "$BOOTLOADER" = 'grub-efi' ]; then
-        echo "LABEL=EFI   /boot/efi      vfat     defaults,noatime,uid=0,gid=0,umask=077  0 0" >> "$TARGET/etc/fstab"
+    if [ "$BOOTLOADER" = grub-efi ]; then
+        cat "$SETUP/etc/fstab.grub-efi" >> "$TARGET/etc/fstab"
     fi
 }
 
 setup_networking() {
     # configure standard interfaces
-    cat > "$TARGET/etc/network/interfaces" <<EOF
-auto lo
-iface lo inet loopback
-
-auto eth0
-iface eth0 inet dhcp
-EOF
+    IFACE_CFG="$TARGET/etc/network/interfaces"
+    install -o root -g root -Dm755 -d "$SETUP/etc/interfaces.d" "$IFACE_CFG.d"
+    install -o root -g root -Dm644 -t "$IFACE_CFG.d" \
+        "$SETUP/etc/interfaces.d/"*
+    cat "$IFACE_CFG.d/lo" "$IFACE_CFG.d/eth0" > "$IFACE_CFG"
 
     # install ucdhcp hooks for EC2 ENI IPv6 and secondary IPv4
     install -o root -g root -Dm755 -t "$TARGET/usr/share/udhcpc" \
-        /tmp/setup-ami.d/alpine-ec2-eni-hook
+        "$SETUP/eth-eni-hook"
     for i in post-bound post-renew; do
         mkdir -p "$TARGET/etc/udhcpc/$i"
-        ln -sf /usr/share/udhcpc/alpine-ec2-eni-hook \
+        ln -sf /usr/share/udhcpc/eth-eni-hook \
             "$TARGET/etc/udhcpc/$i"
     done
 }
@@ -286,9 +280,7 @@ create_alpine_user() {
     chroot "$TARGET" /usr/bin/passwd -u "$user"
 
     # Let tiny-ec2-bootstrap know what the EC2 user of the AMI is
-    cat > "$TARGET/etc/conf.d/tiny-ec2-bootstrap" <<EOF
-EC2_USER="$user"
-EOF
+    echo "EC2_USER=$user" > "$TARGET/etc/conf.d/tiny-ec2-bootstrap"
 }
 
 configure_ntp() {
@@ -303,10 +295,10 @@ configure_ntp() {
 }
 
 setup_script() {
-    if [ -f /tmp/setup-ami.d/setup_script ]; then
+    if [ -f "$SETUP/setup_script" ]; then
         einfo "Executing additional setup script"
         (
-            cd /tmp/setup-ami.d
+            cd "$SETUP"
             chmod u+x ./setup_script
             TARGET="$TARGET" ./setup_script
         )
@@ -324,7 +316,7 @@ cleanup() {
         "$TARGET/root/.ash_history" \
         "$TARGET/etc/"*-
 
-    [ "$BOOTLOADER" = 'grub-efi' ] && umount "$TARGET/boot/efi"
+    [ "$BOOTLOADER" = grub-efi ] && umount "$TARGET/boot/efi"
 
     umount \
         "$TARGET/dev" \

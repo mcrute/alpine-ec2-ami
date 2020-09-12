@@ -1,0 +1,2 @@
+# <fs>      <mountpoint>   <type>   <opts>              <dump/pass>
+LABEL=/     /              ext4     defaults,noatime    1 1

@@ -1,0 +1,6 @@
+# NOTE: /lib/mdev/eth-eni-hotplug rewrites this file.  Edit files in
+#       /etc/network/interfaces.d/ to persist any customizations.
+
+auto lo
+iface lo inet loopback
+

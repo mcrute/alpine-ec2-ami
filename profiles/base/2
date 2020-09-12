@@ -49,6 +49,7 @@ repos {}
 pkgs {
   linux-virt          = true
   chrony              = true
+  iproute2-minimal    = true
   nvme-cli            = true
   openssh             = true
   sudo                = true

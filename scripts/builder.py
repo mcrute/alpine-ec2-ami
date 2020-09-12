@@ -576,9 +576,9 @@ class ConfigBuilder:
             shutil.rmtree(build_dir, ignore_errors=True)
             os.makedirs(setup_dir)
 
-            # symlink nvme and ENI scripts
-            self.rel_symlink("scripts/nvme-ebs-links", setup_dir, "nvme-ebs-links")
-            self.rel_symlink("scripts/alpine-ec2-eni-hook", setup_dir, "alpine-ec2-eni-hook")
+            # symlink everything in scripts/setup-ami.d
+            for item in os.listdir("scripts/setup-ami.d"):
+                self.rel_symlink(os.path.join("scripts/setup-ami.d", item), setup_dir, item)
 
             # symlink additional setup_script
             if "setup_script" in cfg.keys() and cfg["setup_script"] is not None:

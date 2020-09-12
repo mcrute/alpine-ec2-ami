@@ -50,6 +50,7 @@ pkgs {
   linux-virt          = true
   alpine-mirrors      = true
   chrony              = true
+  iproute2            = true
   nvme-cli            = true
   openssh             = true
   sudo                = true
