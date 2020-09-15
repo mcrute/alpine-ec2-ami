@@ -3,17 +3,22 @@
 **These are not official AWS or Alpine images.  They are community built and
 supported.**
 
-These AMIs should work with most EC2 features such as Elastic Network Adapters
-and NVMe EBS volumes.  If you find any problems launching them on current
-generation instances, please open an [issue](https://github.com/mcrute/alpine-ec2-ami/issues)
-and include as much detailed information as possible.
+These AMIs should work with most EC2 features such as ENI's (Elastic Network
+Interfaces) and NVMe EBS (Elastic Block Storage) volumes.  If you find any
+problems launching them on current generation instances, please open an
+[issue](https://github.com/mcrute/alpine-ec2-ami/issues) and include as much
+detailed information as possible.
+
+AMIs built after 2020-09-15 include support for hot-pluggable ENI's and will
+sync all private IPv4 and IPv6 address on those ENI's on `udhcpc` post-bound and
+post-renew events.
 
 During the *first boot* of instances created with these AMIs, the lightweight
 [tiny-ec2-bootstrap](https://github.com/mcrute/tiny-ec2-bootstrap) init
 script...
 - sets the instance's hostname,
 - installs the SSH authorized_keys for the 'alpine' user,
-- disables 'root' and 'alpine' users' passwords,
+- disables 'root' and AMI user (default 'alpine') passwords,
 - expands the root partition to use all available EBS volume space,
 - and executes a "user data" script (must be a shell script that starts with `#!`)
 

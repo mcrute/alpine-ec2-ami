@@ -14,7 +14,7 @@ This flexibility helps keep configuration for related build targets
 
 Core profile configurations are found in the `base`, `version`, and `arch`
 subdirectories.  Core profiles do not have a `.conf` suffix because they're not
-meant to be directly used like target profiles with `make`.
+meant to be directly used like target profiles with the `builder.py` script.
 
 Base core profiles define all build vars with default values -- those left
 empty or null are usually set in version, arch, or target profile configs.
@@ -31,7 +31,7 @@ which `apk-tools` and `alpine-keys` to use (and their SHA256 checksums).
 ## Target Profiles
 
 Target profiles, defined in this directory, are the top-level configuration
-used with `make PROFILE=<profile>`; they must have a `.conf` suffix.  Several
+used with `./scripts/builder.py`; they must have a `.conf` suffix.  Several
 configuration objects are defined and later merged within the `BUILDS` object,
 ultimately defining each individual build.
 
@@ -44,21 +44,23 @@ settings.
 
 The `BUILDS` object's elements merge core and profile configs (with optional
 inline build settings) into named build definitions; these build names can be
-used to specify a subset of a profile's builds:
-`make PROFILE=<profile> BUILDS="<build> ..."`
+used to specify a subset of a profile's builds, for example:
+`./scripts/builder.py amis <profile> <build1> <build2> ...`
 
 **Please note that merge order matters!**  The merge sequence is version -->
 architecture --> profile --> build.
 
 ## Customization
 
-The most important variables to set in your custom profile is `build_region`
-and `build_subnet`.  Without these, Packer will not know where to build.
+If the AWS configuration you're using does not specify a default region, your
+custom profile will need to specify `build_region`.  If the build region does
+not have a default VPC, you'll need to specify `build_subnet`.
 
-`version` and `release` are meant to match Alpine; however,`revision` can be
-used to track changes to profile or situations where the AMIs needed to be
-rebuilt.  The "edge" core version profile sets `revision` to the current
-datetime, otherwise the default is `r0`.
+`version` and `release` are meant to match Alpine; however, `revision` is used
+used to track changes to the profile, additions of new alpine-ec2-ami features,
+or other situations where the AMIs needs to be rebuilt.  The "edge" core
+version profile sets `revision` to null, which translates into the current
+datetime.  Otherwise, the default set in the base profile is `r0`.
 
 You will probably want to personalize the name and description of your AMI.
 Set `ami_name_prefix` and `ami_name_suffix`; setting `ami_desc_suffix` and
@@ -75,7 +77,12 @@ during the first boot, so you shouldn't need to make space for anything other
 than installed packages.
 
 Set `ami_encrypt` to "true" to create an encrypted AMI image.  Launching images
-from an encrypted AMI results in an encrypted EBS root volume.
+from an encrypted AMI results in an encrypted EBS root volume.  Please note
+that if your AMI is encrypted, only the owning account will be able to use it.
+
+_*NOTE*: The following funcitonality that is currently not operational -- it
+is pending completion and integration of a new release tool.  In the meantime,
+you will have to manually copy AMIs from the build region to other regions._
 
 To copy newly built AMIs to regions other than the `build_region` region, set
 `ami_regions`.  This variable is a *hash*, which allows for finer control over
@@ -89,6 +96,14 @@ ami_regions = null   # don't inherit any previous values
 ami_regions {
   us-west-2   = true
   eu-north-1  = true
+}
+```
+
+By default, the AMIs built are accessible only by the owning account.  To
+make your AMIs publicly available, set the `ami_access` hash variable:
+```
+ami_access {
+  all = true
 }
 ```
 
@@ -124,19 +139,29 @@ pkgs {
 ```
 
 To control when (or whether) a system service starts, use the `svcs` hash
-variable.  Its keys are the service names, as they appear in `/etc/init.d`;
-default values are set in the base core profile.  Like the other hash
-variables, setting `false` or `null` disable the service, `true` will enable
-the service at the "default" runlevel.  The service can be enabled at a
-different runlevel by using that runlevel as the value.
+variable.  Its first-level keys are names of runlevels ('sysinit', 'boot',
+`default`, and `shutown`), and the second-level keys are the services, as they
+appear in `/etc/init.d`.  Like the other profile hash variables, setting
+`false` or `null` disable the service in the runlevel, `true` will enable the
+service.
 
-By default, the AMIs built are accessible only by the owning account.  To
-make your AMIs publicly available, set the `ami_access` hash variable:
-```
-ami_access {
-  all = true
-}
-```
+Further customization can be done by specifying your own setup script with the
+`setup_script` profile variable.  This will be copied to the build instance at
+`/tmp/setup-ami.d/setup_script`, and executed by the `setup-ami` script just
+before the final cleanup phase.
+
+If there are additional data or scripts that the setup script uses, use the
+`setup_copy` hash variable -- the key is the destination path under the build
+instance's `/tmp/setup-ami.d` directory, and the value is the local path to
+the source file or directory.  No data is automatically installed in the AMI,
+and no additional scripts are executed -- you must explicitly install/execute
+via the `setup_script` script.
+
+The AMI's default login user is `alpine`.  If you want to specify a alternate
+login, set it with the `ami_user` profile variable.  This setting is saved in
+`/etc/conf.d/tiny-ec2-bootstrap` as `EC2_USER` and
+[tiny-ec2-bootstrap](https://github.com/mcrute/tiny-ec2-bootstrap)
+will use that valie instead of `alpine`.
 
 ## Limitations and Caveats
 
@@ -146,7 +171,3 @@ ami_access {
   hash_var = null   # drops inherited values
   hash_var {}       # re-defines as an empty hash
   ```
-
-* The AMI's login user is currently hard coded to be `alpine`.  Changes to
-  [tiny-ec2-bootstrap](https://github.com/mcrute/tiny-ec2-bootstrap) are
-  required before we can truly make `ami_user` configurable.

@@ -50,7 +50,7 @@ for more details and information about how AMI profile configs work.
 These scripts use the `boto3` library to interact with AWS, enabling you to
 provide your AWS account credentials in a number of different ways.  see the
 offical `boto3` documentation's section on
-[configuring credentials](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/configuration.html#configuring-credentials)
+[configuring credentials](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html#guide-credentials)
 for more details.  *Please note that these scripts do not implement the first
 two methods on the list.*
 
@@ -63,7 +63,7 @@ To build all build targets in a target profile, simply...
 
 You can also build specfic build targets within a profile:
 ```
-./scripts/builder.py amis <profile> <build1> <build2>
+./scripts/builder.py amis <profile> <build1> <build2> ...
 ```
 
 Before each build, new Alpine Linux *releases* are detected and the version's
@@ -108,7 +108,7 @@ other target profiles.
 
 ### Cleaning up the Build Environment
 
-The build process is careful to place all temporary files in teh `build`
+The build process is careful to place all temporary files in the `build`
 subdirectory. Remove the temporary `build` subdirectory, which contains the
 resolved profile and Packer configs, the Python virtual environment, and other
 temporary build-related artifacts.
