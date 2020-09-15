@@ -57,7 +57,8 @@ custom profile will need to specify `build_region`.  If the build region does
 not have a default VPC, you'll need to specify `build_subnet`.
 
 `version` and `release` are meant to match Alpine; however, `revision` is used
-used to track changes to the profile, additions of new alpine-ec2-ami features,
+used to track changes to the profile, additions of new
+[alpine-ec2-ami](https://github.com/mcrute/alpine-ec2-ami) features,
 or other situations where the AMIs needs to be rebuilt.  The "edge" core
 version profile sets `revision` to null, which translates into the current
 datetime.  Otherwise, the default set in the base profile is `r0`.
@@ -139,7 +140,7 @@ pkgs {
 ```
 
 To control when (or whether) a system service starts, use the `svcs` hash
-variable.  Its first-level keys are names of runlevels ('sysinit', 'boot',
+variable.  Its first-level keys are names of runlevels (`sysinit`, `boot`,
 `default`, and `shutown`), and the second-level keys are the services, as they
 appear in `/etc/init.d`.  Like the other profile hash variables, setting
 `false` or `null` disable the service in the runlevel, `true` will enable the
@@ -150,7 +151,7 @@ Further customization can be done by specifying your own setup script with the
 `/tmp/setup-ami.d/setup_script`, and executed by the `setup-ami` script just
 before the final cleanup phase.
 
-If there are additional data or scripts that the setup script uses, use the
+If there are additional data or scripts that your setup script uses, use the
 `setup_copy` hash variable -- the key is the destination path under the build
 instance's `/tmp/setup-ami.d` directory, and the value is the local path to
 the source file or directory.  No data is automatically installed in the AMI,
