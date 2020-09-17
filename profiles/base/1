@@ -76,6 +76,7 @@ svcs {
   }
   default {
     chronyd             = true
+    eth-eni-setup       = true
     networking          = true
     sshd                = true
     tiny-ec2-bootstrap  = true

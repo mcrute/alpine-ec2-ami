@@ -253,6 +253,10 @@ setup_networking() {
         ln -sf /usr/share/udhcpc/eth-eni-hook \
             "$TARGET/etc/udhcpc/$i"
     done
+
+    # install ENI interface setup init script
+    install -o root -g root -Dm755 -t "$TARGET/etc/init.d" \
+        "$SETUP/eth-eni-setup"
 }
 
 enable_services() {
