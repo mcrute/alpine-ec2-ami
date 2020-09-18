@@ -221,7 +221,7 @@ install_grub_efi() {
 
     # install default grub config
     install -o root -g root -Dm644 -t "$TARGET/etc/default" \
-        "$SETUP/etc/grub.default" grub
+        "$SETUP/etc/grub"
 
     # generate/install new config
     chroot "$TARGET" grub-mkconfig -o /boot/grub/grub.cfg
