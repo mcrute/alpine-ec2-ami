@@ -10,8 +10,8 @@ problems launching these AMIs on current generation instances, please open an
 detailed information as possible.
 
 All AMIs built after 2020-09-15 include support for hot-pluggable ENIs, and will
-sync all private IPv4 and IPv6 addresses on those ENIs on `udhcpc` post-bound and
-post-renew events.
+sync all associated IPv6 and private IPv4 addresses during `udhcpc` post-bound
+and post-renew events.
 
 Starting with release 3.12.1, IMDSv2 (Instance MetaData Service v2) is fully
 supported, and `aarch64` AMIs are provided for EC2 ARM-based instances.
