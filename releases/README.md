@@ -62,6 +62,8 @@ to you, please open an [issue](https://github.com/mcrute/alpine-ec2-ami/issues).
 | us-west-1 | [ami-0c9a9eac6d74fff97](https://us-west-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0c9a9eac6d74fff97) ([launch](https://us-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0c9a9eac6d74fff97) | [ami-0daaa29d5c8b1ecaf](https://us-west-1.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0daaa29d5c8b1ecaf) ([launch](https://us-west-1.console.aws.amazon.com/ec2/home#launchAmi=ami-0daaa29d5c8b1ecaf) |
 | us-west-2 | [ami-03d82b210e0c36983](https://us-west-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-03d82b210e0c36983) ([launch](https://us-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-03d82b210e0c36983)) | [ami-0d6579e59926d4377](https://us-west-2.console.aws.amazon.com/ec2/home#Images:visibility=public-images;imageId=ami-0d6579e59926d4377) ([launch](https://us-west-2.console.aws.amazon.com/ec2/home#launchAmi=ami-0d6579e59926d4377)) |
 
+</p></details>
+
 ### Alpine Linux 3.11.6 (2020-04-25)
 <details><summary><i>click to show/hide</i></summary><p>
 
