@@ -245,6 +245,9 @@ setup_networking() {
         "$SETUP/etc/interfaces.d/"*
     cat "$IFACE_CFG.d/lo" "$IFACE_CFG.d/eth0" > "$IFACE_CFG"
 
+    install -o root -g root -Dm755 -t "$TARGET/etc/network" \
+        "$SETUP/assemble-interfaces"
+
     # install ucdhcp hooks for EC2 ENI IPv6 and secondary IPv4
     install -o root -g root -Dm755 -t "$TARGET/usr/share/udhcpc" \
         "$SETUP/eth-eni-hook"

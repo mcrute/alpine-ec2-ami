@@ -2,35 +2,15 @@
 
 description="Sets up interfaces for attached Elastic Network Interfaces"
 
-IFACE_CFG=/etc/network/interfaces
-
 depend() {
 	before net
 	need sysfs
-}
-
-eni_eths() {
-	local iface
-	for iface in /sys/class/net/eth*; do
-		echo "${iface##*/}"
-	done
 }
 
 start() {
 	local iface
 
 	ebegin "Setting up interfaces for attached ENIs"
-
-	cat "$IFACE_CFG.d/lo" > "$IFACE_CFG.new"
-
-	for iface in $(eni_eths); do
-		[ -f "$IFACE_CFG.d/$iface" ] ||
-			sed -e "s/%%/$iface/g" "$IFACE_CFG.d/DEFAULT" > "$IFACE_CFG.d/$iface"
-		cat "$IFACE_CFG.d/$iface" >> "$IFACE_CFG.new"
-		einfo "$iface configured"
-	done
-
-	mv "$IFACE_CFG.new" "$IFACE_CFG"
-
+  /etc/network/assemble-interfaces
 	eend "$?"
 }
