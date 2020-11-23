@@ -136,7 +136,7 @@ to you, please open an [issue](https://github.com/mcrute/alpine-ec2-ami/issues).
 
 </p></details>
 
-### Alpine Linux Edge (2020-11-04)
+### Alpine Linux Edge (2020-11-22)
 <details><summary><i>click to show/hide</i></summary><p>
 
 | Region | alpine-ami-edge-x86_64-20201122030849 | alpine-ami-edge-aarch64-20201122030849 |
