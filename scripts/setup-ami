@@ -7,8 +7,8 @@ DEVICE=/dev/xvdf
 TARGET=/mnt/target
 SETUP=/tmp/setup-ami.d
 
-# what bootloader should we use?
-[ -d "/sys/firmware/efi" ] && BOOTLOADER=grub-efi || BOOTLOADER=syslinux
+[ "$VERSION" = 'edge' ] && V= || V=v
+MAIN_REPO="https://dl-cdn.alpinelinux.org/alpine/$V$VERSION/main/$ARCH"
 
 die() {
     printf '\033[1;31mERROR:\033[0m %s\n' "$@" >&2  # bold red
@@ -30,15 +30,6 @@ rc_add() {
     done
 }
 
-wgets() (
-    url="$1"     # url to fetch
-    sha256="$2"  # expected SHA256 sum of output
-    dest="$3"    # output path and filename
-
-    wget -T 10 -q -O "$dest" "$url"
-    echo "$sha256  $dest" | sha256sum -c > /dev/null
-)
-
 validate_block_device() {
     lsblk -P --fs "$DEVICE" >/dev/null 2>&1 || \
         die "'$DEVICE' is not a valid block device"
@@ -48,14 +39,18 @@ validate_block_device() {
     fi
 }
 
+main_repo_pkgs() {
+    wget -T 10 -q -O - "$MAIN_REPO/" | grep '^<a href=' | cut -d\" -f2
+}
+
 fetch_apk_tools() {
     store="$(mktemp -d)"
-    tarball="$(basename "$APK_TOOLS")"
+    tarball="$(main_repo_pkgs | grep ^apk-tools-static- | sort -V | tail -n 1)"
 
-    wgets "$APK_TOOLS" "$APK_TOOLS_SHA256" "$store/$tarball"
-    tar -C "$store" -xf "$store/$tarball"
+    wget -T 10 -q -O "$store/$tarball" "$MAIN_REPO/$tarball"
+    tar -C "$store" --warning=no-unknown-keyword -xf "$store/$tarball"
 
-    find "$store" -name apk
+    find "$store" -name apk.static
 }
 
 # mostly from Alpine's /sbin/setup-disk
@@ -86,9 +81,13 @@ setup_partitions() {
 make_filesystem() {
     root_dev="$DEVICE"
 
-    if [ "$BOOTLOADER" = grub-efi ]; then
-        # create a small EFI partition (remainder for root), and mount it
-        setup_partitions '5M,U,*' ',L'
+    if [ "$BOOTLOADER" = grub-efi ] || [ "$BOOTLOADER" = EFI_STUB ]; then
+        # create a small EFI partition (remainder for root)
+        if [ "$BOOTLOADER" = EFI_STUB ]; then
+            setup_partitions '11M,U,*' ',L'   # kernel + initfs
+        else
+            setup_partitions '512K,U,*' ',L'  # currently 278K used
+        fi
         root_dev="${DEVICE}2"
         mkfs.vfat -n EFI "${DEVICE}1"
     fi
@@ -96,7 +95,8 @@ make_filesystem() {
     mkfs.ext4 -O ^64bit -L / "$root_dev"
     mount "$root_dev" "$TARGET"
 
-    if [ "$BOOTLOADER" = grub-efi ]; then
+    if [ "$BOOTLOADER" = grub-efi ] || [ "$BOOTLOADER" = EFI_STUB ]; then
+        # mount small EFI partition
         mkdir -p "$TARGET/boot/efi"
         mount -t vfat "${DEVICE}1" "$TARGET/boot/efi"
     fi
@@ -109,9 +109,10 @@ setup_repositories() {
 
 fetch_keys() {
     tmp="$(mktemp -d)"
+    tarball="$(main_repo_pkgs | grep ^alpine-keys- | sort -V | tail -n 1)"
 
-    wgets "$ALPINE_KEYS" "$ALPINE_KEYS_SHA256" "$tmp/alpine-keys.apk"
-    tar -C "$TARGET" --warning=no-unknown-keyword -xvf "$tmp/alpine-keys.apk" etc/apk/keys
+    wget -T 10 -q -O "$tmp/$tarball" "$MAIN_REPO/$tarball"
+    tar -C "$TARGET" --warning=no-unknown-keyword -xvf "$tmp/$tarball" etc/apk/keys
     rm -rf "$tmp"
 }
 
@@ -136,7 +137,10 @@ setup_chroot() {
 
 install_core_packages() {
     chroot "$TARGET" apk --no-cache add $PKGS
-    chroot "$TARGET" apk --no-cache add --no-scripts $BOOTLOADER
+
+    # EFI_STUB requires no bootloader
+    [ "$BOOTLOADER" = EFI_STUB ] || \
+        chroot "$TARGET" apk --no-cache add --no-scripts "$BOOTLOADER"
 
     # Disable starting getty for physical ttys because they're all inaccessible
     # anyhow. With this configuration boot messages will still display in the
@@ -177,6 +181,7 @@ install_bootloader() {
     case "$BOOTLOADER" in
         syslinux)   install_extlinux ;;
         grub-efi)   install_grub_efi ;;
+        EFI_STUB)   install_EFI_STUB ;;
         *)          die "unknown bootloader '$BOOTLOADER'" ;;
     esac
 }
@@ -206,6 +211,8 @@ install_extlinux() {
 }
 
 install_grub_efi() {
+    [ -d "/sys/firmware/efi" ] || die "/sys/firmware/efi does not exist"
+
     case "$ARCH" in
         x86_64)     grub_target=x86_64-efi ; fwa=x64 ;;
         aarch64)    grub_target=arm64-efi ; fwa=aa64 ;;
@@ -227,12 +234,33 @@ install_grub_efi() {
     chroot "$TARGET" grub-mkconfig -o /boot/grub/grub.cfg
 }
 
+install_EFI_STUB() {
+    [ -d "/sys/firmware/efi" ] || die "/sys/firmware/efi does not exist"
+
+    case "$ARCH" in
+        x86_64)     fwa=x64 ;;
+        aarch64)    fwa=aa64 ;;
+        *)          die "ARCH=$ARCH is currently unsupported" ;;
+    esac
+
+    # TODO: kernel modules/options?
+    # TODO: will also need initfs in here too
+    # TODO: make it work
+
+    # install kernel as UEFI fallback
+    install -o root -g root -Dm644 "$TARGET/boot/vmlinuz-virt" \
+        "$TARGET/boot/efi/EFI/boot/boot$fwa.efi"
+    # replace original with a symlink
+    rm "$TARGET/boot/vmlinuz-virt"
+    ln -s "efi/EFI/boot/boot$fwa.efi" "$TARGET/boot/vmlinuz-virt"
+}
+
 setup_fstab() {
     install -o root -g root -Dm644 -t "$TARGET/etc" \
         "$SETUP/etc/fstab"
 
-    # if we're using grub-efi bootloader, add extra line for EFI partition
-    if [ "$BOOTLOADER" = grub-efi ]; then
+    # if we're using an EFI bootloader, add extra line for EFI partition
+    if [ "$BOOTLOADER" = grub-efi ] || [ "$BOOTLOADER" = EFI_STUB ]; then
         cat "$SETUP/etc/fstab.grub-efi" >> "$TARGET/etc/fstab"
     fi
 }
@@ -323,7 +351,10 @@ cleanup() {
         "$TARGET/root/.ash_history" \
         "$TARGET/etc/"*-
 
-    [ "$BOOTLOADER" = grub-efi ] && umount "$TARGET/boot/efi"
+    # unmount extra EFI mount
+    if [ "$BOOTLOADER" = grub-efi ] || [ "$BOOTLOADER" = EFI_STUB ]; then
+      umount "$TARGET/boot/efi"
+    fi
 
     umount \
         "$TARGET/dev" \
@@ -358,7 +389,7 @@ main() {
     einfo "Installing core packages"
     install_core_packages
 
-    einfo "Configuring and enabling boot loader"
+    einfo "Configuring and enabling '$BOOTLOADER' boot loader"
     create_initfs
     install_bootloader
 

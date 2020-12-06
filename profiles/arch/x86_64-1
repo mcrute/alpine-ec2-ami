@@ -2,9 +2,6 @@
 # vim: ts=2 et:
 
 arch                = "x86_64"
+bootloader          = "syslinux"
 build_arch          = "x86_64"
 build_instance_type = "t3a.nano"
-apk_tools           = "https://github.com/alpinelinux/apk-tools/releases/download/v2.10.4/apk-tools-2.10.4-x86_64-linux.tar.gz"
-apk_tools_sha256    = "efe948160317fe78058e207554d0d9195a3dfcc35f77df278d30448d7b3eb892"
-alpine_keys         = "http://dl-cdn.alpinelinux.org/alpine/v3.12/main/x86_64/alpine-keys-2.2-r0.apk"
-alpine_keys_sha256  = "d75cfd3eb6c863779f4eccb55ab5b6c5a8e47e4538c717fae580d3c47c70574a"

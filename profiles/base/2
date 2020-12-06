@@ -41,10 +41,7 @@ ami_name        = "{var.ami_name_prefix}{var.release}-{var.arch}-{var.revision}{
 ami_desc        = "{var.ami_desc_prefix}{var.release} {var.arch} {var.revision}{var.ami_desc_suffix}"
 
 # AMI configuration
-apk_tools           = null
-apk_tools_sha256    = null
-alpine_keys         = null
-alpine_keys_sha256  = null
+bootloader          = null
 repos {}
 pkgs {
   linux-virt          = true

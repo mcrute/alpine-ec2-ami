@@ -34,17 +34,14 @@ ami_desc_prefix = "Alpine Linux "
 ami_desc_suffix = ""
 ami_volume_size = "1"
 ami_encrypt     = "false"
-ami_user        = "alpine"  # modification currently not supported
+ami_user        = "alpine"
 
 # NOTE: the following are python format strings, resolved in builder.py
 ami_name        = "{var.ami_name_prefix}{var.release}-{var.arch}-{var.revision}{var.ami_name_suffix}"
 ami_desc        = "{var.ami_desc_prefix}{var.release} {var.arch} {var.revision}{var.ami_desc_suffix}"
 
 # AMI configuration
-apk_tools           = null
-apk_tools_sha256    = null
-alpine_keys         = null
-alpine_keys_sha256  = null
+bootloader          = null
 repos {}
 pkgs {
   linux-virt          = true
