@@ -1,5 +1,67 @@
 edge-x86_64:
   edge:
+    alpine-ami-edge-x86_64-20201122030849:
+      description: Alpine Linux edge x86_64 20201122030849 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-x86_64
+      version: edge
+      release: edge
+      arch: x86_64
+      revision: '20201122030849'
+      end_of_life: '2020-11-23T03:08:49'
+      build_time: '1606045539'
+      artifacts:
+        af-south-1: ami-00689080a5e228489
+        eu-north-1: ami-083f8b94e6596a053
+        ap-south-1: ami-040e8658c8ebbc192
+        eu-west-3: ami-0ed7be4d18b208670
+        eu-west-2: ami-0d5c28f1f70bebb9b
+        eu-south-1: ami-00192341756cf9337
+        eu-west-1: ami-098d6fa45afb58fbd
+        ap-northeast-2: ami-0bae21ec956bc0cf1
+        me-south-1: ami-06edc731c09e741f5
+        ap-northeast-1: ami-0a2936daabc513439
+        sa-east-1: ami-0d5af6ce4179ba5dc
+        ca-central-1: ami-07f528b728dd66247
+        ap-east-1: ami-04623fc89f566c5f8
+        ap-southeast-1: ami-0aca8ecaf8abeeb65
+        ap-southeast-2: ami-08a6cc6c42c9395e5
+        eu-central-1: ami-061e2d779ab8061b1
+        us-east-1: ami-0ef054923c6569a9a
+        us-east-2: ami-06fd7a587efa80ed2
+        us-west-1: ami-0fdd31127fae3ba4b
+        us-west-2: ami-06739656bc1b7c92e
+    alpine-ami-edge-x86_64-20201104223817:
+      description: Alpine Linux edge x86_64 20201104223817 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-x86_64
+      version: edge
+      release: edge
+      arch: x86_64
+      revision: '20201104223817'
+      end_of_life: '2020-11-05T22:38:17'
+      build_time: '1604559572'
+      artifacts:
+        af-south-1: ami-0681a1af7ab425246
+        eu-north-1: ami-0b6200a74d0b7d7af
+        ap-south-1: ami-07a1638dc9908589e
+        eu-west-3: ami-0d790428b555a7a7b
+        eu-west-2: ami-0fa9d7f11b1c55a8d
+        eu-south-1: ami-0697a63a71188ddad
+        eu-west-1: ami-0d17f108d7b29fc89
+        ap-northeast-2: ami-020f81b319679e216
+        me-south-1: ami-01d3293169fd94d51
+        ap-northeast-1: ami-0aaba61ca1bf297eb
+        sa-east-1: ami-0dd5f9cde76604626
+        ca-central-1: ami-0e0991e0a75183387
+        ap-east-1: ami-05d1ed3955f085103
+        ap-southeast-1: ami-06101a751c65e61cf
+        ap-southeast-2: ami-04c8d5f2030c3d5f8
+        eu-central-1: ami-098989b210ae0a152
+        us-east-1: ami-0a2c4c14503968196
+        us-east-2: ami-00ff52d28bb136b3c
+        us-west-1: ami-054166b9e67bb0716
+        us-west-2: ami-0ca706847efd66e24
     alpine-ami-edge-x86_64-20190826015716:
       description: Alpine Linux edge x86_64 20190826015716 - https://github.com/mcrute/alpine-ec2-ami
       profile: alpine
@@ -9,105 +71,24 @@ edge-x86_64:
       arch: x86_64
       revision: '20190826015716'
       end_of_life: '2019-08-27T01:57:16'
-      build_time: 1566785209
+      build_time: '1566813607'
       artifacts:
-        ap-northeast-1: ami-0aee477cc2cee23cf
-        ap-northeast-2: ami-05cbcb200dde2845b
+        eu-north-1: ami-042a6066f12f93411
         ap-south-1: ami-0c3747e69c2496209
+        eu-west-3: ami-07614b8be5de3b1a0
+        eu-west-2: ami-0fa5a6db02d8cff64
+        eu-west-1: ami-04b8b162151a2e45d
+        ap-northeast-2: ami-05cbcb200dde2845b
+        ap-northeast-1: ami-0aee477cc2cee23cf
+        sa-east-1: ami-09324c8018c018931
+        ca-central-1: ami-0e4a890b424d67f67
         ap-southeast-1: ami-02f37bdd135ec4d42
         ap-southeast-2: ami-0463b6ff7b57d9090
-        ca-central-1: ami-0e4a890b424d67f67
         eu-central-1: ami-092b4f46b7d79af32
-        eu-north-1: ami-042a6066f12f93411
-        eu-west-1: ami-04b8b162151a2e45d
-        eu-west-2: ami-0fa5a6db02d8cff64
-        eu-west-3: ami-07614b8be5de3b1a0
-        sa-east-1: ami-09324c8018c018931
         us-east-1: ami-08f2e440a4fc821b0
         us-east-2: ami-002f49d922035cd6b
         us-west-1: ami-0e146ed2f408cfaee
         us-west-2: ami-052fcb0bc085a75a2
-    alpine-ami-edge-x86_64-20191026200352:
-      description: Alpine Linux edge x86_64 20191026200352 - https://github.com/mcrute/alpine-ec2-ami
-      profile: alpine
-      profile_build: edge-x86_64
-      version: edge
-      release: edge
-      arch: x86_64
-      revision: '20191026200352'
-      end_of_life: '2019-10-27T20:03:52'
-      build_time: 1572120756
-      artifacts:
-        ap-northeast-1: ami-0112f6ea81c86d5e6
-        ap-northeast-2: ami-085769ebaedbfdf81
-        ap-south-1: ami-018d0a72b1c1b2923
-        ap-southeast-1: ami-0efbcf7df7751898a
-        ap-southeast-2: ami-06dc954ca0af33023
-        ca-central-1: ami-029fabbc15f6ec893
-        eu-central-1: ami-01353f3799d62f271
-        eu-north-1: ami-0787f149b1a3f8194
-        eu-west-1: ami-068378748044554e5
-        eu-west-2: ami-058faf9bf50c5fdc4
-        eu-west-3: ami-0f0bdda8a983eace3
-        sa-east-1: ami-08b88bdd43ac5d063
-        us-east-1: ami-0193a17629e6377fc
-        us-east-2: ami-03db856d0b5b661ce
-        us-west-1: ami-04864199556e66fad
-        us-west-2: ami-03e59f12dbbee65d4
-    alpine-ami-edge-x86_64-20191220032351:
-      description: Alpine Linux edge x86_64 20191220032351 - https://github.com/mcrute/alpine-ec2-ami
-      profile: alpine
-      profile_build: edge-x86_64
-      version: edge
-      release: edge
-      arch: x86_64
-      revision: '20191220032351'
-      end_of_life: '2019-12-21T03:23:51'
-      build_time: 1576812862
-      artifacts:
-        ap-northeast-1: ami-09c848c4cb4b2bfcc
-        ap-northeast-2: ami-0ce75b84103d6cf1b
-        ap-south-1: ami-024a83d2f5f690e9c
-        ap-southeast-1: ami-045d3298bde43a38e
-        ap-southeast-2: ami-02a507af131b58f77
-        ca-central-1: ami-00f6c418339093258
-        eu-central-1: ami-00e094f733fa389c1
-        eu-north-1: ami-069b1f7572e57e869
-        eu-west-1: ami-0fe261f4ce1adac48
-        eu-west-2: ami-0c8643b000cb720b6
-        eu-west-3: ami-0bfe5b9d1a2d3c6c9
-        sa-east-1: ami-075e2722dd4b1e660
-        us-east-1: ami-0d42d7ed27a1b508a
-        us-east-2: ami-016775e32e6c85c18
-        us-west-1: ami-065cbd73f2f0dd6d6
-        us-west-2: ami-0897367ecebfd4b79
-    alpine-ami-edge-x86_64-20200104190012:
-      description: Alpine Linux edge x86_64 20200104190012 - https://github.com/mcrute/alpine-ec2-ami
-      profile: alpine
-      profile_build: edge-x86_64
-      version: edge
-      release: edge
-      arch: x86_64
-      revision: '20200104190012'
-      end_of_life: '2020-01-05T19:00:12'
-      build_time: 1578165015
-      artifacts:
-        ap-northeast-1: ami-0fda74ed5ffb7ccd7
-        ap-northeast-2: ami-0be5d677b47fce454
-        ap-south-1: ami-094720b652f133f9c
-        ap-southeast-1: ami-0f7d8a18e9be21cd1
-        ap-southeast-2: ami-0386d4dc2cf9f3d91
-        ca-central-1: ami-0fe2907efc576aa3c
-        eu-central-1: ami-08caf54970e53151e
-        eu-north-1: ami-063212df61bebdfac
-        eu-west-1: ami-034638ad783384202
-        eu-west-2: ami-041fba8b0ded32106
-        eu-west-3: ami-015e5b9edb52ee495
-        sa-east-1: ami-0dbd80d9204b2a206
-        us-east-1: ami-0047bb64e977f5521
-        us-east-2: ami-024246dd06d739e37
-        us-west-1: ami-089f878b5816e24f4
-        us-west-2: ami-0f6dc9ba311992682
     alpine-ami-edge-x86_64-20200205024005:
       description: Alpine Linux edge x86_64 20200205024005 - https://github.com/mcrute/alpine-ec2-ami
       profile: alpine
@@ -117,20 +98,20 @@ edge-x86_64:
       arch: x86_64
       revision: '20200205024005'
       end_of_life: '2020-02-06T02:40:05'
-      build_time: 1580871011
+      build_time: '1580899414'
       artifacts:
-        ap-northeast-1: ami-0e66e152e67bd01c4
-        ap-northeast-2: ami-0da81d92789ac64c9
+        eu-north-1: ami-0440a037c49287602
         ap-south-1: ami-00563d27b2511771e
+        eu-west-3: ami-0a96a077e024cf68c
+        eu-west-2: ami-0c89e502a2bbae39c
+        eu-west-1: ami-0c6e2f66869524c92
+        ap-northeast-2: ami-0da81d92789ac64c9
+        ap-northeast-1: ami-0e66e152e67bd01c4
+        sa-east-1: ami-0701231683e53500b
+        ca-central-1: ami-09f98f0464adfebb2
         ap-southeast-1: ami-0c319f4e0be04ba59
         ap-southeast-2: ami-0a3ef06def6f50c0d
-        ca-central-1: ami-09f98f0464adfebb2
         eu-central-1: ami-001559f80be1add88
-        eu-north-1: ami-0440a037c49287602
-        eu-west-1: ami-0c6e2f66869524c92
-        eu-west-2: ami-0c89e502a2bbae39c
-        eu-west-3: ami-0a96a077e024cf68c
-        sa-east-1: ami-0701231683e53500b
         us-east-1: ami-002a48030440e00da
         us-east-2: ami-0ae27524e2b9bb820
         us-west-1: ami-02a94605eedcd1d51
@@ -144,24 +125,105 @@ edge-x86_64:
       arch: x86_64
       revision: '20200403021415'
       end_of_life: '2020-04-04T02:14:15'
-      build_time: 1585880640
+      build_time: '1585909041'
       artifacts:
-        ap-northeast-1: ami-0a930ab443e79658a
-        ap-northeast-2: ami-0e5c3704b08250be0
+        eu-north-1: ami-046e324b95557b67e
         ap-south-1: ami-0e9b4aa2c6dfa1c6b
+        eu-west-3: ami-03b6049476dc86faa
+        eu-west-2: ami-0581c02f513cab380
+        eu-west-1: ami-0370efeca292a68fa
+        ap-northeast-2: ami-0e5c3704b08250be0
+        ap-northeast-1: ami-0a930ab443e79658a
+        sa-east-1: ami-0a82e4262b07441f2
+        ca-central-1: ami-078a0413716fb1ee2
         ap-southeast-1: ami-017d1c8652fe5fb6e
         ap-southeast-2: ami-0b20e853350fcc974
-        ca-central-1: ami-078a0413716fb1ee2
         eu-central-1: ami-0b949041038ac64f8
-        eu-north-1: ami-046e324b95557b67e
-        eu-west-1: ami-0370efeca292a68fa
-        eu-west-2: ami-0581c02f513cab380
-        eu-west-3: ami-03b6049476dc86faa
-        sa-east-1: ami-0a82e4262b07441f2
         us-east-1: ami-034b4fb0ea71693e3
         us-east-2: ami-058700b313ac9dde9
         us-west-1: ami-08e25ab23aa5a3904
         us-west-2: ami-08f7bd174f27a0375
+    alpine-ami-edge-x86_64-20200104190012:
+      description: Alpine Linux edge x86_64 20200104190012 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-x86_64
+      version: edge
+      release: edge
+      arch: x86_64
+      revision: '20200104190012'
+      end_of_life: '2020-01-05T19:00:12'
+      build_time: '1578193428'
+      artifacts:
+        eu-north-1: ami-063212df61bebdfac
+        ap-south-1: ami-094720b652f133f9c
+        eu-west-3: ami-015e5b9edb52ee495
+        eu-west-2: ami-041fba8b0ded32106
+        eu-west-1: ami-034638ad783384202
+        ap-northeast-2: ami-0be5d677b47fce454
+        ap-northeast-1: ami-0fda74ed5ffb7ccd7
+        sa-east-1: ami-0dbd80d9204b2a206
+        ca-central-1: ami-0fe2907efc576aa3c
+        ap-southeast-1: ami-0f7d8a18e9be21cd1
+        ap-southeast-2: ami-0386d4dc2cf9f3d91
+        eu-central-1: ami-08caf54970e53151e
+        us-east-1: ami-0047bb64e977f5521
+        us-east-2: ami-024246dd06d739e37
+        us-west-1: ami-089f878b5816e24f4
+        us-west-2: ami-0f6dc9ba311992682
+    alpine-ami-edge-x86_64-20191220032351:
+      description: Alpine Linux edge x86_64 20191220032351 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-x86_64
+      version: edge
+      release: edge
+      arch: x86_64
+      revision: '20191220032351'
+      end_of_life: '2019-12-21T03:23:51'
+      build_time: '1576841260'
+      artifacts:
+        eu-north-1: ami-069b1f7572e57e869
+        ap-south-1: ami-024a83d2f5f690e9c
+        eu-west-3: ami-0bfe5b9d1a2d3c6c9
+        eu-west-2: ami-0c8643b000cb720b6
+        eu-west-1: ami-0fe261f4ce1adac48
+        ap-northeast-2: ami-0ce75b84103d6cf1b
+        ap-northeast-1: ami-09c848c4cb4b2bfcc
+        sa-east-1: ami-075e2722dd4b1e660
+        ca-central-1: ami-00f6c418339093258
+        ap-southeast-1: ami-045d3298bde43a38e
+        ap-southeast-2: ami-02a507af131b58f77
+        eu-central-1: ami-00e094f733fa389c1
+        us-east-1: ami-0d42d7ed27a1b508a
+        us-east-2: ami-016775e32e6c85c18
+        us-west-1: ami-065cbd73f2f0dd6d6
+        us-west-2: ami-0897367ecebfd4b79
+    alpine-ami-edge-x86_64-20191026200352:
+      description: Alpine Linux edge x86_64 20191026200352 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-x86_64
+      version: edge
+      release: edge
+      arch: x86_64
+      revision: '20191026200352'
+      end_of_life: '2019-10-27T20:03:52'
+      build_time: '1572149159'
+      artifacts:
+        eu-north-1: ami-0787f149b1a3f8194
+        ap-south-1: ami-018d0a72b1c1b2923
+        eu-west-3: ami-0f0bdda8a983eace3
+        eu-west-2: ami-058faf9bf50c5fdc4
+        eu-west-1: ami-068378748044554e5
+        ap-northeast-2: ami-085769ebaedbfdf81
+        ap-northeast-1: ami-0112f6ea81c86d5e6
+        sa-east-1: ami-08b88bdd43ac5d063
+        ca-central-1: ami-029fabbc15f6ec893
+        ap-southeast-1: ami-0efbcf7df7751898a
+        ap-southeast-2: ami-06dc954ca0af33023
+        eu-central-1: ami-01353f3799d62f271
+        us-east-1: ami-0193a17629e6377fc
+        us-east-2: ami-03db856d0b5b661ce
+        us-west-1: ami-04864199556e66fad
+        us-west-2: ami-03e59f12dbbee65d4
     alpine-ami-edge-x86_64-20200425232123:
       description: Alpine Linux edge x86_64 20200425232123 - https://github.com/mcrute/alpine-ec2-ami
       profile: alpine
@@ -171,53 +233,394 @@ edge-x86_64:
       arch: x86_64
       revision: '20200425232123'
       end_of_life: '2020-04-26T23:21:23'
-      build_time: 1587857443
+      build_time: '1587885839'
       artifacts:
-        ap-northeast-1: ami-0f64e8385eb16f0c5
-        ap-northeast-2: ami-0f6525d9186a0ee66
+        eu-north-1: ami-0ac2cb76721262b8f
         ap-south-1: ami-034d9a20d9bf2049f
+        eu-west-3: ami-037d85dcf06bc913e
+        eu-west-2: ami-0329b37ebc36521c7
+        eu-west-1: ami-0a86b121e789d84a2
+        ap-northeast-2: ami-0f6525d9186a0ee66
+        ap-northeast-1: ami-0f64e8385eb16f0c5
+        sa-east-1: ami-0b8e53df93ee4132d
+        ca-central-1: ami-068da53b91dcfad35
         ap-southeast-1: ami-0e64d169297389f9e
         ap-southeast-2: ami-0afc0bab8196b70e4
-        ca-central-1: ami-068da53b91dcfad35
         eu-central-1: ami-0b04139e51df7902b
-        eu-north-1: ami-0ac2cb76721262b8f
-        eu-west-1: ami-0a86b121e789d84a2
-        eu-west-2: ami-0329b37ebc36521c7
-        eu-west-3: ami-037d85dcf06bc913e
-        sa-east-1: ami-0b8e53df93ee4132d
         us-east-1: ami-097be5ea1a5c7b6ce
         us-east-2: ami-0f40de04e77f600b6
         us-west-1: ami-095527a55aa7c1c1d
         us-west-2: ami-0e5711189d37ddd64
+    alpine-ami-edge-x86_64-20190611031724:
+      description: Alpine Linux edge x86_64 20190611031724 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-x86_64
+      version: edge
+      release: edge
+      arch: x86_64
+      revision: '20190611031724'
+      end_of_life: '2019-06-12T03:17:24'
+      build_time: '1560252501'
+      artifacts:
+        eu-north-1: ami-0c3152b1fd3b21ae9
+        ap-south-1: ami-09e1d1ef7cd517a64
+        eu-west-3: ami-0d1e6f66f5a7fc568
+        eu-west-2: ami-029d4646a3ea4fc0f
+        eu-west-1: ami-031b9d6c98019452b
+        ap-northeast-2: ami-00cceaf8288ee7386
+        ap-northeast-1: ami-0c97e7cdda534346b
+        sa-east-1: ami-0b00f41d3df265296
+        ca-central-1: ami-008c0bd239c168b34
+        ap-southeast-1: ami-037323416789f3ce1
+        ap-southeast-2: ami-0d182653643257211
+        eu-central-1: ami-0d808164dace58b4e
+        us-east-1: ami-014a8bfc05b292686
+        us-east-2: ami-0d99a25549626e548
+        us-west-1: ami-03f03158096a615cd
+    alpine-ami-edge-x86_64-20201213190459:
+      description: Alpine Linux edge x86_64 20201213190459 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-x86_64
+      version: edge
+      release: edge
+      arch: x86_64
+      revision: '20201213190459'
+      end_of_life: '2020-12-14T19:04:59'
+      build_time: '1607915630'
+      artifacts:
+        us-west-2: ami-0b91b7b604d8e2698
+        af-south-1: ami-0f910995b3fcbc2a1
+        eu-north-1: ami-00d23d9fe5e916760
+        ap-south-1: ami-02cdde8617c38b6da
+        eu-west-3: ami-06649b9ba1b9c6625
+        eu-west-2: ami-0b54da8cc7d2e71ab
+        eu-south-1: ami-0e119f0362787d26f
+        eu-west-1: ami-06bb894c2ea22cfa7
+        ap-northeast-2: ami-0608684322b1df99d
+        me-south-1: ami-00ad5f5422bb04d33
+        ap-northeast-1: ami-00f04e83341318e5d
+        sa-east-1: ami-048f22481002c6990
+        ca-central-1: ami-0c6173e1c33395119
+        ap-east-1: ami-0843f7ca1455bbcf3
+        ap-southeast-1: ami-0a0f9e02019761a7d
+        ap-southeast-2: ami-0a4aef473ddfc4942
+        eu-central-1: ami-0f7ba6027999c7b2c
+        us-east-1: ami-04c9b228d4a45c132
+        us-east-2: ami-026a039af74def437
+        us-west-1: ami-0a9ffe73ca66b492b
+v3_12-aarch64:
+  3.12.1:
+    alpine-ami-3.12.1-aarch64-r1:
+      description: Alpine Linux 3.12.1 aarch64 r1 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_12-aarch64
+      version: '3.12'
+      release: 3.12.1
+      arch: aarch64
+      revision: r1
+      end_of_life: '2022-05-01T00:00:00'
+      build_time: '1606044423'
+      artifacts:
+        af-south-1: ami-06588f43a51375252
+        eu-north-1: ami-0cfce5134bf4de486
+        ap-south-1: ami-09cc298b01cf76d37
+        eu-west-3: ami-04bcba80b692607e5
+        eu-west-2: ami-0eef6caa5a9e5eae2
+        eu-south-1: ami-064f77232ae1a8989
+        eu-west-1: ami-0a00b40aa74c41ff0
+        ap-northeast-2: ami-0c64bd75240f41074
+        me-south-1: ami-061d84db040baef02
+        ap-northeast-1: ami-03cf3e1e77a6c38d1
+        sa-east-1: ami-0f326c5e4038adfe2
+        ca-central-1: ami-0a7b6973c4d3f0575
+        ap-east-1: ami-0d30cefbf384f56a1
+        ap-southeast-1: ami-0b387e2e6db73709a
+        ap-southeast-2: ami-0cc6d6821deb170a9
+        eu-central-1: ami-0a39edefd01a2291f
+        us-east-1: ami-0e2ef8e13935fcead
+        us-east-2: ami-018f0f4eda3104612
+        us-west-1: ami-053fb4aa43b090ad7
+        us-west-2: ami-0d2a4208becd28b2a
+    alpine-ami-3.12.1-aarch64-r0:
+      description: Alpine Linux 3.12.1 aarch64 r0 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_12-aarch64
+      version: '3.12'
+      release: 3.12.1
+      arch: aarch64
+      revision: r0
+      end_of_life: '2022-05-01T00:00:00'
+      build_time: '1604561089'
+      artifacts:
+        af-south-1: ami-09fcd0ee80e2c6ced
+        eu-north-1: ami-0b1aad32939a91c82
+        ap-south-1: ami-089af5c9b460578db
+        eu-west-3: ami-057906bbbabb67f73
+        eu-west-2: ami-0adc0c0202d9c8daa
+        eu-south-1: ami-057a6cfb896f50fb2
+        eu-west-1: ami-081896434373f8ca9
+        ap-northeast-2: ami-071c8f6b35e2c6955
+        me-south-1: ami-099c448c758de35fa
+        ap-northeast-1: ami-0269f3543c56a45c8
+        sa-east-1: ami-0b7d42fbb0f169c3d
+        ca-central-1: ami-09afe18ad5033a8ce
+        ap-east-1: ami-0f951fbb40233338b
+        ap-southeast-1: ami-0c67eaa9d318acd5e
+        ap-southeast-2: ami-0bf9b7222f35ef0d4
+        eu-central-1: ami-07807351a96484447
+        us-east-1: ami-0a31ae1e8fc6de17e
+        us-east-2: ami-07deadfa79bb4613a
+        us-west-1: ami-0daaa29d5c8b1ecaf
+        us-west-2: ami-0d6579e59926d4377
+  3.12.2:
+    alpine-ami-3.12.2-aarch64-r0:
+      description: Alpine Linux 3.12.2 aarch64 r0 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_12-aarch64
+      version: '3.12'
+      release: 3.12.2
+      arch: aarch64
+      revision: r0
+      end_of_life: '2022-05-01T00:00:00'
+      build_time: '1607916556'
+      artifacts:
+        us-west-2: ami-0e308f03a3776ea1f
+        af-south-1: ami-01bddee275c090a50
+        eu-north-1: ami-07b793f6b41391228
+        ap-south-1: ami-0759affb95b30e7fb
+        eu-west-3: ami-0e27cfc827138e618
+        eu-west-2: ami-007b53f9896902dbb
+        eu-south-1: ami-093ee59d023f73f01
+        eu-west-1: ami-0872a57824a7c8a0f
+        ap-northeast-2: ami-053378f981bc37c5a
+        me-south-1: ami-0d6b8517fe502f094
+        ap-northeast-1: ami-0a5c2347daea31320
+        sa-east-1: ami-0cb7785de4b330978
+        ca-central-1: ami-0d144a02a790d54a3
+        ap-east-1: ami-0f991dfb212ea3e30
+        ap-southeast-1: ami-0a9dfde00c4fdbf44
+        ap-southeast-2: ami-0432ec565b29d3f0e
+        eu-central-1: ami-0bde2f5e41915b4a2
+        us-east-1: ami-0f20521153a6af3e7
+        us-east-2: ami-064923dd78bf778a8
+        us-west-1: ami-0f49257c4ee6311a5
+edge-aarch64:
+  edge:
+    alpine-ami-edge-aarch64-20201104223817:
+      description: Alpine Linux edge aarch64 20201104223817 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-aarch64
+      version: edge
+      release: edge
+      arch: aarch64
+      revision: '20201104223817'
+      end_of_life: '2020-11-05T22:38:17'
+      build_time: '1604559828'
+      artifacts:
+        af-south-1: ami-0752fc9ce476a4721
+        eu-north-1: ami-0f4fa14d45948f11a
+        ap-south-1: ami-08c7798c7f965cd80
+        eu-west-3: ami-0f34326e028b1a6b1
+        eu-west-2: ami-0031a8d8a3e592132
+        eu-south-1: ami-05cb6a0b441d9fef4
+        eu-west-1: ami-04e9f2e813ff9fe6a
+        ap-northeast-2: ami-046e31ba8884954fd
+        me-south-1: ami-007fc801f4d00c286
+        ap-northeast-1: ami-026b0f30357b6c249
+        sa-east-1: ami-09a322ab8f34e327f
+        ca-central-1: ami-0f17d9899463f2d0c
+        ap-east-1: ami-0a676c33f22ff9796
+        ap-southeast-1: ami-0466de6f68ac671b5
+        ap-southeast-2: ami-073efd513d0bf10d1
+        eu-central-1: ami-0632fda5bb88d28fc
+        us-east-1: ami-0fb5290b89cd3ae5d
+        us-east-2: ami-0962215a714b76135
+        us-west-1: ami-091c85b576c87cfae
+        us-west-2: ami-0fba23a2dedcb193e
+    alpine-ami-edge-aarch64-20201122030849:
+      description: Alpine Linux edge aarch64 20201122030849 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-aarch64
+      version: edge
+      release: edge
+      arch: aarch64
+      revision: '20201122030849'
+      end_of_life: '2020-11-23T03:08:49'
+      build_time: '1606047950'
+      artifacts:
+        af-south-1: ami-0935c72001f7a2f54
+        eu-north-1: ami-036b9e312ed47bc58
+        ap-south-1: ami-09ba0c9f67aee101b
+        eu-west-3: ami-0309fb3773c6ca01f
+        eu-west-2: ami-010f08d8babfeba66
+        eu-south-1: ami-0ed4d967ec895a6dd
+        eu-west-1: ami-0bd9b6eea6a55c618
+        ap-northeast-2: ami-08c14f5cd992d6cfd
+        me-south-1: ami-0a57b6a1ca13e2c16
+        ap-northeast-1: ami-0d724ea7e866b21ce
+        sa-east-1: ami-0fa45fb2df9da5785
+        ca-central-1: ami-022ed81730915d151
+        ap-east-1: ami-0a043964fc03396fe
+        ap-southeast-1: ami-0933f563594672cec
+        ap-southeast-2: ami-08dbccb68710bda49
+        eu-central-1: ami-04215f5b57249ad9c
+        us-east-1: ami-0929958d98bd00814
+        us-east-2: ami-0b7166a71a0e31b0b
+        us-west-1: ami-0cef2acb137d37026
+        us-west-2: ami-0d4de7896759005a1
+    alpine-ami-edge-aarch64-20201213190459:
+      description: Alpine Linux edge aarch64 20201213190459 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: edge-aarch64
+      version: edge
+      release: edge
+      arch: aarch64
+      revision: '20201213190459'
+      end_of_life: '2020-12-14T19:04:59'
+      build_time: '1607915770'
+      artifacts:
+        us-west-2: ami-0769e7ae6646ee6ce
+        af-south-1: ami-0ef1ed51536d4c21c
+        eu-north-1: ami-0fd0089405ce34751
+        ap-south-1: ami-0fb7826afebdee836
+        eu-west-3: ami-0a5b6e3683e165f46
+        eu-west-2: ami-01f876c398a9a1e8a
+        eu-south-1: ami-08a7fd2863b4cf769
+        eu-west-1: ami-06844e8cfb88e3488
+        ap-northeast-2: ami-0be33da35fb42cf91
+        me-south-1: ami-012a6c8b0aa9755e5
+        ap-northeast-1: ami-0c3e9ea96d54b2fa6
+        sa-east-1: ami-0490301bf3d8f367b
+        ca-central-1: ami-03a14b888f050a80c
+        ap-east-1: ami-0960c97dbfb4c2370
+        ap-southeast-1: ami-052c0924f23638e55
+        ap-southeast-2: ami-08a3a7e67af495c34
+        eu-central-1: ami-0c1ed5c6c58a479a1
+        us-east-1: ami-088169794239b59c9
+        us-east-2: ami-08d78e14e90b41779
+        us-west-1: ami-0fc9b035119434b1a
+v3_12-x86_64:
+  3.12.1:
+    alpine-ami-3.12.1-x86_64-r0:
+      description: Alpine Linux 3.12.1 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_12-x86_64
+      version: '3.12'
+      release: 3.12.1
+      arch: x86_64
+      revision: r0
+      end_of_life: '2022-05-01T00:00:00'
+      build_time: '1604561032'
+      artifacts:
+        af-south-1: ami-0fa34e940c7164179
+        eu-north-1: ami-043101bc60cae6466
+        ap-south-1: ami-0d953dbbf990c3d4f
+        eu-west-3: ami-027f6aa3fb3d68650
+        eu-west-2: ami-02a0122150c17b830
+        eu-south-1: ami-08d5116337ec06c75
+        eu-west-1: ami-04e819555baad56b9
+        ap-northeast-2: ami-08e79a74e23e75e36
+        me-south-1: ami-07bb93ae709388c3c
+        ap-northeast-1: ami-010e9eeaa13a80178
+        sa-east-1: ami-02e4e0517f1910221
+        ca-central-1: ami-00a9048619f660a50
+        ap-east-1: ami-059c371b8d2fd0989
+        ap-southeast-1: ami-008bce1c8d323b322
+        ap-southeast-2: ami-013de33f160267640
+        eu-central-1: ami-03dbad79bee9c8ce1
+        us-east-1: ami-0cc47d8e29142ecac
+        us-east-2: ami-07243c178e6ca055c
+        us-west-1: ami-0c9a9eac6d74fff97
+        us-west-2: ami-03d82b210e0c36983
+  3.12.2:
+    alpine-ami-3.12.2-x86_64-r0:
+      description: Alpine Linux 3.12.2 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_12-x86_64
+      version: '3.12'
+      release: 3.12.2
+      arch: x86_64
+      revision: r0
+      end_of_life: '2022-05-01T00:00:00'
+      build_time: '1607915274'
+      artifacts:
+        us-west-2: ami-096f9b59745c9d447
+        af-south-1: ami-0a2c528c48b724eb1
+        eu-north-1: ami-0f97b4e83b330a44b
+        ap-south-1: ami-0082a1edc963aa684
+        eu-west-3: ami-0837b3fcb00163a7d
+        eu-west-2: ami-0a8578d7d4ebca125
+        eu-south-1: ami-027ed683f42684d45
+        eu-west-1: ami-00185f6c477e1099d
+        ap-northeast-2: ami-0c869c3c23407b0d5
+        me-south-1: ami-0ff80f770d65d1cbf
+        ap-northeast-1: ami-0e4245b0cbe57cb99
+        sa-east-1: ami-0d276bc117826a38a
+        ca-central-1: ami-090b8e0d13afd07c1
+        ap-east-1: ami-0efde8684085c8a1e
+        ap-southeast-1: ami-0a40d2bc9bfc47553
+        ap-southeast-2: ami-0e7c828c974171a77
+        eu-central-1: ami-062cda84fa4f4abe0
+        us-east-1: ami-042e99e8ac5b82667
+        us-east-2: ami-0bf39a1d2a7d83170
+        us-west-1: ami-089fe5bbb8ee72815
 v3_10-x86_64:
-  3.10.0:
-    alpine-ami-3.10.0-x86_64-r0:
-      description: Alpine Linux 3.10.0 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
+  3.10.4:
+    alpine-ami-3.10.4-x86_64-r0:
+      description: Alpine Linux 3.10.4 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
       profile: alpine
       profile_build: v3_10-x86_64
       version: '3.10'
-      release: 3.10.0
+      release: 3.10.4
       arch: x86_64
       revision: r0
       end_of_life: '2021-05-01T00:00:00'
-      build_time: 1561007696
+      build_time: '1580899963'
       artifacts:
-        ap-northeast-1: ami-00d72ba9e4e50e6f0
-        ap-northeast-2: ami-0b2ab59439d69c87f
-        ap-south-1: ami-06ab2e1b19df43403
-        ap-southeast-1: ami-097e487f602370726
-        ap-southeast-2: ami-0f2248216c030f2ea
-        ca-central-1: ami-035f9ddc53b8e3c94
-        eu-central-1: ami-0c2583ed13862fb17
-        eu-north-1: ami-069c11c7844825375
-        eu-west-1: ami-076b4d480f72a117f
-        eu-west-2: ami-0a5d209eea58688c2
-        eu-west-3: ami-0385dc3d759aaa464
-        sa-east-1: ami-04ddd371cd342921d
-        us-east-1: ami-0647412cf72f247d9
-        us-east-2: ami-0fb394548acf15691
-        us-west-1: ami-04d80966c446c3f58
-        us-west-2: ami-0c71a8664131b42b3
+        eu-north-1: ami-0011e13dbacb8fcb4
+        ap-south-1: ami-00fac10f41dff96e4
+        eu-west-3: ami-070b405f25870cfa4
+        eu-west-2: ami-047029018b46688b5
+        eu-west-1: ami-0d645d9aa9af199e7
+        ap-northeast-2: ami-03a2be707d4d83cea
+        ap-northeast-1: ami-0dc770d65f50e9339
+        sa-east-1: ami-01af983d84e7075aa
+        ca-central-1: ami-0a54918dadce6828a
+        ap-southeast-1: ami-0aadcaa1f71c42546
+        ap-southeast-2: ami-0ba48065660ab830f
+        eu-central-1: ami-01de425983c4c1bfc
+        us-east-1: ami-014e31a6d6da30eb7
+        us-east-2: ami-004421f607bf25444
+        us-west-1: ami-0e07b975efa6cba65
+        us-west-2: ami-07128e75c4dcc9c7c
+  3.10.3:
+    alpine-ami-3.10.3-x86_64-r1:
+      description: Alpine Linux 3.10.3 x86_64 r1 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_10-x86_64
+      version: '3.10'
+      release: 3.10.3
+      arch: x86_64
+      revision: r1
+      end_of_life: '2021-05-01T00:00:00'
+      build_time: '1572150070'
+      artifacts:
+        eu-north-1: ami-00207f3df9a9cb088
+        ap-south-1: ami-0a8839c12787f0c46
+        eu-west-3: ami-0ef9a828aded0a0de
+        eu-west-2: ami-02520e7e046db5d8f
+        eu-west-1: ami-01c1ec8fdefc61650
+        ap-northeast-2: ami-0e749a03d064c1e47
+        ap-northeast-1: ami-0760cd78e75cb77a4
+        sa-east-1: ami-0ee958f7773223770
+        ca-central-1: ami-016d172dee4ff4a22
+        ap-southeast-1: ami-0f0e2be5d8c0110c1
+        ap-southeast-2: ami-0ca4caea0ce1f4a8a
+        eu-central-1: ami-04e50c8006d4bc2bf
+        us-east-1: ami-063cb098a86c1c4cc
+        us-east-2: ami-0110d80369eb75f49
+        us-west-1: ami-00b06ce695a617956
+        us-west-2: ami-0d0b7768c8cd9a8c8
   3.10.1:
     alpine-ami-3.10.1-x86_64-r0:
       description: Alpine Linux 3.10.1 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
@@ -228,20 +631,20 @@ v3_10-x86_64:
       arch: x86_64
       revision: r0
       end_of_life: '2021-05-01T00:00:00'
-      build_time: 1562946814
+      build_time: '1562975219'
       artifacts:
-        ap-northeast-1: ami-039a6734ca3e107c2
-        ap-northeast-2: ami-0fc9157e14e1701ea
+        eu-north-1: ami-020c6eab877f87e9c
         ap-south-1: ami-0f704cf587a1bd591
+        eu-west-3: ami-07098b9dc4e34adee
+        eu-west-2: ami-01fe12a7b5f0ae5e4
+        eu-west-1: ami-08f5d4eaae3855536
+        ap-northeast-2: ami-0fc9157e14e1701ea
+        ap-northeast-1: ami-039a6734ca3e107c2
+        sa-east-1: ami-06b3a596069b29720
+        ca-central-1: ami-073a7bdf1f93fdf07
         ap-southeast-1: ami-04ee093ad3986c1e2
         ap-southeast-2: ami-08b686d005668aa12
-        ca-central-1: ami-073a7bdf1f93fdf07
         eu-central-1: ami-02b0787907fb72c16
-        eu-north-1: ami-020c6eab877f87e9c
-        eu-west-1: ami-08f5d4eaae3855536
-        eu-west-2: ami-01fe12a7b5f0ae5e4
-        eu-west-3: ami-07098b9dc4e34adee
-        sa-east-1: ami-06b3a596069b29720
         us-east-1: ami-0cce76b5f0a9c52f3
         us-east-2: ami-0e0eea8fb3cea9bf6
         us-west-1: ami-0db3b834555de24aa
@@ -255,108 +658,24 @@ v3_10-x86_64:
       arch: x86_64
       revision: r1
       end_of_life: '2021-05-01T00:00:00'
-      build_time: 1564184744
+      build_time: '1564213143'
       artifacts:
-        ap-northeast-1: ami-0adeee26a46805278
-        ap-northeast-2: ami-06637cd011ec49efa
+        eu-north-1: ami-0859a31a742c902ed
         ap-south-1: ami-09e1bd549945283a2
+        eu-west-3: ami-06a5559ce996d5bac
+        eu-west-2: ami-06e36c52d4a7c245a
+        eu-west-1: ami-00fcd74ef57d7f27d
+        ap-northeast-2: ami-06637cd011ec49efa
+        ap-northeast-1: ami-0adeee26a46805278
+        sa-east-1: ami-0087fd3ce3d62d34d
+        ca-central-1: ami-02fed61c453469d90
         ap-southeast-1: ami-081de8e0c4d9e28e5
         ap-southeast-2: ami-0e2c774fdc1d38ba1
-        ca-central-1: ami-02fed61c453469d90
         eu-central-1: ami-0659cf3939d5818e6
-        eu-north-1: ami-0859a31a742c902ed
-        eu-west-1: ami-00fcd74ef57d7f27d
-        eu-west-2: ami-06e36c52d4a7c245a
-        eu-west-3: ami-06a5559ce996d5bac
-        sa-east-1: ami-0087fd3ce3d62d34d
         us-east-1: ami-063929a9ea787ced6
         us-east-2: ami-0a5ef71ab2deee8fd
         us-west-1: ami-04165aa967c5fb241
         us-west-2: ami-08147c2b1a80b44c4
-  3.10.2:
-    alpine-ami-3.10.2-x86_64-r1:
-      description: Alpine Linux 3.10.2 x86_64 r1 - https://github.com/mcrute/alpine-ec2-ami
-      profile: alpine
-      profile_build: v3_10-x86_64
-      version: '3.10'
-      release: 3.10.2
-      arch: x86_64
-      revision: r1
-      end_of_life: '2021-05-01T00:00:00'
-      build_time: 1566786155
-      artifacts:
-        ap-northeast-1: ami-0865b6aea9d3d4e9a
-        ap-northeast-2: ami-0eb3806a09c62e80a
-        ap-south-1: ami-03c079c4f6a77bcd8
-        ap-southeast-1: ami-03cbf9e5c42bd2de0
-        ap-southeast-2: ami-040ee9c325bd773bb
-        ca-central-1: ami-0aeee1c23a65f09e5
-        eu-central-1: ami-01c4a5f25d39d8c1d
-        eu-north-1: ami-0ac4f026a4624309e
-        eu-west-1: ami-073456a92b131bee5
-        eu-west-2: ami-04c585868e7f9016e
-        eu-west-3: ami-0196d7c3d0c2e5230
-        sa-east-1: ami-0437041273be4d2b3
-        us-east-1: ami-0b13bd8ab9492449c
-        us-east-2: ami-0a87fa8a73b9b850c
-        us-west-1: ami-009961e3d2d7ccaa8
-        us-west-2: ami-0a083cc95e2bbc4b0
-  3.10.3:
-    alpine-ami-3.10.3-x86_64-r1:
-      description: Alpine Linux 3.10.3 x86_64 r1 - https://github.com/mcrute/alpine-ec2-ami
-      profile: alpine
-      profile_build: v3_10-x86_64
-      version: '3.10'
-      release: 3.10.3
-      arch: x86_64
-      revision: r1
-      end_of_life: '2021-05-01T00:00:00'
-      build_time: 1572121673
-      artifacts:
-        ap-northeast-1: ami-0760cd78e75cb77a4
-        ap-northeast-2: ami-0e749a03d064c1e47
-        ap-south-1: ami-0a8839c12787f0c46
-        ap-southeast-1: ami-0f0e2be5d8c0110c1
-        ap-southeast-2: ami-0ca4caea0ce1f4a8a
-        ca-central-1: ami-016d172dee4ff4a22
-        eu-central-1: ami-04e50c8006d4bc2bf
-        eu-north-1: ami-00207f3df9a9cb088
-        eu-west-1: ami-01c1ec8fdefc61650
-        eu-west-2: ami-02520e7e046db5d8f
-        eu-west-3: ami-0ef9a828aded0a0de
-        sa-east-1: ami-0ee958f7773223770
-        us-east-1: ami-063cb098a86c1c4cc
-        us-east-2: ami-0110d80369eb75f49
-        us-west-1: ami-00b06ce695a617956
-        us-west-2: ami-0d0b7768c8cd9a8c8
-  3.10.4:
-    alpine-ami-3.10.4-x86_64-r0:
-      description: Alpine Linux 3.10.4 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
-      profile: alpine
-      profile_build: v3_10-x86_64
-      version: '3.10'
-      release: 3.10.4
-      arch: x86_64
-      revision: r0
-      end_of_life: '2021-05-01T00:00:00'
-      build_time: 1580871554
-      artifacts:
-        ap-northeast-1: ami-0dc770d65f50e9339
-        ap-northeast-2: ami-03a2be707d4d83cea
-        ap-south-1: ami-00fac10f41dff96e4
-        ap-southeast-1: ami-0aadcaa1f71c42546
-        ap-southeast-2: ami-0ba48065660ab830f
-        ca-central-1: ami-0a54918dadce6828a
-        eu-central-1: ami-01de425983c4c1bfc
-        eu-north-1: ami-0011e13dbacb8fcb4
-        eu-west-1: ami-0d645d9aa9af199e7
-        eu-west-2: ami-047029018b46688b5
-        eu-west-3: ami-070b405f25870cfa4
-        sa-east-1: ami-01af983d84e7075aa
-        us-east-1: ami-014e31a6d6da30eb7
-        us-east-2: ami-004421f607bf25444
-        us-west-1: ami-0e07b975efa6cba65
-        us-west-2: ami-07128e75c4dcc9c7c
   3.10.5:
     alpine-ami-3.10.5-x86_64-r0:
       description: Alpine Linux 3.10.5 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
@@ -367,53 +686,82 @@ v3_10-x86_64:
       arch: x86_64
       revision: r0
       end_of_life: '2021-05-01T00:00:00'
-      build_time: 1587857969
+      build_time: '1587886362'
       artifacts:
-        ap-northeast-1: ami-043d40c880c7a176b
-        ap-northeast-2: ami-0595dc50c0f0e23f7
+        eu-north-1: ami-041b6bdb27dbc8226
         ap-south-1: ami-0c8a22fa0ee90c07a
+        eu-west-3: ami-0bbb1a9d10ee0e6ee
+        eu-west-2: ami-08ca328d558bee247
+        eu-west-1: ami-0451f26166639b1b9
+        ap-northeast-2: ami-0595dc50c0f0e23f7
+        ap-northeast-1: ami-043d40c880c7a176b
+        sa-east-1: ami-088bc83fe1497e710
+        ca-central-1: ami-08c250f635a417222
         ap-southeast-1: ami-0244d1373053cfe5b
         ap-southeast-2: ami-0cf284dc25e35862d
-        ca-central-1: ami-08c250f635a417222
         eu-central-1: ami-0a626b78c94340b6e
-        eu-north-1: ami-041b6bdb27dbc8226
-        eu-west-1: ami-0451f26166639b1b9
-        eu-west-2: ami-08ca328d558bee247
-        eu-west-3: ami-0bbb1a9d10ee0e6ee
-        sa-east-1: ami-088bc83fe1497e710
         us-east-1: ami-0e635ea3ca126c707
         us-east-2: ami-0f5a09a7d1d0ae35f
         us-west-1: ami-06c2aa86f3a72385e
         us-west-2: ami-0b6f8a395fa8b5961
-v3_9-x86_64:
-  3.9.4:
-    alpine-ami-3.9.4-x86_64-r0:
-      description: Alpine Linux 3.9.4 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
+  3.10.0:
+    alpine-ami-3.10.0-x86_64-r0:
+      description: Alpine Linux 3.10.0 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
       profile: alpine
-      profile_build: v3_9-x86_64
-      version: '3.9'
-      release: 3.9.4
+      profile_build: v3_10-x86_64
+      version: '3.10'
+      release: 3.10.0
       arch: x86_64
       revision: r0
-      end_of_life: '2021-01-01T00:00:00'
-      build_time: 1561008208
+      end_of_life: '2021-05-01T00:00:00'
+      build_time: '1561036079'
       artifacts:
-        ap-northeast-1: ami-03d9fcbacd2999688
-        ap-northeast-2: ami-004989011ec957b83
-        ap-south-1: ami-0cb67b835ca871537
-        ap-southeast-1: ami-03f6391214dbfd225
-        ap-southeast-2: ami-0074f16503a9ebe8c
-        ca-central-1: ami-0a3cf4fc46141c449
-        eu-central-1: ami-007081891d730c5f1
-        eu-north-1: ami-09267b5c6d7722fdd
-        eu-west-1: ami-0587fd7b04af5d01d
-        eu-west-2: ami-09b9943895590f23e
-        eu-west-3: ami-01dcaa2533a49748d
-        sa-east-1: ami-0645cb90aca8de136
-        us-east-1: ami-0ac744c9e5e2dcbcf
-        us-east-2: ami-074a01fd0b7de0135
-        us-west-1: ami-0a70d6f1ce22ddfb1
-        us-west-2: ami-006aeb6d57c92f978
+        eu-north-1: ami-069c11c7844825375
+        ap-south-1: ami-06ab2e1b19df43403
+        eu-west-3: ami-0385dc3d759aaa464
+        eu-west-2: ami-0a5d209eea58688c2
+        eu-west-1: ami-076b4d480f72a117f
+        ap-northeast-2: ami-0b2ab59439d69c87f
+        ap-northeast-1: ami-00d72ba9e4e50e6f0
+        sa-east-1: ami-04ddd371cd342921d
+        ca-central-1: ami-035f9ddc53b8e3c94
+        ap-southeast-1: ami-097e487f602370726
+        ap-southeast-2: ami-0f2248216c030f2ea
+        eu-central-1: ami-0c2583ed13862fb17
+        us-east-1: ami-0647412cf72f247d9
+        us-east-2: ami-0fb394548acf15691
+        us-west-1: ami-04d80966c446c3f58
+        us-west-2: ami-0c71a8664131b42b3
+  3.10.2:
+    alpine-ami-3.10.2-x86_64-r1:
+      description: Alpine Linux 3.10.2 x86_64 r1 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_10-x86_64
+      version: '3.10'
+      release: 3.10.2
+      arch: x86_64
+      revision: r1
+      end_of_life: '2021-05-01T00:00:00'
+      build_time: '1566814550'
+      artifacts:
+        eu-north-1: ami-0ac4f026a4624309e
+        ap-south-1: ami-03c079c4f6a77bcd8
+        eu-west-3: ami-0196d7c3d0c2e5230
+        eu-west-2: ami-04c585868e7f9016e
+        eu-west-1: ami-073456a92b131bee5
+        ap-northeast-2: ami-0eb3806a09c62e80a
+        ap-northeast-1: ami-0865b6aea9d3d4e9a
+        sa-east-1: ami-0437041273be4d2b3
+        ca-central-1: ami-0aeee1c23a65f09e5
+        ap-southeast-1: ami-03cbf9e5c42bd2de0
+        ap-southeast-2: ami-040ee9c325bd773bb
+        eu-central-1: ami-01c4a5f25d39d8c1d
+        us-east-1: ami-0b13bd8ab9492449c
+        us-east-2: ami-0a87fa8a73b9b850c
+        us-west-1: ami-009961e3d2d7ccaa8
+        us-west-2: ami-0a083cc95e2bbc4b0
+v3_9-x86_64:
+  3.9.4:
     alpine-ami-3.9.4-x86_64-r1:
       description: Alpine Linux 3.9.4 x86_64 r1 - https://github.com/mcrute/alpine-ec2-ami
       profile: alpine
@@ -423,52 +771,51 @@ v3_9-x86_64:
       arch: x86_64
       revision: r1
       end_of_life: '2021-01-01T00:00:00'
-      build_time: 1564185305
+      build_time: '1564213710'
       artifacts:
-        ap-northeast-1: ami-0d12649cf98b9c29b
-        ap-northeast-2: ami-004372232cf1a20ac
+        eu-north-1: ami-01c04b1d21717da2d
         ap-south-1: ami-091de53a3582f2779
+        eu-west-3: ami-0ebda60768a596a7f
+        eu-west-2: ami-0bc07c10c240525e4
+        eu-west-1: ami-0c9ac6e4570bad5c1
+        ap-northeast-2: ami-004372232cf1a20ac
+        ap-northeast-1: ami-0d12649cf98b9c29b
+        sa-east-1: ami-0a2d4fb282401447a
+        ca-central-1: ami-011ad5e9b2fcfa1d5
         ap-southeast-1: ami-07f6f363322b884d5
         ap-southeast-2: ami-0eeff0d7c1943665c
-        ca-central-1: ami-011ad5e9b2fcfa1d5
         eu-central-1: ami-0d4f6bb2a4f857256
-        eu-north-1: ami-01c04b1d21717da2d
-        eu-west-1: ami-0c9ac6e4570bad5c1
-        eu-west-2: ami-0bc07c10c240525e4
-        eu-west-3: ami-0ebda60768a596a7f
-        sa-east-1: ami-0a2d4fb282401447a
         us-east-1: ami-0a8b8edcf88c2e496
         us-east-2: ami-030ce78952c4c097c
         us-west-1: ami-0e27a7d83365f16be
         us-west-2: ami-07f10e32e0621a4eb
-  3.9.5:
-    alpine-ami-3.9.5-x86_64-r0:
-      description: Alpine Linux 3.9.5 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
+    alpine-ami-3.9.4-x86_64-r0:
+      description: Alpine Linux 3.9.4 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
       profile: alpine
       profile_build: v3_9-x86_64
       version: '3.9'
-      release: 3.9.5
+      release: 3.9.4
       arch: x86_64
       revision: r0
       end_of_life: '2021-01-01T00:00:00'
-      build_time: 1580872699
+      build_time: '1561036615'
       artifacts:
-        ap-northeast-1: ami-0f22ba5f542102103
-        ap-northeast-2: ami-042ed34c048fd4dde
-        ap-south-1: ami-03aa6dfb6b5c5b24d
-        ap-southeast-1: ami-09aa8a66b52872964
-        ap-southeast-2: ami-0883e80a814ca1ead
-        ca-central-1: ami-07ced81b329157965
-        eu-central-1: ami-0b1156425ee49460e
-        eu-north-1: ami-0dae27e872bbb58a3
-        eu-west-1: ami-032df31e3645eac89
-        eu-west-2: ami-0ca53eef190752d9b
-        eu-west-3: ami-01d92abfc31832091
-        sa-east-1: ami-044b116c38c67bbe6
-        us-east-1: ami-01d51c30d2c611d0b
-        us-east-2: ami-023a120054be00f14
-        us-west-1: ami-0b628545bb655d1e3
-        us-west-2: ami-06dc8e37edaccd91d
+        eu-north-1: ami-09267b5c6d7722fdd
+        ap-south-1: ami-0cb67b835ca871537
+        eu-west-3: ami-01dcaa2533a49748d
+        eu-west-2: ami-09b9943895590f23e
+        eu-west-1: ami-0587fd7b04af5d01d
+        ap-northeast-2: ami-004989011ec957b83
+        ap-northeast-1: ami-03d9fcbacd2999688
+        sa-east-1: ami-0645cb90aca8de136
+        ca-central-1: ami-0a3cf4fc46141c449
+        ap-southeast-1: ami-03f6391214dbfd225
+        ap-southeast-2: ami-0074f16503a9ebe8c
+        eu-central-1: ami-007081891d730c5f1
+        us-east-1: ami-0ac744c9e5e2dcbcf
+        us-east-2: ami-074a01fd0b7de0135
+        us-west-1: ami-0a70d6f1ce22ddfb1
+        us-west-2: ami-006aeb6d57c92f978
   3.9.6:
     alpine-ami-3.9.6-x86_64-r0:
       description: Alpine Linux 3.9.6 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
@@ -479,24 +826,52 @@ v3_9-x86_64:
       arch: x86_64
       revision: r0
       end_of_life: '2021-01-01T00:00:00'
-      build_time: 1587859015
+      build_time: '1587887420'
       artifacts:
-        ap-northeast-1: ami-0133f3a571f684178
-        ap-northeast-2: ami-0f9ad7c51e14bdc3d
+        eu-north-1: ami-07a2b23059054aea3
         ap-south-1: ami-00af726ec2f4077a2
+        eu-west-3: ami-00a425aa20737343e
+        eu-west-2: ami-08c87b358b24d1df3
+        eu-west-1: ami-0eb2b54ab4d09eb80
+        ap-northeast-2: ami-0f9ad7c51e14bdc3d
+        ap-northeast-1: ami-0133f3a571f684178
+        sa-east-1: ami-0ea679407da47b78a
+        ca-central-1: ami-0583a99f342097b6c
         ap-southeast-1: ami-0d52e9d7f91ca051c
         ap-southeast-2: ami-054360648343b66bc
-        ca-central-1: ami-0583a99f342097b6c
         eu-central-1: ami-051eec0106a08df6d
-        eu-north-1: ami-07a2b23059054aea3
-        eu-west-1: ami-0eb2b54ab4d09eb80
-        eu-west-2: ami-08c87b358b24d1df3
-        eu-west-3: ami-00a425aa20737343e
-        sa-east-1: ami-0ea679407da47b78a
         us-east-1: ami-004f0550310a2d7aa
         us-east-2: ami-045a2cc3fe272caee
         us-west-1: ami-026a54e52daea1233
         us-west-2: ami-0b933475d362cbfab
+  3.9.5:
+    alpine-ami-3.9.5-x86_64-r0:
+      description: Alpine Linux 3.9.5 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_9-x86_64
+      version: '3.9'
+      release: 3.9.5
+      arch: x86_64
+      revision: r0
+      end_of_life: '2021-01-01T00:00:00'
+      build_time: '1580901101'
+      artifacts:
+        eu-north-1: ami-0dae27e872bbb58a3
+        ap-south-1: ami-03aa6dfb6b5c5b24d
+        eu-west-3: ami-01d92abfc31832091
+        eu-west-2: ami-0ca53eef190752d9b
+        eu-west-1: ami-032df31e3645eac89
+        ap-northeast-2: ami-042ed34c048fd4dde
+        ap-northeast-1: ami-0f22ba5f542102103
+        sa-east-1: ami-044b116c38c67bbe6
+        ca-central-1: ami-07ced81b329157965
+        ap-southeast-1: ami-09aa8a66b52872964
+        ap-southeast-2: ami-0883e80a814ca1ead
+        eu-central-1: ami-0b1156425ee49460e
+        us-east-1: ami-01d51c30d2c611d0b
+        us-east-2: ami-023a120054be00f14
+        us-west-1: ami-0b628545bb655d1e3
+        us-west-2: ami-06dc8e37edaccd91d
 v3_11-x86_64:
   3.11.0:
     alpine-ami-3.11.0-x86_64-r0:
@@ -507,53 +882,25 @@ v3_11-x86_64:
       release: 3.11.0
       arch: x86_64
       revision: r0
-      end_of_life: null
-      build_time: 1576813536
+      end_of_life: '2021-05-01T00:00:00'
+      build_time: '1576841818'
       artifacts:
-        ap-northeast-1: ami-01dd2c66370a9c622
-        ap-northeast-2: ami-06b08ab572a319365
+        eu-north-1: ami-01dc7a794c0c8062b
         ap-south-1: ami-0dba9ec182268ab0a
+        eu-west-3: ami-00d99d7627002d662
+        eu-west-2: ami-04426be48498be7af
+        eu-west-1: ami-0d219c533643cb00f
+        ap-northeast-2: ami-06b08ab572a319365
+        ap-northeast-1: ami-01dd2c66370a9c622
+        sa-east-1: ami-05de427871abe1c40
+        ca-central-1: ami-02bb57a6922018826
         ap-southeast-1: ami-0c210488756706fe7
         ap-southeast-2: ami-05e1972740cba6e7b
-        ca-central-1: ami-02bb57a6922018826
         eu-central-1: ami-09a7075582e44cc4a
-        eu-north-1: ami-01dc7a794c0c8062b
-        eu-west-1: ami-0d219c533643cb00f
-        eu-west-2: ami-04426be48498be7af
-        eu-west-3: ami-00d99d7627002d662
-        sa-east-1: ami-05de427871abe1c40
         us-east-1: ami-00ee2daec698aab7c
         us-east-2: ami-01d8b7e276ad609aa
         us-west-1: ami-08d909997839b6030
         us-west-2: ami-07a62f65352c51750
-  3.11.2:
-    alpine-ami-3.11.2-x86_64-r0:
-      description: Alpine Linux 3.11.2 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
-      profile: alpine
-      profile_build: v3_11-x86_64
-      version: '3.11'
-      release: 3.11.2
-      arch: x86_64
-      revision: r0
-      end_of_life: '2021-11-01T00:00:00'
-      build_time: 1578165575
-      artifacts:
-        ap-northeast-1: ami-0231a40676931971a
-        ap-northeast-2: ami-066b4452a247d5533
-        ap-south-1: ami-0b0f33d8cfb9e5051
-        ap-southeast-1: ami-0949989f302945c5a
-        ap-southeast-2: ami-08fb0d3aaf8945d02
-        ca-central-1: ami-0e26eeafdc083c6e9
-        eu-central-1: ami-02fa942a71aadf188
-        eu-north-1: ami-03ce6e520f43392b9
-        eu-west-1: ami-07becf48e2f4057c8
-        eu-west-2: ami-02ac6b3300d9070b1
-        eu-west-3: ami-0b0726c29a8feff8a
-        sa-east-1: ami-029a4c0dd953fdc64
-        us-east-1: ami-06dcf76ec7ffac7cb
-        us-east-2: ami-018b2823c3aa8b78e
-        us-west-1: ami-04de5ae2ed495f580
-        us-west-2: ami-0282e49ac0502691d
   3.11.3:
     alpine-ami-3.11.3-x86_64-r0:
       description: Alpine Linux 3.11.3 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
@@ -564,52 +911,24 @@ v3_11-x86_64:
       arch: x86_64
       revision: r0
       end_of_life: '2021-11-01T00:00:00'
-      build_time: 1580872119
+      build_time: '1580900519'
       artifacts:
-        ap-northeast-1: ami-0a21fceb3a679c6a0
-        ap-northeast-2: ami-0446572a036203a7f
+        eu-north-1: ami-025350371c14bbcf9
         ap-south-1: ami-01597af5b044c6534
+        eu-west-3: ami-0a3aecc0fe5a748e0
+        eu-west-2: ami-0fe16a039c49375e1
+        eu-west-1: ami-0719f170fa096b7c6
+        ap-northeast-2: ami-0446572a036203a7f
+        ap-northeast-1: ami-0a21fceb3a679c6a0
+        sa-east-1: ami-0f28a75976a21bca7
+        ca-central-1: ami-064cc1f1e4a3d17e7
         ap-southeast-1: ami-06add570453657288
         ap-southeast-2: ami-014d6b6e0544303db
-        ca-central-1: ami-064cc1f1e4a3d17e7
         eu-central-1: ami-06190102f27180777
-        eu-north-1: ami-025350371c14bbcf9
-        eu-west-1: ami-0719f170fa096b7c6
-        eu-west-2: ami-0fe16a039c49375e1
-        eu-west-3: ami-0a3aecc0fe5a748e0
-        sa-east-1: ami-0f28a75976a21bca7
         us-east-1: ami-0bd10e597480e8fdc
         us-east-2: ami-0741188fc6d365c12
         us-west-1: ami-065633a2b189f7550
         us-west-2: ami-050dd0423825ae4cd
-  3.11.5:
-    alpine-ami-3.11.5-x86_64-r0:
-      description: Alpine Linux 3.11.5 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
-      profile: alpine
-      profile_build: v3_11-x86_64
-      version: '3.11'
-      release: 3.11.5
-      arch: x86_64
-      revision: r0
-      end_of_life: '2021-11-01T00:00:00'
-      build_time: 1585881226
-      artifacts:
-        ap-northeast-1: ami-02945e11777c5d74a
-        ap-northeast-2: ami-071e19bba641e10c1
-        ap-south-1: ami-0df79a6a767372395
-        ap-southeast-1: ami-092bdb41e6d9f7060
-        ap-southeast-2: ami-02a1c7112bbe60f00
-        ca-central-1: ami-0081665c09326cae2
-        eu-central-1: ami-09d753422dab3888f
-        eu-north-1: ami-0f326f36494b66d68
-        eu-west-1: ami-0c1e8337e5112eb80
-        eu-west-2: ami-06ec140a6fa5ff24c
-        eu-west-3: ami-05270703db64782c3
-        sa-east-1: ami-08e5a4dc318e84618
-        us-east-1: ami-02fa6ea44ed68cbd1
-        us-east-2: ami-0325fc21b50ee19ba
-        us-west-1: ami-003d6e7746c7e938e
-        us-west-2: ami-0966c757f79c1a553
   3.11.6:
     alpine-ami-3.11.6-x86_64-r0:
       description: Alpine Linux 3.11.6 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
@@ -620,21 +939,105 @@ v3_11-x86_64:
       arch: x86_64
       revision: r0
       end_of_life: '2021-11-01T00:00:00'
-      build_time: 1587858467
+      build_time: '1587886872'
       artifacts:
-        ap-northeast-1: ami-04dd34605aba7ce11
-        ap-northeast-2: ami-0fd25bd139c05812d
+        eu-north-1: ami-03830331da71d3b6a
         ap-south-1: ami-08437e8244154999a
+        eu-west-3: ami-043d77b850fc69cff
+        eu-west-2: ami-0dcb13d7ab5820ac0
+        eu-west-1: ami-0a3bf003cc0e5cbaf
+        ap-northeast-2: ami-0fd25bd139c05812d
+        ap-northeast-1: ami-04dd34605aba7ce11
+        sa-east-1: ami-0056de88b2ebc5071
+        ca-central-1: ami-013d1db5df4ad7d4a
         ap-southeast-1: ami-04a63840be47a0816
         ap-southeast-2: ami-07be0b72172a63df3
-        ca-central-1: ami-013d1db5df4ad7d4a
         eu-central-1: ami-03bc1e4d4bf636895
-        eu-north-1: ami-03830331da71d3b6a
-        eu-west-1: ami-0a3bf003cc0e5cbaf
-        eu-west-2: ami-0dcb13d7ab5820ac0
-        eu-west-3: ami-043d77b850fc69cff
-        sa-east-1: ami-0056de88b2ebc5071
         us-east-1: ami-0da684cce2ab4aadb
         us-east-2: ami-014d15ba809c1e48f
         us-west-1: ami-05f659e5fe3528bbd
         us-west-2: ami-0380e01590d421d3e
+  3.11.2:
+    alpine-ami-3.11.2-x86_64-r0:
+      description: Alpine Linux 3.11.2 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_11-x86_64
+      version: '3.11'
+      release: 3.11.2
+      arch: x86_64
+      revision: r0
+      end_of_life: '2021-11-01T00:00:00'
+      build_time: '1578193976'
+      artifacts:
+        eu-north-1: ami-03ce6e520f43392b9
+        ap-south-1: ami-0b0f33d8cfb9e5051
+        eu-west-3: ami-0b0726c29a8feff8a
+        eu-west-2: ami-02ac6b3300d9070b1
+        eu-west-1: ami-07becf48e2f4057c8
+        ap-northeast-2: ami-066b4452a247d5533
+        ap-northeast-1: ami-0231a40676931971a
+        sa-east-1: ami-029a4c0dd953fdc64
+        ca-central-1: ami-0e26eeafdc083c6e9
+        ap-southeast-1: ami-0949989f302945c5a
+        ap-southeast-2: ami-08fb0d3aaf8945d02
+        eu-central-1: ami-02fa942a71aadf188
+        us-east-1: ami-06dcf76ec7ffac7cb
+        us-east-2: ami-018b2823c3aa8b78e
+        us-west-1: ami-04de5ae2ed495f580
+        us-west-2: ami-0282e49ac0502691d
+  3.11.5:
+    alpine-ami-3.11.5-x86_64-r0:
+      description: Alpine Linux 3.11.5 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: v3_11-x86_64
+      version: '3.11'
+      release: 3.11.5
+      arch: x86_64
+      revision: r0
+      end_of_life: '2021-11-01T00:00:00'
+      build_time: '1585909634'
+      artifacts:
+        eu-north-1: ami-0f326f36494b66d68
+        ap-south-1: ami-0df79a6a767372395
+        eu-west-3: ami-05270703db64782c3
+        eu-west-2: ami-06ec140a6fa5ff24c
+        eu-west-1: ami-0c1e8337e5112eb80
+        ap-northeast-2: ami-071e19bba641e10c1
+        ap-northeast-1: ami-02945e11777c5d74a
+        sa-east-1: ami-08e5a4dc318e84618
+        ca-central-1: ami-0081665c09326cae2
+        ap-southeast-1: ami-092bdb41e6d9f7060
+        ap-southeast-2: ami-02a1c7112bbe60f00
+        eu-central-1: ami-09d753422dab3888f
+        us-east-1: ami-02fa6ea44ed68cbd1
+        us-east-2: ami-0325fc21b50ee19ba
+        us-west-1: ami-003d6e7746c7e938e
+        us-west-2: ami-0966c757f79c1a553
+current-x86_64:
+  3.9.4:
+    alpine-ami-3.9.4-x86_64-r0:
+      description: Alpine Linux 3.9.4 x86_64 r0 - https://github.com/mcrute/alpine-ec2-ami
+      profile: alpine
+      profile_build: current-x86_64
+      version: '3.9'
+      release: 3.9.4
+      arch: x86_64
+      revision: r0
+      end_of_life: '2021-01-01T00:00:00'
+      build_time: '1560251961'
+      artifacts:
+        eu-north-1: ami-0f7b7e2bef1209f6c
+        ap-south-1: ami-0f94a69d1ff0a7860
+        eu-west-3: ami-084cb673481c3f793
+        eu-west-2: ami-091a16ac6bd29bdd3
+        eu-west-1: ami-09234e83a8015efa4
+        ap-northeast-2: ami-028d3d1675161319e
+        ap-northeast-1: ami-0bb4073495ff2021e
+        sa-east-1: ami-014d631c23ebf306a
+        ca-central-1: ami-05a3c167410bf6b35
+        ap-southeast-1: ami-0f1c039e595dd2d02
+        ap-southeast-2: ami-0ca5b7ca3caa92758
+        eu-central-1: ami-02df82b83ad2cdaec
+        us-east-1: ami-04a29b11e34acf54d
+        us-east-2: ami-0d9445885a19e00ca
+        us-west-1: ami-0bef2dc6d3f4e19a2

@@ -42,6 +42,7 @@ import argparse
 import textwrap
 import subprocess
 import urllib.error
+import dateutil.parser
 
 from enum import Enum
 from collections import defaultdict
@@ -100,6 +101,7 @@ class TaggedAWSObject:
         "revision":  _identity,
         "profile_build":  _identity,
         "source_ami":  _identity,
+        "source_region":  _identity,
         "arch": lambda x: EC2Architecture(x),
         "end_of_life": lambda x: datetime.fromisoformat(x),
         "release": lambda v: EDGE if v == "edge" else StrictVersion(v),
@@ -413,7 +415,7 @@ class ReleaseReadmeUpdater:
             for release, amis in releases.items():
                 for name, info in amis.items():
                     arch = info["arch"]
-                    built = info["build_time"]
+                    built = int(info["build_time"])
                     ver = sections[info["version"]]
 
                     if arch not in ver["built"] or ver["built"][arch] < built:
@@ -935,6 +937,8 @@ class ReleaseAMIs:
         parser.add_argument("--out-file", "-o",
             help="output file for JSON AMI map, otherwise stdout")
         parser.add_argument("ami", help="ami id to copy")
+# TODO: for efficiency, the main release loop will need some work
+#        parser.add_argument("amis", nargs="+", help="ami(s) to copy")
 
     @staticmethod
     def check_args(args):
@@ -1006,10 +1010,10 @@ class ReleaseAMIs:
             Name=source.name, Description=source.description,
             SourceImageId=source.image_id, SourceRegion=source.region)
 
-        tags = [{
-            "Key": "source_ami",
-            "Value": source.image_id,
-        }]
+        tags = [
+            { "Key": "source_ami", "Value": source.image_id, },
+            { "Key": "source_region", "Value": source.region, }
+        ]
         tags.extend(source.aws_tags)
 
         to_client.create_tags(Resources=[res["ImageId"]], Tags=tags)
@@ -1035,6 +1039,16 @@ class ReleaseAMIs:
 
         source_client = self.get_source_region_client(
             args.use_broker, args.source_region)
+
+# TODO: iterate over amis from the command line
+
+        # check source ami perms, queue for fixing if necessary
+        source_ami = self.get_image(source_client, args.ami)
+        if self.has_incorrect_perms(
+                source_ami, args.allow_accounts, args.public):
+            log.info(f"Incorrect permissions for ami {args.ami} in region "
+                     f"{source_ami.region}")
+            pending_perms.append((source_client, source_ami.image_id))
 
         # Copy image to regions where it is missing, catalog images that need
         # permission fixes
@@ -1093,6 +1107,85 @@ class ReleaseAMIs:
                 json.dump(released, fp, indent=4)
         else:
             json.dump(released, sys.stdout, indent=4)
+
+
+class RefreshReleases:
+    """Refresh releases YAML with existing profile/build AMIs
+    """
+
+    command_name = "refresh-releases"
+
+    @staticmethod
+    def add_args(parser):
+        parser.add_argument("--use-broker", action="store_true",
+            help="use identity broker to obtain per-region credentials")
+        parser.add_argument("--region", "-r", action="append",
+            help="regions for check, may be specified multiple times")
+        parser.add_argument("profile", help="name of profile to refresh")
+# TODO: get_images_with_tags needs to support tag filters with array of values
+#        parser.add_argument("builds", nargs="*",
+#            help="names of builds within the profile to refresh")
+
+    @staticmethod
+    def check_args(args):
+        if not args.use_broker and not args.region:
+            return ['Use broker or region must be specified']
+
+        if args.use_broker and args.region:
+            return ['Broker and region flags are mutually exclusive']
+
+    def run(self, args, root, log):
+        profile = args.profile
+        tags = { 'profile': args.profile }
+
+        release_dir = os.path.join(root, "releases")
+        if not os.path.exists(release_dir):
+            os.makedirs(release_dir)
+        release_yaml = os.path.join(release_dir, f"{profile}.yaml")
+        releases = {}
+        if os.path.exists(release_yaml):
+            with open(release_yaml, "r") as data:
+                releases = yaml.safe_load(data)
+
+        for client in ReleaseAMIs().iter_regions(args.use_broker, args.region):
+            region_name = region_from_client(client) # For logging
+            log.info(f"Refreshing {profile} AMIs from {region_name}...")
+            amis = ReleaseAMIs().get_images_with_tags(client, **tags)
+
+            for ami in amis:
+                build   = ami.profile_build
+                release = ami.release
+                name    = ami.name
+                ami_id  = ami.image_id
+
+                log.info(f" * {ami_id} {name}")
+
+                if build not in releases:
+                    releases[build] = {}
+
+                if release not in releases[build]:
+                    releases[build][release] = {}
+
+                if name not in releases[build][release]:
+                    releases[build][release][name] = {
+                        'description':      ami.description,
+                        'profile':          profile,
+                        'profile_build':    build,
+                        'version':          ami.version,
+                        'release':          ami.release,
+                        'arch':             ami.arch,
+                        'revision':         ami.revision,
+                        'end_of_life':      ami.end_of_life,
+                        'build_time':       dateutil.parser.parse(ami.creation_date).strftime('%s'),
+                        # TODO?  source_ami, source_region
+                        'artifacts':        {}
+                    }
+
+                releases[build][release][name]['artifacts'][region_name] = ami_id
+
+        log.info(f"Writing new {release_yaml}")
+        with open(release_yaml, "w") as data:
+            yaml.dump(releases, data, sort_keys=False)
 
 
 class ConvertPackerJSON:
