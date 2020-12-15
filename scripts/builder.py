@@ -17,7 +17,7 @@ if not os.path.exists("build"):
     print("Build environment does not exist, creating...", file=sys.stderr)
     venv.create("build", with_pip=True)
     subprocess.run(["build/bin/pip", "install", "-U", "pip",
-        "pyhocon", "boto3", "PyYAML"])
+        "pyhocon", "boto3", "python-dateutil", "PyYAML"])
 
     print("Re-executing with builder python...", file=sys.stderr)
     os.execv(args[0], args)
