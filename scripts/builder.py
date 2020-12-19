@@ -439,7 +439,7 @@ class ReleaseReadmeUpdater:
                     rows[0] += f" {info['name'][arch]} |"
                     rows[1] += " --- |"
 
-            for region, amis in info["ami"].items():
+            for region, amis in sorted(info["ami"].items()):
                 row = f"| {region} |"
                 for arch in self.archs:
                     if arch in amis:
