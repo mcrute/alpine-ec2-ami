@@ -376,7 +376,11 @@ class IdentityBrokerClient:
             yield self._boto3_session_from_creds(self._get(cred_url), region)
 
 
-class ReleaseReadmeUpdater:
+class GenReleaseReadme:
+    """Generate releases/README_<profile>.md
+    """
+
+    command_name = "gen-release-readme"
 
     SECTION_TPL = textwrap.dedent("""
     ### Alpine Linux {release} ({date})
@@ -394,10 +398,7 @@ class ReleaseReadmeUpdater:
         "#launchAmi={id})) |"
     )
 
-    def __init__(self, repo_root, profile, archs=None):
-        self.repo_root = repo_root
-        self.profile = profile
-        self.archs = archs or ["x86_64", "aarch64"]
+    archs = ['x86_64', 'aarch64']
 
     @staticmethod
     def extract_ver(x):
@@ -431,6 +432,8 @@ class ReleaseReadmeUpdater:
     def make_ami_list(self, sorted_releases):
         ami_list = "## AMIs\n"
 
+        # TODO: this may need some more thought for (rare) cases when regions
+        #       don't all have the same-named images for some reason
         for info in sorted_releases:
             rows = ["| Region |", "| ------ |"]
 
@@ -454,36 +457,41 @@ class ReleaseReadmeUpdater:
 
         return ami_list
 
-    def update_markdown(self):
-        release_dir = os.path.join(self.repo_root, "releases")
-        profile_file = os.path.join(release_dir, f"{self.profile}.yaml")
-
-        with open(profile_file, "r") as data:
-            sorted_releases = self.get_sorted_releases(yaml.safe_load(data))
-
-        readme_md = os.path.join(release_dir, "README.md")
-
-        with open(readme_md, "r") as file:
-            readme = file.read()
-
-        with open(readme_md, "w") as file:
-            file.write(
-                re.sub("## AMIs.*\Z", self.make_ami_list(sorted_releases),
-                    readme, flags=re.S))
-
-
-class GenReleaseReadme:
-    """Update release README
-    """
-
-    command_name = "gen-release-readme"
-
     @staticmethod
     def add_args(parser):
         parser.add_argument("profile", help="name of profile to update")
 
     def run(self, args, root, log):
-        ReleaseReadmeUpdater(root, args.profile).update_markdown()
+        profile = args.profile
+
+        release_dir = os.path.join(root, "releases")
+        profile_file = os.path.join(release_dir, f"{profile}.yaml")
+        with open(profile_file, "r") as data:
+            sorted_releases = self.get_sorted_releases(yaml.safe_load(data))
+
+        readme_md = os.path.join(release_dir, f"README_{profile}.md")
+
+        readme = ""
+        action = "Updated"
+        if os.path.exists(readme_md):
+            with open(readme_md, "r") as file:
+                readme = file.read()
+        else:
+            action = "Created"
+
+        re_images = re.compile(r"## AMIs.*\Z", flags=re.DOTALL)
+
+        if re_images.search(readme):
+            re_images.sub(
+                self.make_ami_list(sorted_releases),
+                readme)
+        else:
+            readme += "\n" + self.make_ami_list(sorted_releases)
+
+        with open(readme_md, "w") as file:
+            file.write(readme)
+
+        log.info(f"{action} {readme_md}")
 
 
 class MakeAMIs:
@@ -502,11 +510,22 @@ class MakeAMIs:
         parser.add_argument("builds", nargs="*",
             help="name of builds within a profile to build")
 
+    @staticmethod
+    def get_artifact_id(root, profile, build):
+        manifest_json = os.path.join(
+            root, "build", "profile", profile, build,
+            "manifest.json")
+        with open(manifest_json, "r") as data:
+            manifest = json.load(data)
+        return manifest['builds'][0]['artifact_id'].split(':')[1]
+
     def run(self, args, root, log):
         os.chdir(os.path.join(root, "build"))
 
         builds = args.builds or os.listdir(
             os.path.join("profile", args.profile))
+
+        artifacts = []
 
         for build in builds:
             log.info("\n*** Building %s/%s ***\n\n", args.profile, build)
@@ -542,16 +561,19 @@ class MakeAMIs:
                 print(text, end="") # input is already colorized
 
             if res.returncode == 0:
-                UpdateReleases().update_readme(args.profile, build, root)
+                artifacts.append(self.get_artifact_id(root, args.profile, build))
             else:
                 if "is used by an existing AMI" in out.getvalue():
                     continue
                 else:
                     sys.exit(res.returncode)
 
-        log.info("\n=== DONE ===\n")
+        log.info("\n=== DONE ===\n\nNew: " + ' '.join(artifacts) + "\n")
 
 
+# TODO: profiles should encode retention policy...
+#  - keeping <n> latest images per <level>
+#  - keeping images <days> past their EOL
 class PruneAMIs:
     """Prune AMIs from AWS
     """
@@ -569,9 +591,14 @@ class PruneAMIs:
         parser.add_argument(
             "level", choices=["revision", "release", "version"],
             help=LEVEL_HELP)
+        # TODO: add --region and --use-broker
         parser.add_argument("profile", help="profile to prune")
         parser.add_argument(
-            "build", nargs="?", help="build within profile to prune")
+            "build", nargs="?", help="build(s) within profile to prune")
+        parser.add_argument(
+            '--no-pretend', action='store_true',
+            help='actually prune images'
+        )
 
     @staticmethod
     def delete_image(ec2, image):
@@ -675,16 +702,19 @@ class PruneAMIs:
                 image_name, image_id = image["Name"], image["ImageId"]
 
                 if region in prune and image["ImageId"] in prune[region]:
-                    log.info("REMOVE: %s = %s", image_name, image_id)
-                    self.delete_image(image)
+                    if args.no_pretend is True:
+                        log.error("REMOVING: %s = %s", image_id, image_name)
+                        self.delete_image(image)
+                    else:
+                        log.error("TO_PRUNE: %s = %s", image_id, image_name)
                 elif region in known and image["ImageId"] in known[region]:
-                    log.info("KEEP: %s = %s", image_name, image_id)
+                    log.info("KEEPING:  %s = %s", image_id, image_name)
                 else:
-                    log.info("UNKNOWN: %s = %s", image_name, image_id)
+                    log.warning("UNKNOWN:  %s = %s", image_id, image_name)
 
-        # update releases/<profile>.yaml
-        with open(release_yaml, "w") as data:
-            yaml.dump(after, data, sort_keys=False)
+        # TODO: need parity with args first
+        #if args.no_pretend is True:
+        #    UpdateReleases.run(args, root, log)
 
 
 class ConfigBuilder:
@@ -838,68 +868,6 @@ class ResolveProfiles:
 
     def run(self, args, root, log):
         self.resolve_profiles(args.profile, root)
-
-
-class UpdateReleases:
-    """Update release YAML
-    """
-
-    command_name = "update-releases"
-
-    @staticmethod
-    def add_args(parser):
-        parser.add_argument("profile", help="name of profile to update")
-        parser.add_argument("build", help="name of build to update")
-
-    @staticmethod
-    def parse_ids(ids):
-        parsed = re.split(":|,", ids)
-        return dict(zip(parsed[0::2], parsed[1::2]))
-
-    def run(self, args, root, log):
-        self.update_readme(args.profile, args.build, root)
-
-    def update_readme(self, profile, build, root):
-        release_dir = os.path.join(root, "releases")
-        if not os.path.exists(release_dir):
-            os.makedirs(release_dir)
-
-        release_yaml = os.path.join(release_dir, f"{profile}.yaml")
-        releases = {}
-        if os.path.exists(release_yaml):
-            with open(release_yaml, "r") as data:
-                releases = yaml.safe_load(data)
-
-        manifest_json = os.path.join(
-            root, "build", "profile", profile, build,
-            "manifest.json")
-        with open(manifest_json, "r") as data:
-            manifest = json.load(data)
-
-        data = manifest["builds"][0]["custom_data"]
-        release = data["release"]
-
-        if build not in releases:
-            releases[build] = {}
-
-        if release not in releases[build]:
-            releases[build][release] = {}
-
-        releases[build][release][data["ami_name"]] = {
-            "description": data["ami_desc"],
-            "profile": profile,
-            "profile_build": build,
-            "version": data["version"],
-            "release": release,
-            "arch": data["arch"],
-            "revision": data["revision"],
-            "end_of_life": data["end_of_life"],
-            "build_time": manifest["builds"][0]["build_time"],
-            "artifacts": self.parse_ids(manifest["builds"][0]["artifact_id"]),
-        }
-
-        with open(release_yaml, "w") as data:
-            yaml.dump(releases, data, sort_keys=False)
 
 
 class ReleaseAMIs:
@@ -1108,12 +1076,11 @@ class ReleaseAMIs:
         else:
             json.dump(released, sys.stdout, indent=4)
 
-
-class RefreshReleases:
-    """Refresh releases YAML with existing profile/build AMIs
+class UpdateReleases:
+    """Update releases YAML with info about currently existing profile AMIs
     """
 
-    command_name = "refresh-releases"
+    command_name = "update-releases"
 
     @staticmethod
     def add_args(parser):
@@ -1122,9 +1089,6 @@ class RefreshReleases:
         parser.add_argument("--region", "-r", action="append",
             help="regions for check, may be specified multiple times")
         parser.add_argument("profile", help="name of profile to refresh")
-# TODO: get_images_with_tags needs to support tag filters with array of values
-#        parser.add_argument("builds", nargs="*",
-#            help="names of builds within the profile to refresh")
 
     @staticmethod
     def check_args(args):
@@ -1142,14 +1106,12 @@ class RefreshReleases:
         if not os.path.exists(release_dir):
             os.makedirs(release_dir)
         release_yaml = os.path.join(release_dir, f"{profile}.yaml")
-        releases = {}
-        if os.path.exists(release_yaml):
-            with open(release_yaml, "r") as data:
-                releases = yaml.safe_load(data)
 
+        # TODO: break this off into its own piece for reuse for pruning too
+        releases = {}
         for client in ReleaseAMIs().iter_regions(args.use_broker, args.region):
             region_name = region_from_client(client) # For logging
-            log.info(f"Refreshing {profile} AMIs from {region_name}...")
+            log.info(f"Getting {profile} AMIs from {region_name}...")
             amis = ReleaseAMIs().get_images_with_tags(client, **tags)
 
             for ami in amis:
@@ -1231,9 +1193,6 @@ class FullBuild:
 
         log.info("Running packer...")
         MakeAMIs().run(args, root, log)
-
-        log.info("Updating release readme...")
-        GenReleaseReadme().run(args, root, log)
 
 
 def find_repo_root():
