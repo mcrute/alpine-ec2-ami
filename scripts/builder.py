@@ -55,6 +55,16 @@ import boto3
 import pyhocon
 
 
+# allows us to set values deep within an object that might not be fully defined
+def dictfactory():
+    return defaultdict(dictfactory)
+
+# undo dictfactory() objects to normal objects
+def undictfactory(o):
+    if isinstance(o, defaultdict):
+        o = {k: undictfactory(v) for k, v in o.items()}
+    return o
+
 # This is an ugly hack. We occasionally need the region name but it's not
 # attached to anything publicly exposed on the client objects. Hide this here.
 def region_from_client(client):
@@ -376,347 +386,6 @@ class IdentityBrokerClient:
             yield self._boto3_session_from_creds(self._get(cred_url), region)
 
 
-class GenReleaseReadme:
-    """Generate releases/README_<profile>.md
-    """
-
-    command_name = "gen-release-readme"
-
-    SECTION_TPL = textwrap.dedent("""
-    ### Alpine Linux {release} ({date})
-    <details><summary><i>click to show/hide</i></summary><p>
-
-    {rows}
-
-    </p></details>
-    """)
-
-    AMI_TPL = (
-        " [{id}](https://{r}.console.aws.amazon.com/ec2/home"
-        "#Images:visibility=public-images;imageId={id}) "
-        "([launch](https://{r}.console.aws.amazon.com/ec2/home"
-        "#launchAmi={id})) |"
-    )
-
-    archs = ['x86_64', 'aarch64']
-
-    @staticmethod
-    def extract_ver(x):
-        return StrictVersion("0.0" if x["release"] == "edge" else x["release"])
-
-    def get_sorted_releases(self, release_data):
-        sections = defaultdict(lambda: {
-            "release": "",
-            "built": {},
-            "name": {},
-            "ami": defaultdict(dict)
-        })
-
-        for build, releases in release_data.items():
-            for release, amis in releases.items():
-                for name, info in amis.items():
-                    arch = info["arch"]
-                    built = int(info["build_time"])
-                    ver = sections[info["version"]]
-
-                    if arch not in ver["built"] or ver["built"][arch] < built:
-                        ver["release"] = release
-                        ver["name"][arch] = name
-                        ver["built"][arch] = built
-
-                        for region, ami in info["artifacts"].items():
-                            ver["ami"][region][arch] = ami
-
-        return sorted(sections.values(), key=self.extract_ver, reverse=True)
-
-    def make_ami_list(self, sorted_releases):
-        ami_list = "## AMIs\n"
-
-        # TODO: this may need some more thought for (rare) cases when regions
-        #       don't all have the same-named images for some reason
-        for info in sorted_releases:
-            rows = ["| Region |", "| ------ |"]
-
-            for arch in self.archs:
-                if arch in info["name"]:
-                    rows[0] += f" {info['name'][arch]} |"
-                    rows[1] += " --- |"
-
-            for region, amis in sorted(info["ami"].items()):
-                row = f"| {region} |"
-                for arch in self.archs:
-                    if arch in amis:
-                        row += self.AMI_TPL.format(r=region, id=amis[arch])
-                rows.append(row)
-
-            ami_list += self.SECTION_TPL.format(
-                release=info["release"].capitalize(),
-                date=datetime.utcfromtimestamp(
-                    max(info["built"].values())).date(),
-                rows="\n".join(rows))
-
-        return ami_list
-
-    @staticmethod
-    def add_args(parser):
-        parser.add_argument("profile", help="name of profile to update")
-
-    def run(self, args, root, log):
-        profile = args.profile
-
-        release_dir = os.path.join(root, "releases")
-        profile_file = os.path.join(release_dir, f"{profile}.yaml")
-        with open(profile_file, "r") as data:
-            sorted_releases = self.get_sorted_releases(yaml.safe_load(data))
-
-        readme_md = os.path.join(release_dir, f"README_{profile}.md")
-
-        readme = ""
-        action = "Updated"
-        if os.path.exists(readme_md):
-            with open(readme_md, "r") as file:
-                readme = file.read()
-        else:
-            action = "Created"
-
-        re_images = re.compile(r"## AMIs.*\Z", flags=re.DOTALL)
-
-        if re_images.search(readme):
-            re_images.sub(
-                self.make_ami_list(sorted_releases),
-                readme)
-        else:
-            readme += "\n" + self.make_ami_list(sorted_releases)
-
-        with open(readme_md, "w") as file:
-            file.write(readme)
-
-        log.info(f"{action} {readme_md}")
-
-
-class MakeAMIs:
-    """Build Packer JSON variable files from HOCON build profiles
-    """
-
-    command_name = "make-amis"
-
-    @staticmethod
-    def add_args(parser):
-        parser.add_argument("--region", "-r", default="us-west-2",
-            help="region to use for build")
-        parser.add_argument("--use-broker", action="store_true",
-            help="use identity broker to obtain per-region credentials")
-        parser.add_argument("profile", help="name of profile to build")
-        parser.add_argument("builds", nargs="*",
-            help="name of builds within a profile to build")
-
-    @staticmethod
-    def get_artifact_id(root, profile, build):
-        manifest_json = os.path.join(
-            root, "build", "profile", profile, build,
-            "manifest.json")
-        with open(manifest_json, "r") as data:
-            manifest = json.load(data)
-        return manifest['builds'][0]['artifact_id'].split(':')[1]
-
-    def run(self, args, root, log):
-        os.chdir(os.path.join(root, "build"))
-
-        builds = args.builds or os.listdir(
-            os.path.join("profile", args.profile))
-
-        artifacts = []
-
-        for build in builds:
-            log.info("\n*** Building %s/%s ***\n\n", args.profile, build)
-
-            build_dir = os.path.join("profile", args.profile, build)
-            if not os.path.exists(build_dir):
-                log.info("Build dir '%s' does not exist", build_dir)
-                break
-
-            env = None
-            if args.use_broker:
-                creds = IdentityBrokerClient().get_credentials(args.region)
-                env = {
-                    "PATH": os.environ.get("PATH"),
-                    "AWS_ACCESS_KEY_ID": creds["access_key"],
-                    "AWS_SECRET_ACCESS_KEY": creds["secret_key"],
-                    "AWS_SESSION_TOKEN": creds["session_token"],
-                    "AWS_DEFAULT_REGION": args.region,
-                }
-
-            out = io.StringIO()
-
-            res = subprocess.Popen([
-                    os.environ.get("PACKER", "packer"),
-                    "build",
-                    f"-var-file={build_dir}/vars.json",
-                    "packer.json"
-                ], stdout=subprocess.PIPE, encoding="utf-8", env=env)
-
-            while res.poll() is None:
-                text = res.stdout.readline()
-                out.write(text)
-                print(text, end="") # input is already colorized
-
-            if res.returncode == 0:
-                artifacts.append(self.get_artifact_id(root, args.profile, build))
-            else:
-                if "is used by an existing AMI" in out.getvalue():
-                    continue
-                else:
-                    sys.exit(res.returncode)
-
-        log.info("\n=== DONE ===\n\nNew: " + ' '.join(artifacts) + "\n")
-
-
-# TODO: profiles should encode retention policy...
-#  - keeping <n> latest images per <level>
-#  - keeping images <days> past their EOL
-class PruneAMIs:
-    """Prune AMIs from AWS
-    """
-
-    command_name = "prune-amis"
-
-    @staticmethod
-    def add_args(parser):
-        LEVEL_HELP = textwrap.dedent("""\
-        revision  - keep only the latest revision per release
-        release   - keep only the latest release per version
-        version   - keep only the versions that aren't end-of-life
-        """)
-
-        parser.add_argument(
-            "level", choices=["revision", "release", "version"],
-            help=LEVEL_HELP)
-        # TODO: add --region and --use-broker
-        parser.add_argument("profile", help="profile to prune")
-        parser.add_argument(
-            "build", nargs="?", help="build(s) within profile to prune")
-        parser.add_argument(
-            '--no-pretend', action='store_true',
-            help='actually prune images'
-        )
-
-    @staticmethod
-    def delete_image(ec2, image):
-        ec2.deregister_image(ImageId=image["ImageId"])
-
-        for blockdev in image["BlockDeviceMappings"]:
-            if "Ebs" not in blockdev:
-                continue
-
-            ec2.delete_snapshot(SnapshotId=blockdev["Ebs"]["SnapshotId"])
-
-    def run(self, args, root, log):
-        now = datetime.utcnow()
-        release_yaml = os.path.join(root, "releases", f"{args.profile}.yaml")
-
-        with open(release_yaml, "r") as data:
-            before = yaml.safe_load(data)
-
-        known = defaultdict(list)
-        prune = defaultdict(list)
-        after = defaultdict(lambda: defaultdict(dict))
-
-        # for all builds in the profile...
-        for build_name, releases in before.items():
-            # this is not the build that was specified
-            if args.build is not None and args.build != build_name:
-                log.info("< skipping %s/%s", args.profile, build_name)
-                # ensure its release data remains intact
-                after[build_name] = before[build_name]
-                continue
-            else:
-                log.info("> PRUNING %s/%s for %s",
-                    args.profile, build_name, args.level)
-
-            criteria = {}
-
-            # scan releases for pruning criteria
-            for release, amis in releases.items():
-                for ami_name, info in amis.items():
-                    version = info["version"]
-                    built = info["build_time"]
-
-                    eol = info.get("end_of_life")
-                    if eol:
-                        eol = datetime.fromisoformat(info["end_of_life"])
-
-                    for region, ami_id in info["artifacts"].items():
-                        known[region].append(ami_id)
-
-                    if args.level == "revision":
-                        # find build timestamp of most recent revision, per release
-                        if release not in criteria or built > criteria[release]:
-                            criteria[release] = built
-                    elif args.level == "release":
-                        # find build timestamp of most recent revision, per version
-                        if version not in criteria or built > criteria[version]:
-                            criteria[version] = built
-                    elif args.level == "version":
-                        # find latest EOL date, per version
-                        if (
-                            version not in criteria or
-                            (not criteria[version]) or
-                            (eol and eol > criteria[version])
-                        ):
-                            criteria[version] = eol
-
-            # rescan again to determine what doesn't make the cut
-            for release, amis in releases.items():
-                for ami_name, info in amis.items():
-                    version = info["version"]
-
-                    eol = info.get("end_of_life")
-                    if eol:
-                        eol = datetime.fromisoformat(info["end_of_life"])
-
-                    if args.level == "revision":
-                        if info["build_time"] < criteria[release]:
-                            for region, ami_id in info["artifacts"].items():
-                                prune[region].append(ami_id)
-                    elif args.level == "release":
-                        if info["build_time"] < criteria[version]:
-                            for region, ami_id in info["artifacts"].items():
-                                prune[region].append(ami_id)
-                    elif args.level == "version":
-                        if criteria[version] and (
-                            (version != "edge" and criteria[version] < now) or
-                            (version == "edge" and ((not eol) or (eol < now)))
-                        ):
-                            for region, ami_id in info["artifacts"].items():
-                                prune[region].append(ami_id)
-                    else:
-                        after[build_name][release][ami_name] = info
-
-        for session in IdentityBrokerClient().iter_regions():
-            region = session.region_name
-
-            log.info("* scanning: %s ...", region)
-
-            ec2 = session.client("ec2")
-            for image in ec2.describe_images(Owners=["self"])["Images"]:
-                image_name, image_id = image["Name"], image["ImageId"]
-
-                if region in prune and image["ImageId"] in prune[region]:
-                    if args.no_pretend is True:
-                        log.error("REMOVING: %s = %s", image_id, image_name)
-                        self.delete_image(image)
-                    else:
-                        log.error("TO_PRUNE: %s = %s", image_id, image_name)
-                elif region in known and image["ImageId"] in known[region]:
-                    log.info("KEEPING:  %s = %s", image_id, image_name)
-                else:
-                    log.warning("UNKNOWN:  %s = %s", image_id, image_name)
-
-        # TODO: need parity with args first
-        #if args.no_pretend is True:
-        #    UpdateReleases.run(args, root, log)
-
-
 class ConfigBuilder:
 
     now = datetime.utcnow()
@@ -844,80 +513,180 @@ class ConfigBuilder:
                 json.dump(cfg, out, indent=4, separators=(",", ": "))
 
 
-class ResolveProfiles:
-    """Build Packer JSON variable files from HOCON build profiles
+class BuildAMIs:
+    """Build all AMIs for profile, or specific builds within a profile
     """
-
-    command_name = "resolve-profiles"
+    command_name = "amis"
 
     @staticmethod
     def add_args(parser):
-        parser.add_argument(
-            "profile", help="name of profile to build", nargs="*")
+        # NOTE: --use-broker and --region are not mutually exclusive here!
+        parser.add_argument("--use-broker", action="store_true",
+            help="use identity broker to obtain region credentials")
+        parser.add_argument("--region", "-r", default="us-west-2",
+            help="region to use for build")
+        parser.add_argument("profile", metavar="PROFILE",
+            help="name of profile to build")
+        parser.add_argument("builds", metavar="BUILD", nargs="*",
+            help="name of build within a profile (multiple OK)")
 
-    def resolve_profiles(self, profiles, root):
+    @staticmethod
+    def get_artifact_id(root, profile, build):
+        manifest_json = os.path.join(
+            root, "build", "profile", profile, build,
+            "manifest.json")
+        with open(manifest_json, "r") as data:
+            manifest = json.load(data)
+        return manifest['builds'][0]['artifact_id'].split(':')[1]
+
+    def make_amis(self, args, root, log):
+        os.chdir(os.path.join(root, "build"))
+
+        builds = args.builds or os.listdir(
+            os.path.join("profile", args.profile))
+
+        artifacts = []
+
+        for build in builds:
+            log.info("\n*** Building %s/%s ***\n\n", args.profile, build)
+
+            build_dir = os.path.join("profile", args.profile, build)
+            if not os.path.exists(build_dir):
+                log.info("Build dir '%s' does not exist", build_dir)
+                break
+
+            env = None
+            if args.use_broker:
+                creds = IdentityBrokerClient().get_credentials(args.region)
+                env = {
+                    "PATH": os.environ.get("PATH"),
+                    "AWS_ACCESS_KEY_ID": creds["access_key"],
+                    "AWS_SECRET_ACCESS_KEY": creds["secret_key"],
+                    "AWS_SESSION_TOKEN": creds["session_token"],
+                    "AWS_DEFAULT_REGION": args.region,
+                }
+
+            out = io.StringIO()
+
+            res = subprocess.Popen([
+                    os.environ.get("PACKER", "packer"),
+                    "build",
+                    f"-var-file={build_dir}/vars.json",
+                    "packer.json"
+                ], stdout=subprocess.PIPE, encoding="utf-8", env=env)
+
+            while res.poll() is None:
+                text = res.stdout.readline()
+                out.write(text)
+                print(text, end="") # input is already colorized
+
+            if res.returncode == 0:
+                artifacts.append(self.get_artifact_id(root, args.profile, build))
+            else:
+                if "is used by an existing AMI" in out.getvalue():
+                    continue
+                else:
+                    sys.exit(res.returncode)
+
+        return artifacts
+
+    def run(self, args, root, log):
+        log.info("Converting packer.conf to JSON...")
+        source = os.path.join(root, "packer.conf")
+        dest = os.path.join(root, "build", "packer.json")
+        pyhocon.converter.HOCONConverter.convert_from_file(
+            source, dest, "json", 2, False)
+
+        log.info("Resolving profile...")
         builder = ConfigBuilder(
             os.path.join(root, "profiles"),
             os.path.join(root, "build", "profile"))
+        builder.build_profile(args.profile)
 
-        if profiles:
-            for profile in profiles:
-                builder.build_profile(profile)
-        else:
-            builder.build_all()
+        log.info("Running packer...")
+        amis = self.make_amis(args, root, log)
+        log.info("\n=== DONE ===\n\nNew: " + ' '.join(amis) + "\n")
 
-    def run(self, args, root, log):
-        self.resolve_profiles(args.profile, root)
+
+# These are general-purpose methods
+
+# iterate over EC2 region clients, whether we're using the broker or not
+def iter_regions(use_broker, regions):
+    if use_broker:
+        for region in IdentityBrokerClient().iter_regions():
+            yield region.client('ec2')
+    else:
+        for region in regions:
+            yield boto3.session.Session(region_name=region).client('ec2')
+
+def get_image(client, image_id):
+    images = client.describe_images(ImageIds=[image_id], Owners=["self"])
+    perms = client.describe_image_attribute(
+        Attribute="launchPermission", ImageId=image_id)
+
+    ami = AMI.from_aws_model(images["Images"][0], region_from_client(client))
+    ami.aws_permissions = perms["LaunchPermissions"]
+
+    return ami
+
+def get_images_with_tags(client, **tags):
+    images = []
+
+    res = client.describe_images(Owners=["self"], Filters=[
+        {"Name": f"tag:{k}", "Values": [v]} for k, v in tags.items()])
+
+    for image in res["Images"]:
+        ami = AMI.from_aws_model(image, region_from_client(client))
+        perms = client.describe_image_attribute(
+            Attribute="launchPermission", ImageId=ami.image_id)
+        ami.aws_permissions = perms["LaunchPermissions"]
+        images.append(ami)
+
+    return images
+
+def get_image_with_tags(client, **tags):
+    images = get_images_with_tags(client, **tags)
+    if len(images) > 1:
+        raise Exception(f"Too many images for query {tags!r}")
+    elif len(images) == 0:
+        return None
+    else:
+        return images[0]
+
+def get_all_images(client):
+    return get_images_with_tags(client)
 
 
 class ReleaseAMIs:
-    """Copy AMIs to other regions and optionally make them public.
+    """Copy one or more AMIs to other regions and/or set AMI permissions.
 
-    Copies an AMI from a source region to destination regions. If the AMI
-    exists in some regions but not others it will copy only to the new regions.
-    This copy will add tags to the destination AMIs to link them to the source
-    AMI.
+    By default, source AMI permissions are applied to their copies, unless
+    --public, --private, or --allow-account options are specified.
 
-    By default does not make the AMIs public. Running the command a second time
-    with the --public flag will make the already copied AMIs public. If some
-    AMIs are public and others are not, will make them all public.
-
-    This command will fill in missing regions and synchronized public settings
-    if it's re-run with the same AMI ID as new regions are added.
+    If the source AMI's permissions are different than the options provided,
+    its permissions will be updated to match.
     """
-
     command_name = "release"
 
     @staticmethod
     def add_args(parser):
-        parser.add_argument("--use-broker", action="store_true",
-            help="use identity broker to obtain per-region credentials")
-        parser.add_argument("--public", action="store_true",
-            help="make all copied images public, even previously copied ones")
         parser.add_argument("--source-region", default="us-west-2",
-            help="source region hosting ami to copy")
-        parser.add_argument("--region", "-r", action="append",
-            help="destination regions for copy, may be specified multiple "
-            "times")
-        parser.add_argument("--allow-accounts", action="append",
-            help="add permissions for other accounts to non-public images, "
-            "may be specified multiple times")
-        parser.add_argument("--out-file", "-o",
-            help="output file for JSON AMI map, otherwise stdout")
-        parser.add_argument("ami", help="ami id to copy")
-# TODO: for efficiency, the main release loop will need some work
-#        parser.add_argument("amis", nargs="+", help="ami(s) to copy")
-
-    @staticmethod
-    def check_args(args):
-        if not args.use_broker and not args.region:
-            return ["Use broker or region must be specified"]
-
-        if args.use_broker and args.region:
-            return ["Broker and region flags are mutually exclusive."]
-
-        if args.out_file and os.path.exists(args.out_file):
-            return ["Output file already exists"]
+            metavar="REGION", help="region of source AMI(s)")
+        rgroup = parser.add_mutually_exclusive_group(required=True)
+        rgroup.add_argument("--use-broker", action="store_true",
+            help="identity broker provides destination regions and credentials")
+        rgroup.add_argument("--region", "-r", action="append", dest="regions",
+            metavar="REGION", help="destination region (multiple OK)")
+        pgroup = parser.add_mutually_exclusive_group()
+        pgroup.add_argument("--public", action="store_true", default=None,
+            help="make source and copied AMIs public")
+        pgroup.add_argument("--private", dest="public", action="store_false",
+            help="make source and copied AMIs private")
+        pgroup.add_argument("--allow-account", dest="allow_accounts",
+            action="append", metavar="ID", help="make source and copied AMIs "
+            "accessible by AWS account id (multiple OK)")
+        parser.add_argument("amis", metavar="AMI", nargs="+",
+            help="AMI id(s) to copy")
 
     def get_source_region_client(self, use_broker, source_region):
         if use_broker:
@@ -927,52 +696,8 @@ class ReleaseAMIs:
             return boto3.session.Session(region_name=source_region).client(
                 "ec2")
 
-    def iter_regions(self, use_broker, regions):
-        if use_broker:
-            for region in IdentityBrokerClient().iter_regions():
-                yield region.client("ec2")
-            return
-
-        for region in regions:
-            yield boto3.session.Session(region_name=region).client("ec2")
-
-    def get_image(self, client, image_id):
-        images = client.describe_images(ImageIds=[image_id], Owners=["self"])
-        perms = client.describe_image_attribute(
-            Attribute="launchPermission", ImageId=image_id)
-
-        ami = AMI.from_aws_model(
-            images["Images"][0], region_from_client(client))
-        ami.aws_permissions = perms["LaunchPermissions"]
-
-        return ami
-
-    def get_image_with_tags(self, client, **tags):
-        images = self.get_images_with_tags(client, **tags)
-        if len(images) > 1:
-            raise Exception(f"Too many images for query {tags!r}")
-        elif len(images) == 0:
-            return None
-        else:
-            return images[0]
-
-    def get_images_with_tags(self, client, **tags):
-        images = []
-
-        res = client.describe_images(Owners=["self"], Filters=[
-            {"Name": f"tag:{k}", "Values": [v]} for k, v in tags.items()])
-
-        for image in res["Images"]:
-            ami = AMI.from_aws_model(image, region_from_client(client))
-            perms = client.describe_image_attribute(
-                Attribute="launchPermission", ImageId=ami.image_id)
-            ami.aws_permissions = perms["LaunchPermissions"]
-            images.append(ami)
-
-        return images
-
     def copy_image(self, from_client, to_client, image_id):
-        source = self.get_image(from_client, image_id)
+        source = get_image(from_client, image_id)
 
         res = to_client.copy_image(
             Name=source.name, Description=source.description,
@@ -986,213 +711,510 @@ class ReleaseAMIs:
 
         to_client.create_tags(Resources=[res["ImageId"]], Tags=tags)
 
-        return self.get_image(to_client, res["ImageId"])
+        return get_image(to_client, res["ImageId"])
 
-    def has_incorrect_perms(self, ami, accounts, public):
-        if accounts and set(ami.allowed_users) != set(accounts):
+    def has_incorrect_perms(self, image, perms):
+        if (set(image.allowed_groups) != set(perms['groups'])
+                or set(image.allowed_users) != set(perms['users'])):
             return True
 
-        if public and not ami.public:
-            return True
-
-    def update_image_permissions(self, client, ami):
+    def update_image_permissions(self, client, image):
+        client.reset_image_attribute(
+            Attribute="launchPermission", ImageId=image.image_id)
         client.modify_image_attribute(
-            Attribute="launchPermission", ImageId=ami.image_id,
-            LaunchPermission={"Add": ami.aws_permissions})
+            Attribute="launchPermission", ImageId=image.image_id,
+            LaunchPermission={"Add": image.aws_permissions})
 
     def run(self, args, root, log):
-        released = {}
+        source_perms = {}
         pending_copy = []
         pending_perms = []
+        source_region = args.source_region
 
+        log.info(f"Source region {source_region}")
         source_client = self.get_source_region_client(
-            args.use_broker, args.source_region)
+            args.use_broker, source_region)
 
-# TODO: iterate over amis from the command line
+        # resolve source ami perms, queue for fixing if necessary
+        for ami in args.amis:
+            image = get_image(source_client, ami)
 
-        # check source ami perms, queue for fixing if necessary
-        source_ami = self.get_image(source_client, args.ami)
-        if self.has_incorrect_perms(
-                source_ami, args.allow_accounts, args.public):
-            log.info(f"Incorrect permissions for ami {args.ami} in region "
-                     f"{source_ami.region}")
-            pending_perms.append((source_client, source_ami.image_id))
+            if args.public is True:
+                source_perms[ami] = { 'groups': ['all'], 'users': [] }
+            elif args.public is False:
+                source_perms[ami] = { 'groups': [], 'users': [] }
+            elif args.allow_accounts:
+                source_perms[ami] = { 'groups': [], 'users': args.allow_accounts }
+            else:
+                log.warning(f"Will apply {source_region} {ami} permissions to its copies")
+                source_perms[ami] = {
+                    'groups': image.allowed_groups,
+                    'users': image.allowed_users
+                }
 
-        # Copy image to regions where it is missing, catalog images that need
+            if self.has_incorrect_perms(image, source_perms[ami]):
+                log.warning(f"Will update source {source_region} {ami} permissions")
+                pending_perms.append((source_client, ami, source_perms[ami]))
+
+        # Copy image to regions where it's missing, queue images that need
         # permission fixes
-        for client in self.iter_regions(args.use_broker, args.region):
+        log.info('')
+        for client in iter_regions(args.use_broker, args.regions):
             region_name = region_from_client(client) # For logging
 
-            # Don't copy to source region
-            if region_name == region_from_client(source_client):
+            # Don't bother copying to source region
+            if region_name == args.source_region:
                 continue
 
-            log.info(f"Considering region {region_name}")
-            image = self.get_image_with_tags(client, source_ami=args.ami)
-            if not image:
-                log.info(f"Copying ami {args.ami} from {args.source_region} "
-                         f"to {region_name}")
-                ami = self.copy_image(source_client, client, args.ami)
-                pending_copy.append((client, ami.image_id))
-            elif self.has_incorrect_perms(
-                    image, args.allow_accounts, args.public):
-                log.info(f"Incorrect permissions for ami {args.ami} in region "
-                         f"{region_name}")
-                pending_perms.append((client, image.image_id))
+            log.info(f"Destination region {region_name}...")
+            for ami in args.amis:
+                src_log = f"* source {ami}"
+                image = get_image_with_tags(client,
+                    source_ami=ami, source_region=args.source_region)
+                if not image:
+                    log.info(f"{src_log} - copying to {region_name}")
+                    ami_copy = self.copy_image(source_client, client, ami)
+                    pending_copy.append(
+                        (client, ami_copy.image_id, source_perms[ami]))
+                elif self.has_incorrect_perms(image, source_perms[ami]):
+                    log.info(f"{src_log} - will update {image.image_id} perms")
+                    pending_perms.append(
+                        (client, image.image_id, source_perms[ami]))
+                else:
+                    log.info(f"{src_log} - verified {image.image_id}")
+            log.info('')
+
+        if pending_copy:
+            # seems to take at least 3m
+            pending_copy.append(('sleep', 180, ''))
 
         # Wait for images to copy
         while pending_copy:
-            client, id = pending_copy.pop(0) # emulate a FIFO queue
-            region_name = region_from_client(client) # For logging
-            image = self.get_image(client, id)
-            if image.state != AMIState.AVAILABLE:
-                log.info(f"Waiting for image copy for {id} to complete "
-                         f"in {region_name}")
-                pending_copy.append((client, id))
-            else:
-                pending_perms.append((client, id))
-                released[region_name] = id
+            client, id, perms = pending_copy.pop(0) # emulate a FIFO queue
+            if client == 'sleep':
+                if not pending_copy:
+                    continue
+                log.info(f"Sleeping {id}s...")
+                time.sleep(id)
+                # recheck every 30s
+                pending_copy.append(('sleep', 30, ''))
+                continue
 
-            time.sleep(30)
+            region_name = region_from_client(client) # For logging
+            image = get_image(client, id)
+            if image.state != AMIState.AVAILABLE:
+                log.info(f"- copying: {id} ({region_name})")
+                pending_copy.append((client, id, perms))
+            else:
+                done_log = f"+ completed: {id} ({region_name})"
+                if self.has_incorrect_perms(image, perms):
+                    log.info(f"{done_log} - will update perms")
+                    pending_perms.append((client, id, perms))
+                else:
+                    log.info(f"{done_log} - verified perms")
 
         # Update all permissions
-        for client, id in pending_perms:
+        for client, id, perms in pending_perms:
             region_name = region_from_client(client) # For logging
 
-            log.info(f"Updating permissions on ami {id} in "
-                     f"{region_name}")
-            image = self.get_image(client, id)
-
-            if args.public:
-                image.allowed_groups = ["all"]
-            elif args.allow_accounts:
-                image.allowed_users = args.allow_accounts
-
+            log.info(f"% updating perms: {id} ({region_name})")
+            image = get_image(client, id)
+            image.allowed_groups = perms['groups']
+            image.allowed_users = perms['users']
             self.update_image_permissions(client, image)
 
-        if args.out_file:
-            with open(args.out_file, "w") as fp:
-                json.dump(released, fp, indent=4)
+        if pending_perms:
+            log.info('')
+
+        log.info('Release Completed')
+
+
+class Releases:
+
+    RELEASE_FIELDS = [
+        'description', 'profile', 'profile_build', 'version', 'release',
+        'arch', 'revision', 'creation_date', 'end_of_life'
+    ]
+
+    def __init__(self, profile=None, use_broker=None, regions=None):
+        self.profile = profile
+        self.tags = { 'profile': profile }
+        self.use_broker = use_broker
+        self.regions = regions
+        self.clients = {}
+        self.reset_images()
+        self.reset_releases()
+
+    def reset_images(self):
+        self.images = defaultdict(list)
+
+    def reset_releases(self):
+        self.releases = dictfactory()
+
+    # TODO: separate Clients class?
+    def iter_clients(self):
+        if not self.clients:
+            for client in iter_regions(self.use_broker, self.regions):
+                region = region_from_client(client)
+                self.clients[region] = client
+                yield (region, client)
         else:
-            json.dump(released, sys.stdout, indent=4)
+            for region, client in self.clients.items():
+                yield (region, client)
 
-class UpdateReleases:
-    """Update releases YAML with info about currently existing profile AMIs
+    # when we're just interested in the profile's images
+    def load_profile_images(self, log=None):
+        for region, client in self.iter_clients():
+            if log: log.info(f"Loading '{self.profile}' profile images from {region}...")
+            self.images[region] = get_images_with_tags(client, **self.tags)
+
+    # not belonging to any profile
+    def load_unknown_images(self, log=None):
+        for region, client in self.iter_clients():
+            if log: log.info(f"Loading unknown images from {region}...")
+            for image in get_all_images(client):
+                if 'profile' not in image.tags:
+                    self.images[region].append(image)
+
+    # build profile releases object based on loaded self.images
+    def build_releases(self, log=None):
+        for region, amis in self.images.items():
+            if log: log.info(f"{region}")
+            for ami in amis:
+                if ami.profile != self.profile:
+                    continue
+
+                if log: log.info(f" * {ami.image_id} {ami.name}")
+                release = ami.release
+                build = ami.profile_build
+                name = ami.name
+                id = ami.image_id
+                build_time = int(dateutil.parser.parse(ami.creation_date).strftime('%s'))
+                release_obj = self.releases[release][build][name]
+
+                for field in self.RELEASE_FIELDS:
+                    if field not in release_obj:
+                        release_obj[field] = getattr(ami, field)
+
+                # ensure earliest build_time is used
+                if ('build_time' not in release_obj or
+                        build_time < release_obj['build_time']):
+                    release_obj['build_time'] = build_time
+                    release_obj['creation_date'] = ami.creation_date
+
+                release_obj['artifacts'][region] = id
+
+
+class ReleasesYAML:
+    """Update releases/<profile>.yaml with profile's currently existing AMIs
     """
-
-    command_name = "update-releases"
+    command_name = "release-yaml"
 
     @staticmethod
     def add_args(parser):
-        parser.add_argument("--use-broker", action="store_true",
-            help="use identity broker to obtain per-region credentials")
-        parser.add_argument("--region", "-r", action="append",
-            help="regions for check, may be specified multiple times")
-        parser.add_argument("profile", help="name of profile to refresh")
+        rgroup = parser.add_mutually_exclusive_group(required=True)
+        rgroup.add_argument("--use-broker", action="store_true",
+            help="identity broker provides destination regions and credentials")
+        rgroup.add_argument("--region", "-r", action="append", dest="regions",
+            metavar="REGION", help="destination region (multiple OK)")
+        parser.add_argument("profile", metavar="PROFILE", help="profile name")
+
+    def run(self, args, root, log):
+        release_dir = os.path.join(root, 'releases')
+        if not os.path.exists(release_dir):
+            os.makedirs(release_dir)
+        release_yaml = os.path.join(release_dir, f"{args.profile}.yaml")
+
+        r = Releases(
+            profile = args.profile,
+            use_broker = args.use_broker,
+            regions = args.regions)
+        r.load_profile_images(log)
+        r.build_releases()
+
+        log.info(f"Writing new {release_yaml}")
+        with open(release_yaml, 'w') as data:
+            yaml.dump(undictfactory(r.releases), data, sort_keys=False)
+
+
+class ReleasesReadme:
+    """Build releases/README_<profile>.md from releases/<profile>.yaml
+    """
+    command_name = "release-readme"
+
+    SECTION_TPL = textwrap.dedent("""
+    ### Alpine Linux {release} ({date})
+    <details><summary><i>click to show/hide</i></summary><p>
+
+    {rows}
+
+    </p></details>
+    """)
+
+    AMI_TPL = (
+        " [{id}](https://{r}.console.aws.amazon.com/ec2/home"
+        "#Images:visibility=public-images;imageId={id}) "
+        "([launch](https://{r}.console.aws.amazon.com/ec2/home"
+        "#launchAmi={id})) |"
+    )
 
     @staticmethod
-    def check_args(args):
-        if not args.use_broker and not args.region:
-            return ['Use broker or region must be specified']
+    def add_args(parser):
+        parser.add_argument("profile", metavar="PROFILE", help="profile name")
 
-        if args.use_broker and args.region:
-            return ['Broker and region flags are mutually exclusive']
+    @staticmethod
+    def extract_ver(x):
+        return StrictVersion("0.0" if x["release"] == "edge" else x["release"])
+
+    def resolve_sections(self, release_data, log):
+        sects = dictfactory()
+        for release, builds in sorted(release_data.items(), reverse=True):
+            version = '.'.join(release.split('.')[0:2])
+            if version in sects:
+                continue
+            for build, revisions in builds.items():
+                ver = sects[version]
+                ver['release'] = release
+                name, info = sorted(
+                    revisions.items(),
+                    key=lambda x: x[1]['build_time'],
+                    reverse=True)[0]
+                if name in ver['builds']:
+                    log.warning(
+                        f"Duplicate AMI '{name}' in builds "
+                        f"'{info['profile_build']} and "
+                        f"'{ver['builds'][name]['build']}")
+                ver['builds'][name] = {
+                    'build': info['profile_build'],
+                    'built': int(info['build_time']),
+                    'amis': info['artifacts']
+                }
+        self.sections = sorted(
+            undictfactory(sects).values(),
+            key=self.extract_ver,
+            reverse=True)
+
+    def get_ami_markdown(self):
+        ami_list = "## AMIs\n"
+
+        for section in self.sections:
+            built = 0
+            regions = []
+            rows = ["| Region |", "| ------ |"]
+
+            for name, info in sorted(section['builds'].items()):
+                rows[0] += f" {name} |"
+                rows[1] += " --- |"
+                regions = set(regions) | set(info['amis'].keys())
+                built = max(built, info['built'])
+
+            for region in sorted(regions):
+                row = f"| {region} |"
+                for name, info in sorted(section['builds'].items()):
+                    amis = info['amis']
+                    if region in amis:
+                        row += self.AMI_TPL.format(r=region, id=amis[region])
+                    else:
+                        row += ' |'
+                rows.append(row)
+
+            ami_list += self.SECTION_TPL.format(
+                release=section['release'].capitalize(),
+                date=datetime.utcfromtimestamp(built).date(),
+                rows="\n".join(rows))
+
+        return ami_list
 
     def run(self, args, root, log):
         profile = args.profile
-        tags = { 'profile': args.profile }
-
         release_dir = os.path.join(root, "releases")
-        if not os.path.exists(release_dir):
-            os.makedirs(release_dir)
-        release_yaml = os.path.join(release_dir, f"{profile}.yaml")
+        profile_file = os.path.join(release_dir, f"{profile}.yaml")
+        with open(profile_file, "r") as data:
+            self.resolve_sections(yaml.safe_load(data), log)
 
-        # TODO: break this off into its own piece for reuse for pruning too
-        releases = {}
-        for client in ReleaseAMIs().iter_regions(args.use_broker, args.region):
-            region_name = region_from_client(client) # For logging
-            log.info(f"Getting {profile} AMIs from {region_name}...")
-            amis = ReleaseAMIs().get_images_with_tags(client, **tags)
+        ami_markdown = self.get_ami_markdown()
 
-            for ami in amis:
-                build   = ami.profile_build
-                release = ami.release
-                name    = ami.name
-                ami_id  = ami.image_id
+        readme = ""
+        readme_md = os.path.join(release_dir, f"README_{profile}.md")
+        action = "Updated"
+        if os.path.exists(readme_md):
+            with open(readme_md, "r") as file:
+                readme = file.read()
+        else:
+            action = "Created"
 
-                log.info(f" * {ami_id} {name}")
+        re_images = re.compile(r"## AMIs.*\Z", flags=re.DOTALL)
+        if re_images.search(readme):
+            readme = re_images.sub(ami_markdown, readme)
+        else:
+            log.warning("appending")
+            readme += "\n" + ami_markdown
 
-                if build not in releases:
-                    releases[build] = {}
+        with open(readme_md, "w") as file:
+            file.write(readme)
 
-                if release not in releases[build]:
-                    releases[build][release] = {}
-
-                if name not in releases[build][release]:
-                    releases[build][release][name] = {
-                        'description':      ami.description,
-                        'profile':          profile,
-                        'profile_build':    build,
-                        'version':          ami.version,
-                        'release':          ami.release,
-                        'arch':             ami.arch,
-                        'revision':         ami.revision,
-                        'end_of_life':      ami.end_of_life,
-                        'build_time':       dateutil.parser.parse(ami.creation_date).strftime('%s'),
-                        # TODO?  source_ami, source_region
-                        'artifacts':        {}
-                    }
-
-                releases[build][release][name]['artifacts'][region_name] = ami_id
-
-        log.info(f"Writing new {release_yaml}")
-        with open(release_yaml, "w") as data:
-            yaml.dump(releases, data, sort_keys=False)
+        log.info(f"{action} {readme_md}")
 
 
-class ConvertPackerJSON:
-    """Convert packer.conf to packer.json
+class PruneAMIs:
+    """Prune Released AMIs
     """
-
-    command_name = "convert-packer-config"
+    command_name = "prune"
 
     @staticmethod
     def add_args(parser):
-        pass
+        LEVEL_HELP = textwrap.dedent("""\
+        'revision'    - prune old AMI revisions (x.y.z-r#);
+        'release'     - prune old AMI releases (x.y.#);
+        'end-of-life' - prune end-of-life AMI versions (#.#);
+        'UNKNOWN'     - prune unknown AMIs (no profile tag)
+        """)
 
-    def run(self, args, root, log):
-        source = os.path.join(root, "packer.conf")
-        dest = os.path.join(root, "build", "packer.json")
-
-        pyhocon.converter.HOCONConverter.convert_from_file(
-            source, dest, "json", 2, False)
-
-
-class FullBuild:
-    """Make all of the AMIs for a profile
-    """
-
-    command_name = "amis"
-
-    @staticmethod
-    def add_args(parser):
-        parser.add_argument("--region", "-r", default="us-west-2",
-            help="region to use for build")
-        parser.add_argument("--use-broker", action="store_true",
+        parser.add_argument("level", metavar='LEVEL',
+            choices=["revision", "release", "end-of-life", "UNKNOWN"],
+            help=LEVEL_HELP)
+        rgroup = parser.add_mutually_exclusive_group(required=True)
+        rgroup.add_argument("--use-broker", action="store_true",
             help="use identity broker to obtain per-region credentials")
-        parser.add_argument("profile", help="name of profile to build")
-        parser.add_argument("builds", nargs="*",
-            help="name of builds within a profile to build")
+        rgroup.add_argument("--region", "-r", metavar='REGION', dest='regions',
+            action="append", help="regions to prune, may be specified multiple times")
+        parser.add_argument("profile", metavar='PROFILE',
+            help="profile to prune")
+        parser.add_argument("builds", metavar='BUILD',
+            nargs="*", help="build(s) within profile to prune")
+        agroup = parser.add_mutually_exclusive_group()
+        agroup.add_argument(
+            '--keep', metavar='NUM', type=int, default=0,
+            help='keep NUM most-recent additional otherwise-pruneable per LEVEL')
+        agroup.add_argument('--defer-eol', metavar='DAYS', type=int, default=0,
+            help='defer end-of-life pruning for additional days')
+        parser.add_argument(
+            '--no-pretend', action='store_true', help='actually prune images')
+
+    @staticmethod
+    def check_args(args):
+        if args.level != 'end-of-life' and args.defer_eol != 0:
+            return ["--defer-eol may only be used with 'end-of-life' pruning."]
+        if args.keep < 0:
+            return ["Only non-negative integers are valid for --keep."]
+
+    def __init__(self):
+        self.pruneable = dictfactory()
+
+    def find_pruneable(self, r, args, log):
+        level = args.level
+        builds = args.builds
+        keep = args.keep
+        defer_eol = args.defer_eol
+
+        now = datetime.utcnow() - timedelta(days=args.defer_eol)
+
+        # build releases from profile images
+        r.load_profile_images(log)
+        r.build_releases()
+
+        # scan for pruning criteria
+        criteria = dictfactory()
+        for release, rdata in r.releases.items():
+            for build, bdata in rdata.items():
+                if builds and build not in builds:
+                    continue
+                for ami_name, info in bdata.items():
+                    version = info['version']
+                    built = info['build_time']
+                    eol = datetime.fromisoformat(info['end_of_life'])
+                    # default: level == 'release'
+                    basis = version
+                    if level == 'revision':
+                        basis = release
+                    elif level == 'end-of-life':
+                        # not enough in common with revision/release
+                        if build not in criteria[version]:
+                            criteria[version][build] = [now]
+                        if eol < now and eol not in criteria[version][build]:
+                            criteria[version][build].append(eol)
+                            criteria[version][build].sort(reverse=True)
+                        continue
+                    # revsion/release have enough commonality
+                    if build not in criteria[basis]:
+                        criteria[basis][build] = [built]
+                    elif built not in criteria[basis][build]:
+                        criteria[basis][build].append(built)
+                        criteria[basis][build].sort(reverse=True)
+
+        # scan again to determine what doesn't make the cut
+        for release, rdata in r.releases.items():
+            for build, bdata in rdata.items():
+                if builds and build not in builds:
+                    continue
+                for ami_name, info in bdata.items():
+                    version = info['version']
+                    built = info['build_time']
+                    eol = datetime.fromisoformat(info['end_of_life'])
+                    # default: level == 'release'
+                    basis = version
+                    value = built
+                    if level == 'revision':
+                        basis = release
+                    elif level == 'end-of-life':
+                        value = eol
+                    c = criteria[basis][build]
+                    if keep < len(c) and value < c[keep]:
+                        for region, ami in info['artifacts'].items():
+                            self.pruneable[region][ami] = {
+                                'name': ami_name,
+                            }
+
+        # populate AMI creation_date and snapshot_id from Release().images
+        for region, images in r.images.items():
+            for image in images:
+                if image.image_id in self.pruneable[region]:
+                    p = self.pruneable[region][image.image_id]
+                    p['name'] = image.name
+                    p['creation_date'] = dateutil.parser.parse(
+                        image.creation_date).strftime('%Y-%m-%d')
+                    p['snapshot_id'] = image.snapshot_id
+
+    def all_unknown_pruneable(self, r, log):
+        r.load_unknown_images(log)
+        for region, images in r.images.items():
+            for image in images:
+                self.pruneable[region][image.image_id] = {
+                    'name': image.name,
+                    'creation_date': dateutil.parser.parse(
+                        image.creation_date).strftime('%Y-%m-%d'),
+                    'snapshot_id': image.snapshot_id
+                }
 
     def run(self, args, root, log):
-        log.info("Converting packer.conf to JSON...")
-        ConvertPackerJSON().run(args, root, log)
+        # instantiate Releases object
+        r = Releases(
+            profile=args.profile,
+            use_broker=args.use_broker,
+            regions=args.regions)
 
-        log.info("Resolving profiles...")
-        ResolveProfiles().resolve_profiles([args.profile], root)
+        if args.level == 'UNKNOWN':
+            self.all_unknown_pruneable(r, log)
+        else:
+            self.find_pruneable(r, args, log)
 
-        log.info("Running packer...")
-        MakeAMIs().run(args, root, log)
+        for region, amis in sorted(self.pruneable.items()):
+            r_str = f"{args.level} AMIs in {region}"
+            if not amis:
+                log.info(f"No pruneable {r_str}.")
+                continue
+            if args.no_pretend:
+                log.error(f"REMOVING {r_str}:")
+            else:
+                log.warning(f"Removable {r_str}:")
+            for ami, info in sorted(amis.items(), key=lambda x: x[1]['creation_date']):
+                a_str = f" * {ami} ({info['creation_date']}) {info['name']}"
+                if args.no_pretend:
+                    log.warning(a_str)
+                    r.clients[region].deregister_image(ImageId=ami)
+                    r.clients[region].delete_snapshot(SnapshotId=info['snapshot_id'])
+                else:
+                    log.info(a_str)
 
 
 def find_repo_root():
