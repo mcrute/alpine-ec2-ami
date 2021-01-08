@@ -1,7 +1,9 @@
 # Alpine Linux EC2 AMI Builder
 
-**NOTE: This is not an official AWS or Alpine project.  This is community built
-and supported.**
+### **As of Alpine Linux 3.13, this _IS_ an official AWS or Alpine project!**
+
+> This repository will be moving to https://gitlab.alpinelinux.org in the
+not-too-distant future -- STAY TUNED!
 
 ## Pre-Built AMIs
 

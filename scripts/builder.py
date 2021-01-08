@@ -964,7 +964,8 @@ class ReleasesReadme:
 
     @staticmethod
     def extract_ver(x):
-        return StrictVersion("0.0" if x["release"] == "edge" else x["release"])
+        v = x['release'].split('_rc')[0]
+        return StrictVersion("0.0" if v == "edge" else v)
 
     def resolve_sections(self, release_data, log):
         sects = dictfactory()
