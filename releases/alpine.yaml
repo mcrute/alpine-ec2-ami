@@ -423,73 +423,73 @@ edge:
         us-east-2: ami-07012d290ef9c028e
         us-west-1: ami-0570d3bcb39152bb8
         us-west-2: ami-009f13dc01dec6a56
-3.13.0_rc2:
-  v3_13-aarch64:
-    alpine-ami-3.13.0_rc2-aarch64-r0:
-      description: Alpine Linux 3.13.0_rc2 aarch64 r0 - https://alpinelinux.org
-      profile: alpine
-      profile_build: v3_13-aarch64
-      version: '3.13'
-      release: 3.13.0_rc2
-      arch: aarch64
-      revision: r0
-      creation_date: '2021-01-05T04:43:21.000Z'
-      end_of_life: '2021-01-06T04:38:32'
-      build_time: 1609850601
-      artifacts:
-        af-south-1: ami-035486df0ec1bed01
-        eu-north-1: ami-0daa47620993ba97b
-        ap-south-1: ami-0664b8be225b7aa18
-        eu-west-3: ami-0c862e948e7c8baa0
-        eu-west-2: ami-0734e00f6d97468f1
-        eu-south-1: ami-0601e8626e028e8f6
-        eu-west-1: ami-0560c9d1e2f42db39
-        ap-northeast-2: ami-05db5c9c299add6e4
-        me-south-1: ami-0594cb300ae97f8fa
-        ap-northeast-1: ami-0bd619a863f55a568
-        sa-east-1: ami-0598510eea1c7bf62
-        ca-central-1: ami-0f89a29847b553fba
-        ap-east-1: ami-0a06946cf5b4963b6
-        ap-southeast-1: ami-0fdff18196b97f5bd
-        ap-southeast-2: ami-0653db3e257c34848
-        eu-central-1: ami-031b43d250d22266b
-        us-east-1: ami-0d14b515fee909261
-        us-east-2: ami-03f2d4895d6eb84dc
-        us-west-1: ami-0314f8d027324ba0c
-        us-west-2: ami-0d57a87668f5e69bb
+3.13.0_rc3:
   v3_13-x86_64:
-    alpine-ami-3.13.0_rc2-x86_64-r0:
-      description: Alpine Linux 3.13.0_rc2 x86_64 r0 - https://alpinelinux.org
+    alpine-ami-3.13.0_rc3-x86_64-r0:
+      description: Alpine Linux 3.13.0_rc3 x86_64 r0 - https://alpinelinux.org
       profile: alpine
       profile_build: v3_13-x86_64
       version: '3.13'
-      release: 3.13.0_rc2
+      release: 3.13.0_rc3
       arch: x86_64
       revision: r0
-      creation_date: '2021-01-05T04:40:30.000Z'
-      end_of_life: '2021-01-06T04:38:32'
-      build_time: 1609850430
+      creation_date: '2021-01-09T04:34:39.000Z'
+      end_of_life: '2021-01-10T04:31:49'
+      build_time: 1610195679
       artifacts:
-        af-south-1: ami-0bd78ad459833ecf2
-        eu-north-1: ami-09e7a66547d3a090a
-        ap-south-1: ami-0324b9cd115e8de36
-        eu-west-3: ami-0eed5855c020a1390
-        eu-west-2: ami-058ca167f783d3935
-        eu-south-1: ami-0704431e1a0cfae17
-        eu-west-1: ami-0697221cd5b68de02
-        ap-northeast-2: ami-0585230882498ff8d
-        me-south-1: ami-013e08f73f6d50f06
-        ap-northeast-1: ami-0885683802528cb64
-        sa-east-1: ami-08711a0805bd0368d
-        ca-central-1: ami-01d4940194619812b
-        ap-east-1: ami-03197b8f7049a90aa
-        ap-southeast-1: ami-08c228ad423bd2750
-        ap-southeast-2: ami-0b88c17679031f64f
-        eu-central-1: ami-0e7987a71e7c8daf1
-        us-east-1: ami-08a787679755c2594
-        us-east-2: ami-07ccb8af79ba9ff12
-        us-west-1: ami-0a79117869e9560e2
-        us-west-2: ami-00a2e397a15ef22c8
+        af-south-1: ami-02d2e9cc33cfa95be
+        eu-north-1: ami-0f69ccebcb71e639c
+        ap-south-1: ami-00ac6fb5e6e8bb4ef
+        eu-west-3: ami-08b9dca55bc471846
+        eu-west-2: ami-08d3dd328a9ba524f
+        eu-south-1: ami-090f7cf45e78616e7
+        eu-west-1: ami-05456f6107a30d847
+        ap-northeast-2: ami-0765792cee3239d7a
+        me-south-1: ami-016a108b731109f12
+        ap-northeast-1: ami-08348666084ba9ff1
+        sa-east-1: ami-0d3cbd6a783c535a1
+        ca-central-1: ami-099ee6dc78ac5932d
+        ap-east-1: ami-03b6a1699641ca1f9
+        ap-southeast-1: ami-00f97867111b2f943
+        ap-southeast-2: ami-07bba60b94897acfd
+        eu-central-1: ami-0a7c85830f4d0b31d
+        us-east-1: ami-05c365500bf108dcd
+        us-east-2: ami-0b3d752772f413485
+        us-west-1: ami-01a9f2b6ff1966372
+        us-west-2: ami-0e7b5424f614c7e7c
+  v3_13-aarch64:
+    alpine-ami-3.13.0_rc3-aarch64-r0:
+      description: Alpine Linux 3.13.0_rc3 aarch64 r0 - https://alpinelinux.org
+      profile: alpine
+      profile_build: v3_13-aarch64
+      version: '3.13'
+      release: 3.13.0_rc3
+      arch: aarch64
+      revision: r0
+      creation_date: '2021-01-09T04:37:05.000Z'
+      end_of_life: '2021-01-10T04:31:49'
+      build_time: 1610195825
+      artifacts:
+        af-south-1: ami-0b392a730778ebfc6
+        eu-north-1: ami-0e23234aad7f67a80
+        ap-south-1: ami-011554ce8f1dbe44c
+        eu-west-3: ami-0d451546cfd27920b
+        eu-west-2: ami-0fca99f95722f31ff
+        eu-south-1: ami-0d6fb0cf980514154
+        eu-west-1: ami-00a419d8a82471a42
+        ap-northeast-2: ami-042df628dbf696e15
+        me-south-1: ami-0a7a7971e85dbf1ff
+        ap-northeast-1: ami-06cfc411dff916055
+        sa-east-1: ami-03690256ce3e47526
+        ca-central-1: ami-0bd0b0c488fa8fb25
+        ap-east-1: ami-020baafacbb273ef0
+        ap-southeast-1: ami-037f1cf3ef1555568
+        ap-southeast-2: ami-02a7ed938d7885741
+        eu-central-1: ami-0dc8810a8e4a47918
+        us-east-1: ami-08cbaf001ca1a505c
+        us-east-2: ami-084271226b9506c13
+        us-west-1: ami-06ab044d2cc0fdb08
+        us-west-2: ami-07bbaab0f34f9cfe0
 3.11.7:
   v3_11-x86_64:
     alpine-ami-3.11.7-x86_64-r0:

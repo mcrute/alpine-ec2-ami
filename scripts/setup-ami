@@ -304,6 +304,9 @@ create_alpine_user() {
     # best-practice.
     sed -i '/%wheel .* NOPASSWD: .*/s/^# //' "$TARGET/etc/sudoers"
 
+    # explicitly lock the root account
+    chroot "$TARGET" /usr/bin/passwd -l root
+
     # There is no real standard ec2 username across AMIs, Amazon uses ec2-user
     # for their Amazon Linux AMIs but Ubuntu uses ubuntu, Fedora uses fedora,
     # etc... (see: https://alestic.com/2014/01/ec2-ssh-username/). So our user
