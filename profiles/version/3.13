@@ -6,9 +6,8 @@ include required("../base/current")
 
 # add edge-specific tweaks...
 version     = "3.13"
-release     = "3.13.0_rc4"
-#end_of_life = "2022-11-01"   # anticipated EOL, maybe 2023-01-01
-end_of_life = null      # defaults to tomorrow
+release     = "3.13.0"
+end_of_life = "2022-11-01"
 
 repos {
   "http://dl-cdn.alpinelinux.org/alpine/v3.13/main"      = true

@@ -70,6 +70,11 @@ def undictfactory(o):
 def region_from_client(client):
     return client._client_config.region_name
 
+# version sorting
+def sortable_version(x):
+    v = x.split('_rc')[0]
+    return StrictVersion("0.0" if v == "edge" else v)
+
 
 class EC2Architecture(Enum):
 
@@ -877,32 +882,51 @@ class Releases:
                     self.images[region].append(image)
 
     # build profile releases object based on loaded self.images
-    def build_releases(self, log=None):
+    def build_releases(self, log=None, trim=None):
+        now = datetime.utcnow()
+        versions = dictfactory()
+
         for region, amis in self.images.items():
             if log: log.info(f"{region}")
             for ami in amis:
-                if ami.profile != self.profile:
+                eol = datetime.fromisoformat(ami.end_of_life)
+                # if we're trimming, we're not interested in EOL images
+                if trim and eol < now:
                     continue
 
-                if log: log.info(f" * {ami.image_id} {ami.name}")
+                version = ami.version
                 release = ami.release
                 build = ami.profile_build
                 name = ami.name
                 id = ami.image_id
                 build_time = int(dateutil.parser.parse(ami.creation_date).strftime('%s'))
-                release_obj = self.releases[release][build][name]
+
+                if log: log.info(f" * {ami.image_id} {ami.name}")
+                version_obj = versions[version][release][build][name]
 
                 for field in self.RELEASE_FIELDS:
-                    if field not in release_obj:
-                        release_obj[field] = getattr(ami, field)
+                    if field not in version_obj:
+                        version_obj[field] = getattr(ami, field)
 
                 # ensure earliest build_time is used
-                if ('build_time' not in release_obj or
-                        build_time < release_obj['build_time']):
-                    release_obj['build_time'] = build_time
-                    release_obj['creation_date'] = ami.creation_date
+                if ('build_time' not in version_obj or
+                        build_time < version_obj['build_time']):
+                    version_obj['build_time'] = build_time
+                    version_obj['creation_date'] = ami.creation_date
 
-                release_obj['artifacts'][region] = id
+                version_obj['artifacts'][region] = id
+
+        for version, releases in versions.items():
+            for release, builds in sorted(releases.items(), reverse=True,
+                    key=lambda x: sortable_version(x[0])):
+                for build, revisions in builds.items():
+                    for revision, info in sorted(revisions.items(), reverse=True,
+                            key=lambda x: x[1]['build_time']):
+                        self.releases[release][build][revision] = info
+                        # if we are trimming, we want only the most recent revisions
+                        if trim: break
+                # if we are trimming releases, we want only the most recent release
+                if trim == 'release': break
 
 
 class ReleasesYAML:
@@ -912,11 +936,18 @@ class ReleasesYAML:
 
     @staticmethod
     def add_args(parser):
+        TRIM_HELP="""
+            revision = keep last x.y.z-r# of non-EOL releases,
+            release  = keep last x.y.# of non-EOL versions
+            """
+
         rgroup = parser.add_mutually_exclusive_group(required=True)
         rgroup.add_argument("--use-broker", action="store_true",
             help="identity broker provides destination regions and credentials")
         rgroup.add_argument("--region", "-r", action="append", dest="regions",
             metavar="REGION", help="destination region (multiple OK)")
+        parser.add_argument("--trim", "-t",
+            choices=['revision','release'], help=TRIM_HELP)
         parser.add_argument("profile", metavar="PROFILE", help="profile name")
 
     def run(self, args, root, log):
@@ -930,7 +961,7 @@ class ReleasesYAML:
             use_broker = args.use_broker,
             regions = args.regions)
         r.load_profile_images(log)
-        r.build_releases()
+        r.build_releases(trim=args.trim)
 
         log.info(f"Writing new {release_yaml}")
         with open(release_yaml, 'w') as data:
@@ -964,8 +995,7 @@ class ReleasesReadme:
 
     @staticmethod
     def extract_ver(x):
-        v = x['release'].split('_rc')[0]
-        return StrictVersion("0.0" if v == "edge" else v)
+        return sortable_version(x['release'])
 
     def resolve_sections(self, release_data, log):
         sects = dictfactory()
@@ -1064,14 +1094,14 @@ class PruneAMIs:
 
     @staticmethod
     def add_args(parser):
-        LEVEL_HELP = textwrap.dedent("""\
-        'revision'    - prune old AMI revisions (x.y.z-r#);
-        'release'     - prune old AMI releases (x.y.#);
-        'end-of-life' - prune end-of-life AMI versions (#.#);
-        'UNKNOWN'     - prune unknown AMIs (no profile tag)
-        """)
+        LEVEL_HELP = """
+            revision    = x.y.z-r#,
+            release     = x.y.#,
+            end-of-life = EOL versions (#.#),
+            UNKNOWN     = AMIs with no profile tag
+            """
 
-        parser.add_argument("level", metavar='LEVEL',
+        parser.add_argument("level",
             choices=["revision", "release", "end-of-life", "UNKNOWN"],
             help=LEVEL_HELP)
         rgroup = parser.add_mutually_exclusive_group(required=True)
