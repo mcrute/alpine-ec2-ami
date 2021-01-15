@@ -36,6 +36,8 @@ The more popular [cloud-init](https://cloudinit.readthedocs.io/en/latest/) is
 currently not supported on Alpine Linux.  If `cloud-init` support is important
 to you, please open an [issue](https://github.com/mcrute/alpine-ec2-ami/issues).
 
+***These AMIs are also available by visiting https://alpinelinux.org/cloud***
+
 ## AMIs
 
 ### Alpine Linux 3.13.0 (2021-01-15)
