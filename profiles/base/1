@@ -8,7 +8,7 @@ revision      = "r0"
 
 # Versioning
 version     = null
-release     = null
+release     = null    # defaults to autodetect
 end_of_life = null
 
 # Architecture

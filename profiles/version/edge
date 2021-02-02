@@ -6,7 +6,6 @@ include required("../base/current")
 
 # add edge-specific tweaks...
 version     = "edge"
-release     = "edge"
 end_of_life = null      # defaults to tomorrow
 revision    = null      # defaults to datetime
 

@@ -405,11 +405,37 @@ class ConfigBuilder:
         return datetime.fromisoformat(input).isoformat(timespec="seconds")
 
     @classmethod
+    def resolve_release(cls, input, cfg):
+        if input:
+            # release is explicitly defined, run with it
+            return input
+        if cfg['version'] == 'edge':
+            return 'edge'
+        # hack to determine release value from version's alpine-base APK
+        pkgs_url = f"https://dl-cdn.alpinelinux.org/alpine/v{cfg['version']}/main/{cfg['arch']}/"
+        try:
+            res = urlopen(pkgs_url)
+        except urllib.error.HTTPError as ex:
+            print(f"Unable to urlopen {pkgs_url} - {ex}", file=sys.stderr)
+            exit(1)
+
+        line = res.readline().decode('utf-8')
+        while line:
+            if line.startswith('<a href="'):
+                pkg = line.split('"')[1]
+                if pkg.startswith('alpine-base-'):
+                    # we got it, use package version as the revision value
+                    return pkg.split('-')[2]
+            line = res.readline().decode('utf-8')
+        # didn't find it?
+        raise RuntimeError(f"Unable to parse 'alpine-base' APK from {pkgs_url}")
+
+    @classmethod
     def resolve_now(cls):
         return cls.now.strftime("%Y%m%d%H%M%S")
 
     @classmethod
-    def resolve_revision(cls, input):
+    def resolve_revision(cls, input, cfg):
         if input is None or input == "":
             return cls.resolve_now()
         return input
@@ -419,33 +445,33 @@ class ConfigBuilder:
         return cls.tomorrow.isoformat(timespec="seconds")
 
     @classmethod
-    def resolve_end_of_life(cls, input):
+    def resolve_end_of_life(cls, input, cfg):
         if input is None or input == "":
             return cls.resolve_tomorrow()
         return input
 
     @classmethod
-    def fold_comma(cls, input):
+    def fold_comma(cls, input, cfg):
         return ",".join([cls.unquote(k) for k in input.keys()])
 
     @classmethod
-    def fold_space(cls, input):
+    def fold_space(cls, input, cfg):
         return " ".join([cls.unquote(k) for k in input.keys()])
 
     @classmethod
-    def fold_repos(cls, input):
+    def fold_repos(cls, input, cfg):
         return "\n".join(
             f"@{v} {cls.unquote(k)}" if isinstance(v, str) else cls.unquote(k)
             for k, v in input.items())
 
     @staticmethod
-    def fold_packages(input):
+    def fold_packages(input, cfg):
         return " ".join(
             f"{k}@{v}" if isinstance(v, str) else k
             for k, v in input.items())
 
     @staticmethod
-    def fold_services(input):
+    def fold_services(input, cfg):
         return " ".join(
             "{}={}".format(k, ",".join(v.keys()))
             for k, v in input.items())
@@ -461,9 +487,10 @@ class ConfigBuilder:
             "repos"           : self.fold_repos,
             "pkgs"            : self.fold_packages,
             "svcs"            : self.fold_services,
+            "release"         : self.resolve_release,
             "revision"        : self.resolve_revision,
-            "end_of_life"     : lambda x: \
-                self.force_iso_date(self.resolve_end_of_life(x)),
+            "end_of_life"     : lambda x, y: \
+                self.force_iso_date(self.resolve_end_of_life(x, y)),
         }
 
     def build_all(self):
@@ -509,7 +536,7 @@ class ConfigBuilder:
             for k, v in cfg.items():
                 transform = self._keys_to_transform.get(k)
                 if transform:
-                    cfg[k] = transform(v)
+                    cfg[k] = transform(v, cfg)
 
                 if isinstance(v, str) and "{var." in v:
                     cfg[k] = v.format(var=cfg)
