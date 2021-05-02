@@ -1,0 +1,25 @@
+# vim: ts=2 et:
+
+# Select packages and services for an image bootstrapped by tiny-ect-bootstrap.
+# Either this or cloud_init should be included within the BUILDS section for
+# each image.
+tiny_bootstrap {
+  pkgs {
+    tiny-ec2-bootstrap = true
+  }
+
+  svcs {
+    default {
+      tiny-ec2-bootstrap = true
+    }
+  }
+}
+
+# Selects packages for an image bootstrapped by cloud-init. There is some
+# additional setup that needs to happen here but the presence of this package
+# will cause setup-ami to do the correct final setup.
+cloud_init_bootstrap {
+  pkgs {
+    cloud-init = true
+  }
+}

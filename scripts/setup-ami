@@ -304,7 +304,8 @@ create_alpine_user() {
     # best-practice.
     sed -i '/%wheel .* NOPASSWD: .*/s/^# //' "$TARGET/etc/sudoers"
 
-    # explicitly lock the root account
+    # Explicitly lock the root account.
+    chroot "$TARGET" /bin/sh -c "/bin/echo 'root:*' | /usr/sbin/chpasswd -e"
     chroot "$TARGET" /usr/bin/passwd -l root
 
     # There is no real standard ec2 username across AMIs, Amazon uses ec2-user
@@ -315,7 +316,7 @@ create_alpine_user() {
     chroot "$TARGET" /usr/sbin/addgroup "$user"
     chroot "$TARGET" /usr/sbin/adduser -h "/home/$user" -s /bin/sh -G "$user" -D "$user"
     chroot "$TARGET" /usr/sbin/addgroup "$user" wheel
-    chroot "$TARGET" /usr/bin/passwd -u "$user"
+    chroot "$TARGET" /bin/sh -c "echo '$user:*' | /usr/sbin/chpasswd -e"
 
     # Let tiny-ec2-bootstrap know what the EC2 user of the AMI is
     echo "EC2_USER=$user" > "$TARGET/etc/conf.d/tiny-ec2-bootstrap"
@@ -330,6 +331,23 @@ configure_ntp() {
     sed -e 's/^pool /server /' \
         -e 's/pool.ntp.org/169.254.169.123/g' \
         -i "$TARGET/etc/chrony/chrony.conf"
+}
+
+configure_cloud_init() {
+    # Only run if cloud-init config is present
+    if [ -x "$TARGET"/sbin/setup-cloud-init ]; then
+        einfo "Configuring cloud-init"
+
+        # This adds the init scripts at the correct boot phases
+        chroot "$TARGET" /sbin/setup-cloud-init
+
+        # cloud-init locks our user by default which means alpine can't login from
+        # SSH. This seems like a bug in cloud-init that should be fixed but we can
+        # hack around it for now here.
+        if [ -f "$TARGET"/etc/cloud/cloud.cfg ]; then
+            sed -i '/lock_passwd:/s/True/False/' "$TARGET"/etc/cloud/cloud.cfg
+        fi
+    fi
 }
 
 setup_script() {
@@ -403,6 +421,7 @@ main() {
     enable_services
     create_alpine_user
     configure_ntp
+    configure_cloud_init
 
     setup_script
 

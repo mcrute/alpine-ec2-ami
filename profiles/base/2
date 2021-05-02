@@ -50,7 +50,6 @@ pkgs {
   nvme-cli            = true
   openssh             = true
   sudo                = true
-  tiny-ec2-bootstrap  = true
   tzdata              = true
 }
 svcs {
@@ -75,7 +74,6 @@ svcs {
     eth-eni-setup       = true
     networking          = true
     sshd                = true
-    tiny-ec2-bootstrap  = true
   }
   shutdown {
     killprocs           = true
